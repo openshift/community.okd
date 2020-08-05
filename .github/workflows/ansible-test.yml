@@ -59,53 +59,53 @@ jobs:
 #
 # https://docs.ansible.com/ansible/latest/dev_guide/testing_integration.html
 
-  integration:
-    runs-on: ubuntu-latest
-    name: Integration (Ⓐ${{ matrix.ansible }}+py${{ matrix.python }}})
-    strategy:
-      fail-fast: false
-      matrix:
-        ansible:
-          - stable-2.9
-          - stable-2.10
-          - devel
-        python:
-          - 2.7
-          - 3.7
-          - 3.8
-        exclude:
-          - python: 3.8  # blocked by ansible/ansible#70155
+  # integration:
+  #   runs-on: ubuntu-latest
+  #   name: Integration (Ⓐ${{ matrix.ansible }}+py${{ matrix.python }}})
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       ansible:
+  #         - stable-2.9
+  #         - stable-2.10
+  #         - devel
+  #       python:
+  #         - 2.7
+  #         - 3.7
+  #         - 3.8
+  #       exclude:
+  #         - python: 3.8  # blocked by ansible/ansible#70155
 
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v2
-        with:
-          path: ansible_collections/community/okd
+  #   steps:
+  #     - name: Check out code
+  #       uses: actions/checkout@v2
+  #       with:
+  #         path: ansible_collections/community/okd
 
-      - name: Set up Python ${{ matrix.ansible }}
-        uses: actions/setup-python@v2
-        with:
-          python-version: ${{ matrix.python }}
+  #     - name: Set up Python ${{ matrix.ansible }}
+  #       uses: actions/setup-python@v2
+  #       with:
+  #         python-version: ${{ matrix.python }}
 
-      - name: Install ansible-base (${{ matrix.ansible }})
-        run: pip install https://github.com/ansible/ansible/archive/${{ matrix.ansible }}.tar.gz --disable-pip-version-check
+  #     - name: Install ansible-base (${{ matrix.ansible }})
+  #       run: pip install https://github.com/ansible/ansible/archive/${{ matrix.ansible }}.tar.gz --disable-pip-version-check
 
-      # OPTIONAL If your integration test requires Python libraries or modules from other collections
-      # Install them like this
-      - name: Install collection dependencies
-        run: ansible-galaxy collection install community.kubernetes -p .
+  #     # OPTIONAL If your integration test requires Python libraries or modules from other collections
+  #     # Install them like this
+  #     - name: Install collection dependencies
+  #       run: ansible-galaxy collection install community.kubernetes -p .
 
-      # Run the integration tests
-      - name: Run integration test
-        run: ansible-test integration -v --color --retry-on-error --continue-on-error --diff --python ${{ matrix.python }} --docker --coverage
-        working-directory: ./ansible_collections/community/okd
+  #     # Run the integration tests
+  #     - name: Run integration test
+  #       run: ansible-test integration -v --color --retry-on-error --continue-on-error --diff --python ${{ matrix.python }} --docker --coverage
+  #       working-directory: ./ansible_collections/community/okd
 
-      # ansible-test support producing code coverage date
-      - name: Generate coverage report
-        run: ansible-test coverage xml -v --requirements --group-by command --group-by version
-        working-directory: ./ansible_collections/community/okd
+  #     # ansible-test support producing code coverage date
+  #     - name: Generate coverage report
+  #       run: ansible-test coverage xml -v --requirements --group-by command --group-by version
+  #       working-directory: ./ansible_collections/community/okd
 
-      # See the reports at https://codecov.io/gh/ansible_collections/GITHUBORG/REPONAME
-      - uses: codecov/codecov-action@v1
-        with:
-          fail_ci_if_error: false
+  #     # See the reports at https://codecov.io/gh/ansible_collections/GITHUBORG/REPONAME
+  #     - uses: codecov/codecov-action@v1
+  #       with:
+  #         fail_ci_if_error: false
