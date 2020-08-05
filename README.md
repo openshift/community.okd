@@ -1,61 +1,96 @@
-# collection_template
-You can build a new repository for an Ansible Collection using this template by following [Creating a repository from a template](https://help.github.com/en/github/creating-cloning-and-archiving-repositories/creating-a-repository-from-a-template). This README.md contains recommended headings for your collection README.md, with comments describing what each section should contain. Once you have created your collection repository, delete this paragraph and the title above it from your README.md.
+# OKD/OpenShift Collection for Ansible
 
-# Foo Collection
-<!-- Add CI and code coverage badges here. Samples included below. -->
-[![CI](https://github.com/ansible-collections/REPONAMEHERE/workflows/CI/badge.svg?event=push)](https://github.com/ansible-collections/REPONAMEHERE/actions) [![Codecov](https://img.shields.io/codecov/c/github/ansible-collections/REPONAMEHERE)](https://codecov.io/gh/ansible-collections/REPONAMEHERE)
+[![CI](https://github.com/ansible-collections/community.okd/workflows/CI/badge.svg?event=push)](https://github.com/ansible-collections/community.okd/actions) [![Codecov](https://img.shields.io/codecov/c/github/ansible-collections/community.okd)](https://codecov.io/gh/ansible-collections/community.okd)
 
-<!-- Describe the collection and why a user would want to use it. What does the collection do? -->
+This repo hosts the `community.okd` Ansible Collection.
 
-## Tested with Ansible
-
-<!-- List the versions of Ansible the collection has been tested with. Must match what is in galaxy.yml. -->
-
-## External requirements
-
-<!-- List any external resources the collection depends on, for example minimum versions of an OS, libraries, or utilities. Do not list other Ansible collections here. -->
-
-### Supported connections
-<!-- Optional. If your collection supports only specific connection types (such as HTTPAPI, netconf, or others), list them here. -->
+The collection includes a variety of Ansible content to help automate the management of applications in OKD/OpenShift clusters, as well as the provisioning and maintenance of clusters themselves.
 
 ## Included content
 
-<!-- Galaxy will eventually list the module docs within the UI, but until that is ready, you may need to either describe your plugins etc here, or point to an external docsite to cover that information. -->
+Click on the name of a plugin or module to view that content's documentation:
 
-## Using this collection
+  - **Inventory Source**:
+    - [openshift](https://docs.ansible.com/ansible/2.10/collections/community/kubernetes/openshift_inventory.html)
 
-<!--Include some quick examples that cover the most common use cases for your collection content. -->
+## Installation and Usage
 
-See [Ansible Using collections](https://docs.ansible.com/ansible/latest/user_guide/collections_using.html) for more details.
+### Installing the Collection from Ansible Galaxy
 
-## Contributing to this collection
+Before using the OKD collection, you need to install it with the Ansible Galaxy CLI:
 
-<!--Describe how the community can contribute to your collection. At a minimum, include how and where users can create issues to report problems or request features for this collection.  List contribution requirements, including preferred workflows and necessary testing, so you can benefit from community PRs. If you are following general Ansible contributor guidelines, you can link to - [Ansible Community Guide](https://docs.ansible.com/ansible/latest/community/index.html). -->
+    ansible-galaxy collection install community.okd
 
+You can also include it in a `requirements.yml` file and install it via `ansible-galaxy collection install -r requirements.yml`, using the format:
 
-## Release notes
+```yaml
+---
+collections:
+  - name: community.okd
+    version: 0.1.0
+```
 
-See the [changelog](https://github.com/ansible-collections/REPONAMEHERE/tree/main/CHANGELOG.rst).
+### Installing the OpenShift Python Library
 
-## Roadmap
+Content in this collection requires the [OpenShift Python client](https://pypi.org/project/openshift/) to interact with Kubernetes' APIs. You can install it with:
 
-<!-- Optional. Include the roadmap for this collection, and the proposed release/versioning strategy so users can anticipate the upgrade/update cycle. -->
+    pip3 install openshift
 
-## More information
+### Using modules from the OKD Collection in your playbooks
 
-<!-- List out where the user can find additional information, such as working group meeting times, slack/IRC channels, or documentation for the product this collection automates. At a minimum, link to: -->
+It's preferable to use content in this collection using their Fully Qualified Collection Namespace (FQCN), for example `community.okd.openshift`:
 
-- [Ansible Collection overview](https://github.com/ansible-collections/overview)
-- [Ansible User guide](https://docs.ansible.com/ansible/latest/user_guide/index.html)
-- [Ansible Developer guide](https://docs.ansible.com/ansible/latest/dev_guide/index.html)
-- [Ansible Community code of conduct](https://docs.ansible.com/ansible/latest/community/code_of_conduct.html)
-- [The Bullhorn (the Ansible Contributor newsletter)](https://us19.campaign-archive.com/home/?u=56d874e027110e35dea0e03c1&id=d6635f5420)
-- [Changes impacting Contributors](https://github.com/ansible-collections/overview/issues/45)
+```yaml
+---
+plugin: community.okd.openshift
+connections:
+  - namespaces:
+    - testing
+```
 
-## Licensing
+For documentation on how to use individual plugins included in this collection, please see the links in the 'Included content' section earlier in this README.
 
-<!-- Include the appropriate license information here and a pointer to the full licensing details. If the collection contains modules migrated from the ansible/ansible repo, you must use the same license that existed in the ansible/ansible repo. See the GNU license example below. -->
+## Testing and Development
 
-GNU General Public License v3.0 or later.
+If you want to develop new content for this collection or improve what's already here, the easiest way to work on the collection is to clone it into one of the configured [`COLLECTIONS_PATHS`](https://docs.ansible.com/ansible/latest/reference_appendices/config.html#collections-paths), and work on it there.
 
-See [LICENSE](https://www.gnu.org/licenses/gpl-3.0.txt) to see the full text.
+### Testing with `ansible-test`
+
+The `tests` directory contains configuration for running sanity and integration tests using [`ansible-test`](https://docs.ansible.com/ansible/latest/dev_guide/testing_integration.html).
+
+You can run the collection's test suites with the commands:
+
+    ansible-test sanity --docker -v --color
+    ansible-test integration --docker -v --color
+
+## Publishing New Versions
+
+The current process for publishing new versions of the OKD Collection is manual, and requires a user who has access to the `community.okd` namespace on Ansible Galaxy to publish the build artifact.
+
+  1. Ensure you're running Ansible from devel, so the [`build_ignore` key](https://github.com/ansible/ansible/issues/67130) in `galaxy.yml` is used.
+  1. Run `git clean -x -d -f` in this repository's directory to clean out any extra files which should not be included.
+  1. Update `galaxy.yml` and this README's `requirements.yml` example with the new `version` for the collection.
+  1. Update the CHANGELOG:
+    1. Make sure you have [`antsibull-changelog`](https://pypi.org/project/antsibull-changelog/) installed.
+    1. Make sure there are fragments for all known changes in `changelogs/fragments`.
+    1. Run `antsibull-changelog release`.
+  1. Commit the changes and create a PR with the changes. Wait for tests to pass, then merge it once they have.
+  1. Tag the version in Git and push to GitHub.
+  1. Run the following commands to build and release the new version on Galaxy:
+
+     ```
+     ansible-galaxy collection build
+     ansible-galaxy collection publish ./community-okd-$VERSION_HERE.tar.gz
+     ```
+
+After the version is published, verify it exists on the [OKD Collection Galaxy page](https://galaxy.ansible.com/community/okd).
+
+## More Information
+
+For more information about Ansible's Kubernetes and OpenShift integrations, join the `#ansible-kubernetes` channel on Freenode IRC, and browse the resources in the [Kubernetes Working Group](https://github.com/ansible/community/wiki/Kubernetes) Community wiki page.
+
+## License
+
+GNU General Public License v3.0 or later
+
+See LICENCE to see the full text.
