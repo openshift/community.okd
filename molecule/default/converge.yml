@@ -1,7 +1,6 @@
 ---
 - name: Converge
-  hosts: all
-  tasks:
-    - name: "Include community.okd"
-      include_role:
-        name: "community.okd"
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  tasks: []

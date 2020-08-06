@@ -11,27 +11,6 @@
 - pip:
     name: virtualenv
 
-# Test graceful failure for older versions of openshift
-
-- pip:
-    name:
-      - openshift==0.6.0
-      - kubernetes==6.0.0
-      - coverage
-    virtualenv: "{{ virtualenv }}"
-    virtualenv_command: "{{ virtualenv_command }}"
-    virtualenv_site_packages: no
-
-- include_tasks: older_openshift_fail.yml
-  vars:
-    ansible_python_interpreter: "{{ virtualenv_interpreter }}"
-    playbook_namespace: ansible-test-k8s-older-openshift
-
-- file:
-    path: "{{ virtualenv }}"
-    state: absent
-  no_log: yes
-
 # Test openshift
 
 - debug:
@@ -46,5 +25,5 @@
     virtualenv_command: "{{ virtualenv_command }}"
     virtualenv_site_packages: no
 
-- include: openshift.yml
+- include_tasks: openshift.yml
   when: k8s_openshift | bool

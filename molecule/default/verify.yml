@@ -1,9 +1,8 @@
 ---
-# This is an example playbook to execute Ansible tests.
-
 - name: Verify
-  hosts: all
+  hosts: localhost
+  connection: local
+  gather_facts: no
   tasks:
-  - name: Example assertion
-    assert:
-      that: true
+    - import_role: 
+        name: okd
