@@ -1,0 +1,26 @@
+---
+dependency:
+  name: galaxy
+driver:
+  name: delegated
+platforms:
+  - name: cluster
+    groups:
+      - k8s
+provisioner:
+  name: ansible
+  lint: |
+    set -e
+    ansible-lint
+  inventory:
+    group_vars:
+      all:
+        namespace: ${TEST_NAMESPACE:-default}
+    host_vars:
+      localhost:
+        ansible_python_interpreter: '{{ ansible_playbook_python }}'
+verifier:
+  name: ansible
+  lint: |
+    set -e
+    ansible-lint
