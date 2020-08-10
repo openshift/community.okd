@@ -6,13 +6,25 @@
 
 from __future__ import absolute_import, division, print_function
 
+import traceback
+
+from ansible.module_utils._text import to_native
+
+try:
+    from ansible_collections.community.kubernetes.plugins.module_utils.raw import KubernetesRawModule
+    HAS_KUBERNETES_COLLECTION = True
+except ImportError as e:
+    HAS_KUBERNETES_COLLECTION = False
+    k8s_collection_import_exception = e
+    K8S_COLLECTION_ERROR = traceback.format_exc()
+    from ansible.module_utils.basic import AnsibleModule as KubernetesRawModule
+
 try:
     from openshift.dynamic.exceptions import DynamicApiError, NotFoundError, ForbiddenError
 except ImportError:
     # Exceptions handled in common
     pass
 
-from ansible_collections.community.kubernetes.plugins.module_utils.raw import KubernetesRawModule
 
 __metaclass__ = type
 
@@ -272,6 +284,16 @@ result:
 
 
 class OKDRawModule(KubernetesRawModule):
+
+    def __init__(self):
+        if not HAS_KUBERNETES_COLLECTION:
+            self.fail_json(
+                msg="The community.kubernetes collection must be installed",
+                exception=K8S_COLLECTION_ERROR,
+                error=to_native(k8s_collection_import_exception)
+            )
+        super(OKDRawModule, self).__init__()
+
 
     def perform_action(self, resource, definition):
         state = self.params.get('state', None)

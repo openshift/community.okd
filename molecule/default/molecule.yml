@@ -19,6 +19,9 @@ provisioner:
         virtualenv_command: '{{ ansible_playbook_python }} -m virtualenv'
         virtualenv_interpreter: '{{ virtualenv }}/bin/python'
         playbook_namespace: molecule-tests
+  env:
+    ANSIBLE_FORCE_COLOR: 'true'
+    ANSIBLE_COLLECTIONS_PATHS: ${MOLECULE_PROJECT_DIRECTORY}
 verifier:
   name: ansible
   lint: |

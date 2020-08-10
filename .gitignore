@@ -3,6 +3,8 @@
 *.log
 __pycache__/
 
+# temp collection path
+ansible_collections/
 # Galaxy artifacts.
 *.tar.gz
 

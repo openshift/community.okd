@@ -23,7 +23,5 @@ tags:
   - openshift
   - okd
   - cluster
+# Also needs to be updated in the Makefile
 version: 0.1.0
-build_ignore:
-  - .DS_Store
-  - '*.tar.gz'
