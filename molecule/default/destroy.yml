@@ -2,19 +2,5 @@
 - name: Destroy
   hosts: localhost
   connection: local
-  gather_facts: false
-  no_log: "{{ molecule_no_log }}"
+  gather_facts: no
   tasks: []
-    # Developer must implement.
-
-    # Mandatory configuration for Molecule to function.
-
-    # - name: Populate instance config
-    #   set_fact:
-    #     instance_conf: {}
-
-    # - name: Dump instance config
-    #   copy:
-    #     content: "{{ instance_conf | to_json | from_json | molecule_to_yaml | molecule_header }}"
-    #     dest: "{{ molecule_instance_config }}"
-    #   when: server.changed | bool

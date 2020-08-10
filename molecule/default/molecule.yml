@@ -13,14 +13,23 @@ provisioner:
     set -e
     ansible-lint
   inventory:
-    group_vars:
-      all:
-        namespace: ${TEST_NAMESPACE:-default}
     host_vars:
       localhost:
-        ansible_python_interpreter: '{{ ansible_playbook_python }}'
+        virtualenv: ${MOLECULE_EPHEMERAL_DIRECTORY}/virtualenv
+        virtualenv_command: '{{ ansible_playbook_python }} -m virtualenv'
+        virtualenv_interpreter: '{{ virtualenv }}/bin/python'
+        playbook_namespace: molecule-tests
 verifier:
   name: ansible
   lint: |
     set -e
     ansible-lint
+scenario:
+  name: default
+  test_sequence:
+    - lint
+    - syntax
+    - prepare
+    - converge
+    - idempotence
+    - verify

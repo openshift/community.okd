@@ -1,0 +1,17 @@
+---
+- name: Prepare
+  hosts: localhost
+  connection: local
+  gather_facts: no
+
+  tasks:
+    - pip:
+        name: virtualenv
+
+    - pip:
+        name:
+          - openshift>=0.9.2
+          - coverage
+        virtualenv: "{{ virtualenv }}"
+        virtualenv_command: "{{ virtualenv_command }}"
+        virtualenv_site_packages: no

@@ -6,7 +6,7 @@
 #       - kubernetes
 #       - kubernetes-validate
 
-- community.kubernetes.k8s:
+- community.okd.k8s:
     definition:
       apiVersion: v1
       kind: ConfigMap
