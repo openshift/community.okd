@@ -11,5 +11,8 @@ build: clean
 install: build
 	ansible-galaxy collection install -p ansible_collections community-okd-${VERSION}.tar.gz
 
+test-sanity: install
+	cd ansible_collections/community/okd && ansible-test sanity -v --docker --color $(TEST_ARGS)
+
 ci-prow: install
 	molecule test

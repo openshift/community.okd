@@ -4,26 +4,8 @@
 # (c) 2018, Chris Houseknecht <@chouseknecht>
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
+
 from __future__ import absolute_import, division, print_function
-
-import traceback
-
-from ansible.module_utils._text import to_native
-
-try:
-    from ansible_collections.community.kubernetes.plugins.module_utils.raw import KubernetesRawModule
-    HAS_KUBERNETES_COLLECTION = True
-except ImportError as e:
-    HAS_KUBERNETES_COLLECTION = False
-    k8s_collection_import_exception = e
-    K8S_COLLECTION_ERROR = traceback.format_exc()
-    from ansible.module_utils.basic import AnsibleModule as KubernetesRawModule
-
-try:
-    from openshift.dynamic.exceptions import DynamicApiError, NotFoundError, ForbiddenError
-except ImportError:
-    # Exceptions handled in common
-    pass
 
 
 __metaclass__ = type
@@ -282,6 +264,25 @@ result:
        sample: 48
 '''
 
+import traceback
+
+from ansible.module_utils._text import to_native
+
+try:
+    from ansible_collections.community.kubernetes.plugins.module_utils.raw import KubernetesRawModule
+    HAS_KUBERNETES_COLLECTION = True
+except ImportError as e:
+    HAS_KUBERNETES_COLLECTION = False
+    k8s_collection_import_exception = e
+    K8S_COLLECTION_ERROR = traceback.format_exc()
+    from ansible.module_utils.basic import AnsibleModule as KubernetesRawModule
+
+try:
+    from openshift.dynamic.exceptions import DynamicApiError, NotFoundError, ForbiddenError
+except ImportError:
+    # Exceptions handled in common
+    pass
+
 
 class OKDRawModule(KubernetesRawModule):
 
@@ -293,7 +294,6 @@ class OKDRawModule(KubernetesRawModule):
                 error=to_native(k8s_collection_import_exception)
             )
         super(OKDRawModule, self).__init__()
-
 
     def perform_action(self, resource, definition):
         state = self.params.get('state', None)
