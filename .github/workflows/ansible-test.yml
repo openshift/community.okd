@@ -47,6 +47,9 @@ jobs:
       - name: Install ansible-base (${{ matrix.ansible }})
         run: pip install https://github.com/ansible/ansible/archive/${{ matrix.ansible }}.tar.gz --disable-pip-version-check
 
+      - name: Install the community.kubernetes collection
+        run: ansible-galaxy collection install community.kubernetes
+
       # run ansible-test sanity inside of Docker.
       # The docker container has all the pinned dependencies that are required.
       # Explicity specify the version of Python we want to test
