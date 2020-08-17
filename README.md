@@ -12,6 +12,8 @@ Click on the name of a plugin or module to view that content's documentation:
 
   - **Inventory Source**:
     - [openshift](https://docs.ansible.com/ansible/2.10/collections/community/kubernetes/openshift_inventory.html)
+  - **Modules**:
+    - [k8s](https://docs.ansible.com/ansible/latest/modules/k8s_module.html)
 
 ## Installation and Usage
 
@@ -54,14 +56,19 @@ For documentation on how to use individual plugins included in this collection, 
 
 If you want to develop new content for this collection or improve what's already here, the easiest way to work on the collection is to clone it into one of the configured [`COLLECTIONS_PATHS`](https://docs.ansible.com/ansible/latest/reference_appendices/config.html#collections-paths), and work on it there.
 
-### Testing with `ansible-test`
+The `tests` directory contains configuration for running sanity tests using [`ansible-test`](https://docs.ansible.com/ansible/latest/dev_guide/testing_integration.html). 
 
-The `tests` directory contains configuration for running sanity and integration tests using [`ansible-test`](https://docs.ansible.com/ansible/latest/dev_guide/testing_integration.html).
+You can run the `ansible-test` sanity tests with the command:
 
-You can run the collection's test suites with the commands:
+    make test-sanity
 
-    ansible-test sanity --docker -v --color
-    ansible-test integration --docker -v --color
+The `molecule` directory contains configuration for running integration tests using [`molecule`](https://molecule.readthedocs.io/).
+
+You can run the `molecule` integration tests with the command:
+
+    make test-integration
+
+These commands will create a directory called `ansible_collections` which should not be committed or added to the `.gitignore` (Tracking issue: https://github.com/ansible/ansible/issues/68499)
 
 ## Publishing New Versions
 
@@ -69,7 +76,7 @@ The current process for publishing new versions of the OKD Collection is manual,
 
   1. Ensure you're running Ansible from devel, so the [`build_ignore` key](https://github.com/ansible/ansible/issues/67130) in `galaxy.yml` is used.
   1. Run `git clean -x -d -f` in this repository's directory to clean out any extra files which should not be included.
-  1. Update `galaxy.yml` and this README's `requirements.yml` example with the new `version` for the collection.
+  1. Update `galaxy.yml`, the `Makefile`, and this README's `requirements.yml` example with the new `version` for the collection.
   1. Update the CHANGELOG:
     1. Make sure you have [`antsibull-changelog`](https://pypi.org/project/antsibull-changelog/) installed.
     1. Make sure there are fragments for all known changes in `changelogs/fragments`.

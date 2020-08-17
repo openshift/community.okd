@@ -14,5 +14,5 @@ install: build
 test-sanity: install
 	cd ansible_collections/community/okd && ansible-test sanity -v --docker --color $(TEST_ARGS)
 
-ci-prow: install
+test-integration: install
 	molecule test
