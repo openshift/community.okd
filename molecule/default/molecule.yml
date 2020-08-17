@@ -1,0 +1,38 @@
+---
+dependency:
+  name: galaxy
+driver:
+  name: delegated
+platforms:
+  - name: cluster
+    groups:
+      - k8s
+provisioner:
+  name: ansible
+  lint: |
+    set -e
+    ansible-lint
+  inventory:
+    host_vars:
+      localhost:
+        virtualenv: ${MOLECULE_EPHEMERAL_DIRECTORY}/virtualenv
+        virtualenv_command: '{{ ansible_playbook_python }} -m virtualenv'
+        virtualenv_interpreter: '{{ virtualenv }}/bin/python'
+        playbook_namespace: molecule-tests
+  env:
+    ANSIBLE_FORCE_COLOR: 'true'
+    ANSIBLE_COLLECTIONS_PATHS: ${MOLECULE_PROJECT_DIRECTORY}
+verifier:
+  name: ansible
+  lint: |
+    set -e
+    ansible-lint
+scenario:
+  name: default
+  test_sequence:
+    - lint
+    - syntax
+    - prepare
+    - converge
+    - idempotence
+    - verify

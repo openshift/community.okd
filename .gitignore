@@ -3,6 +3,9 @@
 *.log
 __pycache__/
 
+# temp collection path
+# Can't ignore this directory for now, as the files have to be viewable by git in order to be sanity-checked
+# ansible_collections/
 # Galaxy artifacts.
 *.tar.gz
 

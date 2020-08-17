@@ -1,16 +1,13 @@
 ---
 - block:
-    - name: Create a namespace
-      community.kubernetes.k8s:
+    - name: Create a project
+      community.okd.k8s:
         name: "{{ playbook_namespace }}"
-        kind: Namespace
-
-    - copy:
-        src: files
-        dest: "{{ remote_tmp_dir }}"
+        kind: Project
+        api_version: project.openshift.io/v1
 
     - name: incredibly simple ConfigMap
-      community.kubernetes.k8s:
+      community.okd.k8s:
         definition:
           apiVersion: v1
           kind: ConfigMap
@@ -27,16 +24,16 @@
           - k8s_with_validate is successful
 
     - name: extra property does not fail without strict
-      community.kubernetes.k8s:
-        src: "{{ remote_tmp_dir }}/files/kuard-extra-property.yml"
+      community.okd.k8s:
+        src: "files/kuard-extra-property.yml"
         namespace: "{{ playbook_namespace }}"
         validate:
           fail_on_error: yes
           strict: no
 
     - name: extra property fails with strict
-      community.kubernetes.k8s:
-        src: "{{ remote_tmp_dir }}/files/kuard-extra-property.yml"
+      community.okd.k8s:
+        src: "files/kuard-extra-property.yml"
         namespace: "{{ playbook_namespace }}"
         validate:
           fail_on_error: yes
@@ -50,8 +47,8 @@
           - extra_property is failed
 
     - name: invalid type fails at validation stage
-      community.kubernetes.k8s:
-        src: "{{ remote_tmp_dir }}/files/kuard-invalid-type.yml"
+      community.okd.k8s:
+        src: "files/kuard-invalid-type.yml"
         namespace: "{{ playbook_namespace }}"
         validate:
           fail_on_error: yes
@@ -65,8 +62,8 @@
           - invalid_type is failed
 
     - name: invalid type fails with warnings when fail_on_error is False
-      community.kubernetes.k8s:
-        src: "{{ remote_tmp_dir }}/files/kuard-invalid-type.yml"
+      community.okd.k8s:
+        src: "files/kuard-invalid-type.yml"
         namespace: "{{ playbook_namespace }}"
         validate:
           fail_on_error: no
@@ -80,16 +77,16 @@
           - invalid_type_no_fail is failed
 
     - name: setup custom resource definition
-      community.kubernetes.k8s:
-        src: "{{ remote_tmp_dir }}/files/setup-crd.yml"
+      community.okd.k8s:
+        src: "files/setup-crd.yml"
 
     - name: wait a few seconds
       pause:
         seconds: 5
 
     - name: add custom resource definition
-      community.kubernetes.k8s:
-        src: "{{ remote_tmp_dir }}/files/crd-resource.yml"
+      community.okd.k8s:
+        src: "files/crd-resource.yml"
         namespace: "{{ playbook_namespace }}"
         validate:
           fail_on_error: yes
@@ -104,23 +101,23 @@
 
   always:
     - name: remove custom resource
-      community.kubernetes.k8s:
-        definition: "{{ lookup('file', role_path + '/files/crd-resource.yml') }}"
+      community.okd.k8s:
+        definition: "{{ lookup('file', 'files/crd-resource.yml') }}"
         namespace: "{{ playbook_namespace }}"
         state: absent
       ignore_errors: yes
 
     - name: remove custom resource definitions
-      community.kubernetes.k8s:
-        definition: "{{ lookup('file', role_path + '/files/setup-crd.yml') }}"
+      community.okd.k8s:
+        definition: "{{ lookup('file', 'files/setup-crd.yml') }}"
         state: absent
 
     - name: Delete namespace
-      community.kubernetes.k8s:
+      community.okd.k8s:
         state: absent
         definition:
-          - kind: Namespace
-            apiVersion: v1
+          - kind: Project
+            apiVersion: project.openshift.io/v1
             metadata:
               name: "{{ playbook_namespace }}"
       ignore_errors: yes
