@@ -19,7 +19,7 @@ DOCUMENTATION = '''
 
 module: k8s
 
-short_description: Manage Kubernetes (K8s) objects
+short_description: Manage OpenShift objects
 
 author:
     - "Chris Houseknecht (@chouseknecht)"
@@ -33,6 +33,7 @@ description:
   - Use the M(k8s_info) module to obtain a list of items about an object of type C(kind)
   - Authenticate using either a config file, certificates, password or token.
   - Supports check mode.
+  - Optimized for OKD/OpenShift Kubernetes flavors
 
 extends_documentation_fragment:
   - community.kubernetes.k8s_state_options
