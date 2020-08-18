@@ -1,8 +1,8 @@
 # Also needs to be updated in galaxy.yml
 VERSION = 0.1.0
 
-# To run sanity tests in docker, set SANITY_TEST_ARGS to '--docker'
-SANITY_TEST_ARGS ?= '--venv'
+# To run sanity tests in a venv, set SANITY_TEST_ARGS to '--venv'
+SANITY_TEST_ARGS ?= '--docker'
 
 clean:
 	rm -f community-okd-$(VERSION).tar.gz
