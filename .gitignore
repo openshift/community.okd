@@ -1,6 +1,7 @@
 *.retry
 .idea
 *.log
+.cache/
 __pycache__/
 
 # temp collection path
