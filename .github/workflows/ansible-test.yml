@@ -109,3 +109,33 @@ jobs:
   #     - uses: codecov/codecov-action@v1
   #       with:
   #         fail_ci_if_error: false
+  #
+  downstream-sanity-29:
+    name: Sanity (Ⓐ${{ matrix.ansible }}+py${{ matrix.python }})
+    strategy:
+      matrix:
+        ansible:
+          - stable-2.9
+        python:
+          - 3.6
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+        with:
+          path: ansible_collections/community/okd
+
+      - name: Set up Python ${{ matrix.ansible }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python }}
+
+      - name: Install ansible 2.9
+        run: pip install "ansible>=2.9.0,<2.10.0"
+
+      # run ansible-test sanity inside of Docker.
+      # The docker container has all the pinned dependencies that are required.
+      # Explicity specify the version of Python we want to test
+      - name: Run sanity tests
+        run: make downstream-test-sanity
+        working-directory: ./ansible_collections/community/okd
