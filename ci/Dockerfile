@@ -27,7 +27,7 @@ WORKDIR /opt/ansible
 RUN echo "${USER_NAME}:x:${USER_UID}:0:${USER_NAME} user:${HOME}:/sbin/nologin" >> /etc/passwd \
  && mkdir -p "${HOME}/.ansible/tmp" \
  && chown -R "${USER_UID}:0" "${HOME}" \
- && chmod -R ug+rw "${HOME}"
+ && chmod -R ug+rwX "${HOME}"
 
 
 USER ${USER_UID}
