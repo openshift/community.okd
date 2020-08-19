@@ -2,7 +2,7 @@
 VERSION = 0.1.0
 
 # To run sanity tests in a venv, set SANITY_TEST_ARGS to '--venv'
-SANITY_TEST_ARGS ?= '--docker --color'
+SANITY_TEST_ARGS ?= --docker --color
 
 clean:
 	rm -f community-okd-$(VERSION).tar.gz
