@@ -1,0 +1,66 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: no
+
+  vars:
+    namespace: default
+    component: molecule-test-runner
+    pull_policy: IfNotPresent
+    # This will be in the form $registry/$org/$image:$$component, ie
+    # quay.io/openshift/release:$component
+    image_format: '{{ lookup("env", "IMAGE_FORMAT") }}'
+    image: '{{ image_format | replace("$component", component) }}'
+
+  tasks:
+    - name: Ensure clean environment
+      community.okd.k8s:
+        api_version: v1
+        kind: Pod
+        name: molecule-integration-test
+        namespace: '{{ namespace }}'
+        state: absent
+        wait: yes
+
+    - name: Create molecule test pod
+      community.okd.k8s:
+        definition:
+          apiVersion: v1
+          kind: Pod
+          metadata:
+            name: molecule-integration-test
+            namespace: '{{ namespace }}'
+          spec:
+            containers:
+              - name: test-runner
+                image: '{{ image }}'
+                imagePullPolicy: '{{ pull_policy }}'
+                command:
+                  - make
+                  - test-integration
+            restartPolicy: Never
+
+    - name: Wait for Pod to finish
+      community.kubernetes.k8s_info:
+        api_version: v1
+        kind: Pod
+        name: molecule-integration-test
+        namespace: '{{ namespace }}'
+      register: test_pod
+      until: test_pod.resources.0.status.phase in ['Succeeded', 'Failed']
+      delay: 6
+      retries: 10
+
+    - name: Gather Pod Logs
+      community.kubernetes.k8s_log:
+        name: molecule-integration-test
+        namespace: '{{ namespace }}'
+      register: pod_log
+
+    - name: Exit with error on Pod failure
+      fail:
+        msg: |
+          Molecule interation tests failed, see logs for more info
+
+          {{ pod_log.log }}
+      when: test_pod.resources.0.status.phase == 'Failed'

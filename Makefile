@@ -19,3 +19,6 @@ test-sanity: install
 
 test-integration: install
 	molecule test
+
+test-integration-incluster: install
+	ANSIBLE_COLLECTIONS_PATHS=$(shell pwd) ansible-playbook ci/incluster_integration.yml
