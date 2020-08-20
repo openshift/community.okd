@@ -1,1 +1,3 @@
 plugins/modules/k8s.py validate-modules:parameter-type-not-in-doc
+ci/incluster_integration.sh shebang!skip
+ci/incluster_integration.sh shellcheck!skip

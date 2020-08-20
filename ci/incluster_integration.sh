@@ -35,7 +35,7 @@ spec:
             - make
             - test-integration
       restartPolicy: Never
-  backoffLimit: 3
+  backoffLimit: 2
   completions: 1
   parallelism: 1
 EOF
@@ -53,14 +53,12 @@ completion_pid=$!
 kubectl wait --for=condition=failed job/molecule-integration-test --timeout 5m && exit 1 &
 failure_pid=$!
 
-wait -n $completion_pid $failure_pid
-exit_code=$?
 
-if (( $exit_code == 0 )); then
+if wait -n $completion_pid $failure_pid ; then
   echo "Molecule integration tests ran successfully"
+  exit 0
 else
-  echo "Molecule integration tests failed, see logs for more information..."
   kubectl logs job/molecule-integration-test
+  echo "Molecule integration tests failed, see logs for more information..."
+  exit 1
 fi
-
-exit $exit_code
