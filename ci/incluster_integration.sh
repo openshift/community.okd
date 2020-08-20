@@ -15,10 +15,10 @@ eval IMAGE=$IMAGE_FORMAT
 PULL_POLICY=${PULL_POLICY:-IfNotPresent}
 
 echo "Deleting test job if it exists"
-kubectl delete job molecule-integration-test --wait --ignore-not-found
+oc delete job molecule-integration-test --wait --ignore-not-found
 
 echo "Creating molecule test job"
-cat << EOF | kubectl create -f -
+cat << EOF | oc create -f -
 ---
 apiVersion: batch/v1
 kind: Job
@@ -40,25 +40,22 @@ spec:
   parallelism: 1
 EOF
 
-echo "Waiting for test job to report success"
-
-# Ensure the child processes are killed
-trap 'kill $(jobs -p) || true' SIGINT SIGTERM EXIT
-
-# Wait for job completion in background
-kubectl wait --for=condition=complete job/molecule-integration-test --timeout 5m &
-completion_pid=$!
-
-# Wait for job failure in background
-kubectl wait --for=condition=failed job/molecule-integration-test --timeout 5m && exit 1 &
-failure_pid=$!
-
-
-if wait -n $completion_pid $failure_pid ; then
+function wait_for_success {
+  oc wait --for=condition=complete job/molecule-integration-test --timeout 5m
   echo "Molecule integration tests ran successfully"
   exit 0
-else
-  kubectl logs job/molecule-integration-test
+}
+
+function wait_for_failure {
+  oc wait --for=condition=failed job/molecule-integration-test --timeout 5m
+  oc logs job/molecule-integration-test
   echo "Molecule integration tests failed, see logs for more information..."
   exit 1
-fi
+}
+
+# Ensure the child processes are killed
+trap 'kill -SIGTERM 0' SIGINT EXIT
+
+echo "Waiting for test job to complete"
+wait_for_success &
+wait_for_failure

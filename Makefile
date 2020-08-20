@@ -15,7 +15,7 @@ install: build
 	ansible-galaxy collection install -p ansible_collections community-okd-$(VERSION).tar.gz
 
 test-sanity: install
-	cd ansible_collections/community/okd && ansible-test sanity -v $(SANITY_TEST_ARGS)
+	cd ansible_collections/community/okd && ansible-test sanity --exclude ci/ -v $(SANITY_TEST_ARGS)
 
 test-integration: install
 	molecule test
