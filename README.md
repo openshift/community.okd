@@ -70,6 +70,25 @@ You can run the `molecule` integration tests with the command:
 
 These commands will create a directory called `ansible_collections` which should not be committed or added to the `.gitignore` (Tracking issue: https://github.com/ansible/ansible/issues/68499)
 
+
+### Prow
+
+This repository uses the OpenShift [Prow](https://github.com/kubernetes/test-infra/blob/master/prow/README.md) instance for testing against live OpenShift clusters.
+The configuration for the CI jobs that this repository runs can be found in the [`openshift/release repository`](https://github.com/openshift/release/blob/master/ci-operator/config/ansible-collections/community.okd/ansible-collections-community.okd-main.yaml).
+
+The [Prow CI integration test job](https://github.com/openshift/release/blob/master/ci-operator/config/ansible-collections/community.okd/ansible-collections-community.okd-main.yaml#L35-L38)
+runs the command:
+
+    make test-integration-incluster
+
+which will create a job that runs the normal `make integration` target. In order to mimic the Prow CI job, you must
+first build the test image using the Dockerfile in [`ci/Dockerfile`](ci/Dockerfile). Then, push the image
+somewhere that it will be accessible to the cluster, and run
+
+    IMAGE_FORMAT=<your image> make test-integration-incluser
+
+where the `IMAGE_FORMAT` environment variable is the full reference to your container (ie, `IMAGE_FORMAT=quay.io/example/molecule-test-runner`)
+
 ## Publishing New Versions
 
 The current process for publishing new versions of the OKD Collection is manual, and requires a user who has access to the `community.okd` namespace on Ansible Galaxy to publish the build artifact.

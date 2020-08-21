@@ -2,7 +2,7 @@
 
 set -x
 
-# IMAGE_FORMAT be in the form $registry/$org/$image:$$component, ie
+# IMAGE_FORMAT is in the form $registry/$org/$image:$$component, ie
 # quay.io/openshift/release:$component
 # To test with your own image, build and push the test image
 # (using the Dockerfile in ci/Dockerfile)
