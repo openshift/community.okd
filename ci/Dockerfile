@@ -14,11 +14,13 @@ RUN yum install -y \
       python3-devel \
       python3-pip \
       python3-setuptools \
- && pip3 install --upgrade setuptools pip \
- && pip3 install \
+ && pip3 install --no-cache-dir --upgrade setuptools pip \
+ && pip3 install --no-cache-dir \
       openshift \
       ansible \
-      molecule
+      molecule \
+  && yum clean all \
+  && rm -rf $HOME/.cache
 
 COPY . /opt/ansible
 
