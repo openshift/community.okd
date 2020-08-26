@@ -26,32 +26,35 @@
           apiVersion: v1
           kind: DeploymentConfig
           metadata:
-            name: elastic
+            name: hello-world
             labels:
               app: galaxy
-              service: elastic
+              service: hello-world
             namespace: testing
           spec:
             template:
               metadata:
                 labels:
                   app: galaxy
-                  service: elastic
+                  service: hello-world
               spec:
                 containers:
-                  - name: elastic
-                    volumeMounts:
-                      - mountPath: /usr/share/elasticsearch/data
-                        name: elastic-volume
-                    command: ['elasticsearch']
-                    image: 'ansible/galaxy-elasticsearch:2.4.6'
-                volumes:
-                  - name: elastic-volume
-                    persistentVolumeClaim:
-                      claimName: elastic-volume
+                  - name: hello-world
+                    image: python
+                    command:
+                      - python
+                      - '-m'
+                      - http.server
+                    env:
+                      - name: TEST
+                        value: test
             replicas: 1
             strategy:
-              type: Rolling
+              type: Recreate
+        wait: yes
+        wait_condition:
+          type: Available
+          status: True
       register: output
 
     - name: Show output

@@ -9,10 +9,15 @@ platforms:
       - k8s
 provisioner:
   name: ansible
+  config_options:
+    inventory:
+      enable_plugins: community.okd.openshift
   lint: |
     set -e
     ansible-lint
   inventory:
+    hosts:
+      plugin: community.okd.openshift
     host_vars:
       localhost:
         virtualenv: ${MOLECULE_EPHEMERAL_DIRECTORY}/virtualenv
