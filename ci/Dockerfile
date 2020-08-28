@@ -20,7 +20,9 @@ RUN yum install -y \
       ansible \
       molecule \
   && yum clean all \
-  && rm -rf $HOME/.cache
+  && rm -rf $HOME/.cache \
+  && curl -L https://github.com/openshift/okd/releases/download/4.5.0-0.okd-2020-08-12-020541/openshift-client-linux-4.5.0-0.okd-2020-08-12-020541.tar.gz | tar -xz -C /usr/local/bin
+  # TODO: Is there a better way to install this client in ubi8?
 
 COPY . /opt/ansible
 
