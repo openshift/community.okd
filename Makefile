@@ -11,7 +11,13 @@ clean:
 build: clean
 	ansible-galaxy collection build
 
-install: build
+install-kubernetes-src:
+	mkdir -p ansible_collections/community/kubernetes
+	rm -rf ansible_collections/community/kubernetes/*
+	curl -L https://github.com/ansible-collections/community.kubernetes/archive/main.tar.gz | tar -xz -C ansible_collections/community/kubernetes --strip-components 1
+
+# TODO: Once we no longer rely on features in main we should drop the install-kubernetes-src dependency
+install: build install-kubernetes-src
 	ansible-galaxy collection install -p ansible_collections community-okd-$(VERSION).tar.gz
 
 test-sanity: install

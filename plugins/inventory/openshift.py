@@ -124,6 +124,7 @@ except ImportError:
 class InventoryModule(K8sInventoryModule):
     NAME = 'community.okd.openshift'
 
+    connection_plugin = 'community.okd.oc'
     transport = 'oc'
 
     def fetch_objects(self, connections):

@@ -43,7 +43,6 @@
     ansible_python_interpreter: '{{ virtualenv_interpreter }}'
 
   tasks:
-
     - pip:
         name: kubernetes-validate==1.12.0
         virtualenv: "{{ virtualenv }}"
