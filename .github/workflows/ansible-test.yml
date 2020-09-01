@@ -52,7 +52,7 @@ jobs:
       # Explicity specify the version of Python we want to test
       - name: Run sanity tests
         run: make test-sanity TEST_ARGS='--python ${{ matrix.python }}'
-        working-directory: ./ansible_collections/community/okd
+        working-directory: ansible_collections/community/okd
 
 ###
 # Integration tests (RECOMMENDED)

@@ -15,7 +15,7 @@ _build_dir=""
 
 f_log_info()
 {
-    printf "%s:LOG:INFO: %s\n" "${0}" "${1}\n"
+    printf "%s:LOG:INFO: %s\n" "${0}" "${1}"
 }
 
 f_show_help()
