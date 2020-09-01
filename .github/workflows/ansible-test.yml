@@ -48,7 +48,8 @@ jobs:
         run: pip install https://github.com/ansible/ansible/archive/${{ matrix.ansible }}.tar.gz --disable-pip-version-check
 
       - name: Install community.kubernetes
-        run: curl -L https://github.com/ansible-collections/community.kubernetes/archive/main.tar.gz | tar -xz -C ansible_collections/community/kubernetes --strip-components 1
+        run: curl -L https://github.com/ansible-collections/community.kubernetes/archive/main.tar.gz | tar -xz -C kubernetes --strip-components 1
+        working-directory: ansible_collections/community/
 
       # run ansible-test sanity inside of Docker.
       # The docker container has all the pinned dependencies that are required.
