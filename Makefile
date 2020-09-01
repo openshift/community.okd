@@ -26,16 +26,16 @@ test-molecule: install
 	molecule test
 
 test-sanity: 
-	ansible-test sanity --exclude ci/ -v $(SANITY_TEST_ARGS)
+	ansible-test sanity --docker -v --exclude ci/ -v $(SANITY_TEST_ARGS)
 
 test-integration-incluster:
 	./ci/incluster_integration.sh
 
 downstream-test-sanity: 
-	./utils/downstream.sh -s
+	./ci/downstream.sh -s
 
 downstream-test-integration: 
-	./utils/downstream.sh -i
+	./ci/downstream.sh -i
 
 downstream-build: 
-	./utils/downstream.sh -b
+	./ci/downstream.sh -b
