@@ -167,7 +167,10 @@ f_test_sanity_option()
     pushd "${_build_dir}" || return
         ansible-galaxy collection build
         f_log_info "SANITY TEST PWD: ${PWD}"
-        SANITY_TEST_ARGS="--docker --color --python 3.6" make test-sanity
+        ## Can't do this because the upstream community.kubernetes dependency logic
+        ## is bound as a Makefile dep to the test-sanity target
+        #SANITY_TEST_ARGS="--docker --color --python 3.6" make test-sanity
+        ansible-test sanity --docker -v --exclude ci/ --color --python 3.6
     popd || return
     f_cleanup
 }

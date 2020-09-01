@@ -18,24 +18,23 @@ install-kubernetes-src:
 
 # TODO: Once we no longer rely on features in main we should drop the install-kubernetes-src dependency
 install: build install-kubernetes-src
+	ansible-galaxy collection install -p ansible_collections community-okd-$(VERSION).tar.gz
 
-release: build
-	ansible-galaxy collection publish community-okd-${VERSION}.tar.gz
+test-sanity: install
+	cd ansible_collections/community/okd && ansible-test sanity --exclude ci/ -v $(SANITY_TEST_ARGS)
 
-test-molecule: install
+test-integration: install
 	molecule test
-
-test-sanity: 
-	ansible-test sanity --docker -v --exclude ci/ -v $(SANITY_TEST_ARGS)
 
 test-integration-incluster:
 	./ci/incluster_integration.sh
 
-downstream-test-sanity: 
+downstream-test-sanity:
 	./ci/downstream.sh -s
 
-downstream-test-integration: 
+downstream-test-integration:
 	./ci/downstream.sh -i
 
-downstream-build: 
+downstream-build:
 	./ci/downstream.sh -b
+
