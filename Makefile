@@ -26,5 +26,20 @@ test-sanity: install
 test-integration: install
 	molecule test
 
-test-integration-incluster:
-	./ci/incluster_integration.sh
+test-integration-incluster: test-integration-incluster-upstream test-integration-incluster-downstream
+
+test-integration-incluster-upstream:
+	./ci/incluster_integration_upstream.sh
+
+test-integration-incluster-downstream:
+	./ci/incluster_integration_downstream.sh
+
+downstream-test-sanity:
+	./ci/downstream.sh -s
+
+downstream-test-integration:
+	./ci/downstream.sh -i
+
+downstream-build:
+	./ci/downstream.sh -b
+
