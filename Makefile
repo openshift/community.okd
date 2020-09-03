@@ -23,16 +23,16 @@ install: build install-kubernetes-src
 test-sanity: install
 	cd ansible_collections/community/okd && ansible-test sanity --exclude ci/ -v $(SANITY_TEST_ARGS)
 
-test-integration: install
+test-integration: install test-integration-upstream test-integration-downstream
+
+test-integration-upstream:
 	molecule test
 
+test-integration-downstream:
+	./ci/downstream.sh -i
+
 test-integration-incluster: test-integration-incluster-upstream test-integration-incluster-downstream
-
-test-integration-incluster-upstream:
-	./ci/incluster_integration_upstream.sh
-
-test-integration-incluster-downstream:
-	./ci/incluster_integration_downstream.sh
+	./ci/incluster_integration.sh
 
 downstream-test-sanity:
 	./ci/downstream.sh -s
@@ -42,4 +42,3 @@ downstream-test-integration:
 
 downstream-build:
 	./ci/downstream.sh -b
-
