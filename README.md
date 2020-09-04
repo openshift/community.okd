@@ -10,10 +10,14 @@ The collection includes a variety of Ansible content to help automate the manage
 
 Click on the name of a plugin or module to view that content's documentation:
 
-  - **Inventory Source**:
+  - **Connection Plugins**:
+    - [oc](https://docs.ansible.com/ansible/2.10/collections/community/general/oc_connection.html)
+  - **Inventory Plugins**:
     - [openshift](https://docs.ansible.com/ansible/2.10/collections/community/kubernetes/openshift_inventory.html)
   - **Modules**:
-    - [k8s](https://docs.ansible.com/ansible/latest/modules/k8s_module.html)
+    - [k8s](https://docs.ansible.com/ansible/2.10/collections/community/kubernetes/k8s_inventory.html)
+
+> **Note**: These documentation links currently link to older module versions. For the latest module documentation, please use `ansible-doc` in the CLI.
 
 ## Installation and Usage
 
@@ -56,7 +60,7 @@ For documentation on how to use individual plugins included in this collection, 
 
 If you want to develop new content for this collection or improve what's already here, the easiest way to work on the collection is to clone it into one of the configured [`COLLECTIONS_PATHS`](https://docs.ansible.com/ansible/latest/reference_appendices/config.html#collections-paths), and work on it there.
 
-The `tests` directory contains configuration for running sanity tests using [`ansible-test`](https://docs.ansible.com/ansible/latest/dev_guide/testing_integration.html). 
+The `tests` directory contains configuration for running sanity tests using [`ansible-test`](https://docs.ansible.com/ansible/latest/dev_guide/testing_integration.html).
 
 You can run the `ansible-test` sanity tests with the command:
 
@@ -91,23 +95,15 @@ where the `IMAGE_FORMAT` environment variable is the full reference to your cont
 
 ## Publishing New Versions
 
-The current process for publishing new versions of the OKD Collection is manual, and requires a user who has access to the `community.okd` namespace on Ansible Galaxy to publish the build artifact.
+Releases are automatically built and pushed to Ansible Galaxy for any new tag. Before tagging a release, make sure to do the following:
 
-  1. Ensure you're running Ansible from devel, so the [`build_ignore` key](https://github.com/ansible/ansible/issues/67130) in `galaxy.yml` is used.
-  1. Run `git clean -x -d -f` in this repository's directory to clean out any extra files which should not be included.
-  1. Update `galaxy.yml`, the `Makefile`, and this README's `requirements.yml` example with the new `version` for the collection.
+  1. Update `galaxy.yml` and this README's `requirements.yml` example with the new `version` for the collection.
   1. Update the CHANGELOG:
     1. Make sure you have [`antsibull-changelog`](https://pypi.org/project/antsibull-changelog/) installed.
     1. Make sure there are fragments for all known changes in `changelogs/fragments`.
     1. Run `antsibull-changelog release`.
   1. Commit the changes and create a PR with the changes. Wait for tests to pass, then merge it once they have.
   1. Tag the version in Git and push to GitHub.
-  1. Run the following commands to build and release the new version on Galaxy:
-
-     ```
-     ansible-galaxy collection build
-     ansible-galaxy collection publish ./community-okd-$VERSION_HERE.tar.gz
-     ```
 
 After the version is published, verify it exists on the [OKD Collection Galaxy page](https://galaxy.ansible.com/community/okd).
 

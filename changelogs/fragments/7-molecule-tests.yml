@@ -1,0 +1,3 @@
+---
+major_changes:
+  - Add custom k8s module, integrate better Molecule tests (https://github.com/ansible-collections/community.okd/pull/7).

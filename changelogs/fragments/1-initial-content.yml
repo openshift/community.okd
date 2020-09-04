@@ -1,0 +1,3 @@
+---
+major_changes:
+  - Initial content migration from community.kubernetes (https://github.com/ansible-collections/community.okd/pull/3).
