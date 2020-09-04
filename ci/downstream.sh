@@ -170,7 +170,13 @@ f_test_sanity_option()
         ## Can't do this because the upstream community.kubernetes dependency logic
         ## is bound as a Makefile dep to the test-sanity target
         #SANITY_TEST_ARGS="--docker --color --python 3.6" make test-sanity
-        ansible-test sanity --docker -v --exclude ci/ --color --python 3.6
+        # Run tests in docker if available, venv otherwise
+        if command -v docker &> /dev/null
+        then
+            ansible-test sanity --docker -v --exclude ci/ --color --python 3.6
+        else
+            ansible-test sanity --venv -v --exclude ci/ --color --python 3.6
+        fi
     popd || return
     f_cleanup
 }
