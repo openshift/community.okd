@@ -310,7 +310,26 @@ class OKDRawModule(KubernetesRawModule):
                 self.fail_json(msg='Failed to retrieve requested object: {0}'.format(exc.body),
                                error=exc.status, status=exc.status, reason=exc.reason)
 
+        if resource.kind == 'DeploymentConfig' and state != 'absent':
+            definition = self.resolve_imagestreams(resource, definition)
+
         return super(OKDRawModule, self).perform_action(resource, definition)
+
+    def resolve_imagestreams(self, dc_api, deployment_config):
+        if deployment_config.get('spec', {}).get('triggers'):
+            containers_for_update = []
+            for trigger in deployment_config['spec']['triggers']:
+                if trigger.get('type') == 'ImageChange':
+                    containers_for_update.extend(trigger.get('imageChangeParams', {}).get('containerNames', []))
+            existing = dc_api.get(name=deployment_config['metadata']['name'], namespace=deployment_config['metadata']['namespace'])
+            old_containers = existing.to_dict()['spec'].get('template', {}).get('spec', {}).get('containers', [])
+            new_containers = deployment_config['spec'].get('template', {}).get('spec', {}).get('containers', [])
+            for i, container in enumerate(new_containers):
+                if container.get('name') in containers_for_update:
+                    for old_container in old_containers:
+                        if container['name'] == old_container.get('name') and old_container.get('image'):
+                            deployment_config['spec']['template']['spec']['containers'][i]['image'] = old_container['image']
+        return deployment_config
 
     def create_project_request(self, definition):
         definition['kind'] = 'ProjectRequest'
