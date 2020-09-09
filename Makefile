@@ -20,19 +20,18 @@ install-kubernetes-src:
 install: build install-kubernetes-src
 	ansible-galaxy collection install -p ansible_collections community-okd-$(VERSION).tar.gz
 
-test-sanity: install
-	cd ansible_collections/community/okd && ansible-test sanity --exclude ci/ -v $(SANITY_TEST_ARGS)
+test-integration-incluster:
+	./ci/incluster_integration.sh
 
-test-integration: install
+test-sanity: upstream-test-sanity downstream-test-sanity
+
+test-integration: upstream-test-integration downstream-test-integration
+
+upstream-test-integration: install
 	molecule test
 
-test-integration-incluster: test-integration-incluster-upstream test-integration-incluster-downstream
-
-test-integration-incluster-upstream:
-	./ci/incluster_integration_upstream.sh
-
-test-integration-incluster-downstream:
-	./ci/incluster_integration_downstream.sh
+upstream-test-sanity: install
+	cd ansible_collections/community/okd && ansible-test sanity --exclude ci/ -v $(SANITY_TEST_ARGS)
 
 downstream-test-sanity:
 	./ci/downstream.sh -s
@@ -42,4 +41,3 @@ downstream-test-integration:
 
 downstream-build:
 	./ci/downstream.sh -b
-
