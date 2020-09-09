@@ -265,7 +265,10 @@ result:
        sample: 48
 '''
 
+import re
+import operator
 import traceback
+from functools import reduce
 
 from ansible.module_utils._text import to_native
 
@@ -284,6 +287,8 @@ except ImportError:
     # Exceptions handled in common
     pass
 
+TRIGGER_CONTAINER = re.compile(r"(?P<path>.*)\[((?P<index>[0-9]+)|\?\(@\.name==[\"'\\]*(?P<name>\w+))")
+
 
 class OKDRawModule(KubernetesRawModule):
 
@@ -301,35 +306,72 @@ class OKDRawModule(KubernetesRawModule):
         name = definition['metadata'].get('name')
         namespace = definition['metadata'].get('namespace')
 
-        if definition['kind'] in ['Project', 'ProjectRequest'] and state != 'absent':
-            try:
-                resource.get(name, namespace)
-            except (NotFoundError, ForbiddenError):
-                return self.create_project_request(definition)
-            except DynamicApiError as exc:
-                self.fail_json(msg='Failed to retrieve requested object: {0}'.format(exc.body),
-                               error=exc.status, status=exc.status, reason=exc.reason)
+        if state != 'absent':
 
-        if resource.kind == 'DeploymentConfig' and state != 'absent':
-            definition = self.resolve_imagestreams(resource, definition)
+            if resource.kind in ['Project', 'ProjectRequest']:
+                try:
+                    resource.get(name, namespace)
+                except (NotFoundError, ForbiddenError):
+                    return self.create_project_request(definition)
+                except DynamicApiError as exc:
+                    self.fail_json(msg='Failed to retrieve requested object: {0}'.format(exc.body),
+                                   error=exc.status, status=exc.status, reason=exc.reason)
+
+            try:
+                existing = resource.get(name=name, namespace=namespace).to_dict()
+            except Exception:
+                existing = None
+
+            if existing:
+                triggers = []
+                if resource.kind == 'DeploymentConfig':
+                    triggers = definition.get('spec', {}).get('triggers')
+                elif existing['metadata'].get('annotations'):
+                    triggers = existing['metadata']['annotations'].get('image.openshift.io/triggers')
+
+                if triggers:
+                    definition = self.resolve_imagestream_triggers(existing, definition, triggers)
 
         return super(OKDRawModule, self).perform_action(resource, definition)
 
-    def resolve_imagestreams(self, dc_api, deployment_config):
-        if deployment_config.get('spec', {}).get('triggers'):
-            containers_for_update = []
-            for trigger in deployment_config['spec']['triggers']:
-                if trigger.get('type') == 'ImageChange':
-                    containers_for_update.extend(trigger.get('imageChangeParams', {}).get('containerNames', []))
-            existing = dc_api.get(name=deployment_config['metadata']['name'], namespace=deployment_config['metadata']['namespace'])
-            old_containers = existing.to_dict()['spec'].get('template', {}).get('spec', {}).get('containers', [])
-            new_containers = deployment_config['spec'].get('template', {}).get('spec', {}).get('containers', [])
-            for i, container in enumerate(new_containers):
-                if container.get('name') in containers_for_update:
-                    for old_container in old_containers:
-                        if container['name'] == old_container.get('name') and old_container.get('image'):
-                            deployment_config['spec']['template']['spec']['containers'][i]['image'] = old_container['image']
-        return deployment_config
+    def resolve_imagestream_triggers(self, existing, definition, triggers):
+        updates = []
+        dc_container_path = ['spec', 'template', 'spec', 'containers']
+        for trigger in triggers:
+            if trigger.get('type') == 'ImageChange':
+                names = trigger.get('imageChangeParams', {}).get('containerNames', [])
+                for name in names:
+                    updates.append(dict(path=dc_container_path, name=name))
+            elif trigger.get('fieldPath'):
+                parsed = self.parse_trigger_fieldpath(trigger['fieldPath'])
+                if parsed.get('path') and any([parsed.get('name'), parsed.get('index') is not None]):
+                    updates.append(parsed)
+
+        def get_from_fields(d, fields):
+            return reduce(operator.getItem, fields, d)
+
+        def set_from_fields(d, fields, value):
+            reduce(operator.getItem, fields[:-1], d)[fields[-1]] = value
+
+        for update in updates:
+            old_containers = get_from_fields(existing, update['path'])
+            new_containers = get_from_fields(definition, update['path'])
+            if update.get('name'):
+                for i, container in enumerate(new_containers):
+                    if container.get('name') == update['name']:
+                        for old_container in old_containers:
+                            if container['name'] == old_container.get('name') and old_container.get('image'):
+                                set_from_fields(definition, update['path'] + [i, 'image'], old_container['image'])
+            elif update.get('index'):
+                set_from_fields(definition, update['path'] + [i, 'image'], old_containers[update['index']]['image'])
+
+        return definition
+
+    def parse_trigger_fieldpath(self, expression):
+        parsed = TRIGGER_CONTAINER.search(expression).groupdict()
+        if parsed.get('index'):
+            parsed['index'] = int(parsed['index'])
+        return parsed
 
     def create_project_request(self, definition):
         definition['kind'] = 'ProjectRequest'
