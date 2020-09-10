@@ -9,6 +9,9 @@ platforms:
       - k8s
 provisioner:
   name: ansible
+  log: true
+  options:
+    vvv: True
   config_options:
     inventory:
       enable_plugins: community.okd.openshift

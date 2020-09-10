@@ -341,7 +341,7 @@ class OKDRawModule(KubernetesRawModule):
             if trigger.get('type') == 'ImageChange':
                 names = trigger.get('imageChangeParams', {}).get('containerNames', [])
                 for name in names:
-                    updates.append(dict(path=dc_container_path, name=name))
+                    updates.append(dict(path=dc_container_path, name=name, params=trigger.get('imageChangeParams')))
             elif trigger.get('fieldPath'):
                 parsed = self.parse_trigger_fieldpath(trigger['fieldPath'])
                 if parsed.get('path') and any([parsed.get('name'), parsed.get('index') is not None]):
@@ -364,6 +364,14 @@ class OKDRawModule(KubernetesRawModule):
                                 set_from_fields(definition, update['path'] + [i, 'image'], old_container['image'])
             elif update.get('index'):
                 set_from_fields(definition, update['path'] + [i, 'image'], old_containers[update['index']]['image'])
+            if update.get('params'):
+                last_triggered = update['params'].get('lastTriggeredImage')
+                names = update['params'].get('containerNames')
+                _from = update['params'].get('from')
+                for i, trigger in enumerate(definition['spec']['triggers']):
+                    if names == trigger.get('containerNames') and _from == trigger.get('from'):
+                        definition['spec']['triggers'][i]['lastTriggeredImage'] = last_triggered
+                        break
 
         return definition
 
