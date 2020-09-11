@@ -341,20 +341,26 @@ class OKDRawModule(KubernetesRawModule):
                     return i
 
         def get_from_fields(d, fields):
-            return reduce(operator.getitem, fields, d)
+            try:
+                return reduce(operator.getitem, fields, d)
+            except Exception:
+                return None
 
         def set_from_fields(d, fields, value):
             get_from_fields(d, fields[:-1])[fields[-1]] = value
 
         if TRIGGER_ANNOTATION in definition['metadata'].get('annotations', {}).keys():
-            triggers = yaml.load(definition['metadata']['annotations'][TRIGGER_ANNOTATION] or '[]')
+            triggers = yaml.safe_load(definition['metadata']['annotations'][TRIGGER_ANNOTATION] or '[]')
         else:
-            triggers = yaml.load(existing['metadata'].get('annotations', '{}').get(TRIGGER_ANNOTATION, '[]'))
+            triggers = yaml.safe_load(existing['metadata'].get('annotations', '{}').get(TRIGGER_ANNOTATION, '[]'))
+
+        if not isinstance(triggers, list):
+            return definition
 
         for trigger in triggers:
             if trigger.get('fieldPath'):
                 parsed = self.parse_trigger_fieldpath(trigger['fieldPath'])
-                path = parsed.get('path')
+                path = parsed.get('path', '').split('.')
                 if path:
                     existing_containers = get_from_fields(existing, path)
                     new_containers = get_from_fields(definition, path)

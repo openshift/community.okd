@@ -72,12 +72,12 @@
           - http.server
       block:
         - name: Create imagestream
-          k8s:
+          community.okd.k8s:
             namespace: testing
             definition: '{{ okd_imagestream_template }}'
 
         - name: Create DeploymentConfig to reference ImageStream
-          k8s:
+          community.okd.k8s:
             name: '{{ k8s_pod_name }}'
             namespace: testing
             definition: '{{ okd_dc_template }}'
@@ -86,7 +86,7 @@
 
 
         - name: Create Deployment to reference ImageStream
-          k8s:
+          community.okd.k8s:
             name: '{{ k8s_pod_name }}'
             namespace: testing
             definition: '{{ k8s_deployment_template | combine(metadata)  }}'
@@ -94,8 +94,12 @@
             k8s_pod_annotations:
               "alpha.image.policy.openshift.io/resolve-names": "*"
             k8s_pod_name: is-idempotent-deployment
+            annotation:
+              - from:
+                  kind: ImageStreamTag
+                  name: "{{ image_name }}:{{ image_tag}}}"
+                fieldPath: 'spec.template.spec.containers[?(@.name=="{{ k8s_pod_name }}")].image}'
             metadata:
               metadata:
                 annotations:
-                  image.openshift.io/triggers: |
-                      '[{"from":{"kind":"ImageStreamTag","name":"{{ image_name }}:{{ image_tag}}"},"fieldPath":"spec.template.spec.containers[?(@.name==\"{{ k8s_pod_name }}\")].image"}]'
+                  image.openshift.io/triggers: '{{ annotation | to_json }}'
