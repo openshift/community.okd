@@ -282,11 +282,13 @@ except ImportError as e:
     from ansible.module_utils.basic import AnsibleModule as KubernetesRawModule
 
 try:
+    import yaml
     from openshift.dynamic.exceptions import DynamicApiError, NotFoundError, ForbiddenError
 except ImportError:
     # Exceptions handled in common
     pass
 
+TRIGGER_ANNOTATION = 'image.openshift.io/triggers'
 TRIGGER_CONTAINER = re.compile(r"(?P<path>.*)\[((?P<index>[0-9]+)|\?\(@\.name==[\"'\\]*(?P<name>\w+))")
 
 
@@ -323,55 +325,75 @@ class OKDRawModule(KubernetesRawModule):
                 existing = None
 
             if existing:
-                triggers = []
                 if resource.kind == 'DeploymentConfig':
-                    triggers = definition.get('spec', {}).get('triggers')
-                elif existing['metadata'].get('annotations'):
-                    triggers = existing['metadata']['annotations'].get('image.openshift.io/triggers')
-
-                if triggers:
-                    definition = self.resolve_imagestream_triggers(existing, definition, triggers)
+                    if definition.get('spec', {}).get('triggers'):
+                        definition = self.resolve_imagestream_triggers(existing, definition)
+                elif existing['metadata'].get('annotations', '{}').get(TRIGGER_ANNOTATION):
+                    definition = self.resolve_imagestream_trigger_annotation(existing, definition)
 
         return super(OKDRawModule, self).perform_action(resource, definition)
 
-    def resolve_imagestream_triggers(self, existing, definition, triggers):
-        updates = []
-        dc_container_path = ['spec', 'template', 'spec', 'containers']
-        for trigger in triggers:
-            if trigger.get('type') == 'ImageChange':
-                names = trigger.get('imageChangeParams', {}).get('containerNames', [])
-                for name in names:
-                    updates.append(dict(path=dc_container_path, name=name, params=trigger.get('imageChangeParams')))
-            elif trigger.get('fieldPath'):
-                parsed = self.parse_trigger_fieldpath(trigger['fieldPath'])
-                if parsed.get('path') and any([parsed.get('name'), parsed.get('index') is not None]):
-                    updates.append(parsed)
+    def resolve_imagestream_trigger_annotation(self, existing, definition):
+
+        def get_index(desired, objects, keys):
+            for i, item in enumerate(objects):
+                if item and all([desired.get(key, True) == item.get(key, False) for key in keys]):
+                    return i
 
         def get_from_fields(d, fields):
-            return reduce(operator.getItem, fields, d)
+            return reduce(operator.getitem, fields, d)
 
         def set_from_fields(d, fields, value):
-            reduce(operator.getItem, fields[:-1], d)[fields[-1]] = value
+            get_from_fields(d, fields[:-1])[fields[-1]] = value
 
-        for update in updates:
-            old_containers = get_from_fields(existing, update['path'])
-            new_containers = get_from_fields(definition, update['path'])
-            if update.get('name'):
-                for i, container in enumerate(new_containers):
-                    if container.get('name') == update['name']:
-                        for old_container in old_containers:
-                            if container['name'] == old_container.get('name') and old_container.get('image'):
-                                set_from_fields(definition, update['path'] + [i, 'image'], old_container['image'])
-            elif update.get('index'):
-                set_from_fields(definition, update['path'] + [i, 'image'], old_containers[update['index']]['image'])
-            if update.get('params'):
-                last_triggered = update['params'].get('lastTriggeredImage')
-                names = update['params'].get('containerNames')
-                _from = update['params'].get('from')
-                for i, trigger in enumerate(definition['spec']['triggers']):
-                    if names == trigger.get('containerNames') and _from == trigger.get('from'):
-                        definition['spec']['triggers'][i]['lastTriggeredImage'] = last_triggered
-                        break
+        if TRIGGER_ANNOTATION in definition['metadata'].get('annotations', {}).keys():
+            triggers = yaml.load(definition['metadata']['annotations'][TRIGGER_ANNOTATION] or '[]')
+        else:
+            triggers = yaml.load(existing['metadata'].get('annotations', '{}').get(TRIGGER_ANNOTATION, '[]'))
+
+        for trigger in triggers:
+            if trigger.get('fieldPath'):
+                parsed = self.parse_trigger_fieldpath(trigger['fieldPath'])
+                path = parsed.get('path')
+                if path:
+                    existing_containers = get_from_fields(existing, path)
+                    new_containers = get_from_fields(definition, path)
+                    if parsed.get('name'):
+                        existing_index = get_index({'name': parsed['name']}, existing_containers, ['name'])
+                        new_index = get_index({'name': parsed['name']}, new_containers, ['name'])
+                    elif parsed.get('index') is not None:
+                        existing_index = new_index = int(parsed['index'])
+                    else:
+                        existing_index = new_index = None
+                    if existing_index is not None and new_index is not None:
+                        if len(existing_containers) < existing_index and len(new_containers) < new_index:
+                            set_from_fields(definition, path + [new_index, 'image'], get_from_fields(existing, path + [existing_index, 'image']))
+        return definition
+
+    def resolve_imagestream_triggers(self, existing, definition):
+
+        def get_index(desired, objects, keys):
+            for i, item in enumerate(objects):
+                if item and all([desired.get(key, True) == item.get(key, False) for key in keys]):
+                    return i
+
+        existing_triggers = existing.get('spec', {}).get('triggers')
+        new_triggers = definition['spec']['triggers']
+        existing_containers = existing.get('spec', {}).get('template', {}).get('spec', {}).get('containers', [])
+        new_containers = definition.get('spec', {}).get('template', {}).get('spec', {}).get('containers', [])
+        for i, trigger in enumerate(new_triggers):
+            if trigger.get('type') == 'ImageChange' and trigger.get('imageChangeParams'):
+                names = trigger['imageChangeParams'].get('containerNames', [])
+                for name in names:
+                    old_container_index = get_index({'name': name}, existing_containers, ['name'])
+                    new_container_index = get_index({'name': name}, new_containers, ['name'])
+                    if old_container_index is not None and new_container_index is not None:
+                        image = existing['spec']['template']['spec']['containers'][old_container_index]['image']
+                        definition['spec']['template']['spec']['containers'][new_container_index]['image'] = image
+
+                    trigger_index = get_index(trigger['imageChangeParams'], [x.get('imageChangeParams') for x in existing_triggers], ['containerNames', 'from'])
+                    if trigger_index is not None and existing_triggers[trigger_index].get('imageChangeParams', {}).get('lastTriggeredImage'):
+                        definition['spec']['triggers'][i]['lastTriggeredImage'] = existing_triggers[trigger_index]['imageChangeParams']['lastTriggeredImage']
 
         return definition
 

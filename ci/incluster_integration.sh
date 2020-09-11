@@ -42,6 +42,7 @@ EOF
 
 function wait_for_success {
   oc wait --for=condition=complete job/molecule-integration-test --timeout 5m
+  oc logs job/molecule-integration-test
   echo "Molecule integration tests ran successfully"
   exit 0
 }
