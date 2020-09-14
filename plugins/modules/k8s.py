@@ -333,12 +333,16 @@ class OKDRawModule(KubernetesRawModule):
 
         return super(OKDRawModule, self).perform_action(resource, definition)
 
-    def resolve_imagestream_trigger_annotation(self, existing, definition):
+    @staticmethod
+    def get_index(desired, objects, keys):
+        """ Iterates over keys, returns the first object from objects where the value of the key
+            matches the value in desired
+        """
+        for i, item in enumerate(objects):
+            if item and all([desired.get(key, True) == item.get(key, False) for key in keys]):
+                return i
 
-        def get_index(desired, objects, keys):
-            for i, item in enumerate(objects):
-                if item and all([desired.get(key, True) == item.get(key, False) for key in keys]):
-                    return i
+    def resolve_imagestream_trigger_annotation(self, existing, definition):
 
         def get_from_fields(d, fields):
             try:
@@ -365,8 +369,8 @@ class OKDRawModule(KubernetesRawModule):
                     existing_containers = get_from_fields(existing, path)
                     new_containers = get_from_fields(definition, path)
                     if parsed.get('name'):
-                        existing_index = get_index({'name': parsed['name']}, existing_containers, ['name'])
-                        new_index = get_index({'name': parsed['name']}, new_containers, ['name'])
+                        existing_index = self.get_index({'name': parsed['name']}, existing_containers, ['name'])
+                        new_index = self.get_index({'name': parsed['name']}, new_containers, ['name'])
                     elif parsed.get('index') is not None:
                         existing_index = new_index = int(parsed['index'])
                     else:
@@ -378,11 +382,6 @@ class OKDRawModule(KubernetesRawModule):
 
     def resolve_imagestream_triggers(self, existing, definition):
 
-        def get_index(desired, objects, keys):
-            for i, item in enumerate(objects):
-                if item and all([desired.get(key, True) == item.get(key, False) for key in keys]):
-                    return i
-
         existing_triggers = existing.get('spec', {}).get('triggers')
         new_triggers = definition['spec']['triggers']
         existing_containers = existing.get('spec', {}).get('template', {}).get('spec', {}).get('containers', [])
@@ -391,13 +390,13 @@ class OKDRawModule(KubernetesRawModule):
             if trigger.get('type') == 'ImageChange' and trigger.get('imageChangeParams'):
                 names = trigger['imageChangeParams'].get('containerNames', [])
                 for name in names:
-                    old_container_index = get_index({'name': name}, existing_containers, ['name'])
-                    new_container_index = get_index({'name': name}, new_containers, ['name'])
+                    old_container_index = self.get_index({'name': name}, existing_containers, ['name'])
+                    new_container_index = self.get_index({'name': name}, new_containers, ['name'])
                     if old_container_index is not None and new_container_index is not None:
                         image = existing['spec']['template']['spec']['containers'][old_container_index]['image']
                         definition['spec']['template']['spec']['containers'][new_container_index]['image'] = image
 
-                    existing_index = get_index(trigger['imageChangeParams'], [x.get('imageChangeParams') for x in existing_triggers], ['containerNames'])
+                    existing_index = self.get_index(trigger['imageChangeParams'], [x.get('imageChangeParams') for x in existing_triggers], ['containerNames'])
                     if existing_index is not None:
                         existing_image = existing_triggers[existing_index].get('imageChangeParams', {}).get('lastTriggeredImage')
                         if existing_image:
