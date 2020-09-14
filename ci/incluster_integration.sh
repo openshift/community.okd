@@ -2,6 +2,8 @@
 
 set -x
 
+NAMESPACE=${NAMESPACE:-default}
+
 # IMAGE_FORMAT is in the form $registry/$org/$image:$$component, ie
 # quay.io/openshift/release:$component
 # To test with your own image, build and push the test image
@@ -13,6 +15,13 @@ component='molecule-test-runner'
 eval IMAGE=$IMAGE_FORMAT
 
 PULL_POLICY=${PULL_POLICY:-IfNotPresent}
+
+if ! oc get namespace $NAMESPACE
+then
+  oc create namespace $NAMESPACE
+fi
+
+oc project $NAMESPACE
 
 echo "Deleting test job if it exists"
 oc delete job molecule-integration-test --wait --ignore-not-found
@@ -71,3 +80,5 @@ do
   fi
   sleep 10
 done
+
+exit 1
