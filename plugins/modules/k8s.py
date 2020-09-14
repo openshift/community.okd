@@ -372,7 +372,7 @@ class OKDRawModule(KubernetesRawModule):
                     else:
                         existing_index = new_index = None
                     if existing_index is not None and new_index is not None:
-                        if len(existing_containers) < existing_index and len(new_containers) < new_index:
+                        if existing_index < len(existing_containers) and new_index < len(new_containers):
                             set_from_fields(definition, path + [new_index, 'image'], get_from_fields(existing, path + [existing_index, 'image']))
         return definition
 
