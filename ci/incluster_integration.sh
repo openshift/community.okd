@@ -2,7 +2,7 @@
 
 set -x
 
-NAMESPACE=${NAMESPACE:-default}
+NAMESPACE=${NAMESPACE:-ansible-okd-test}
 
 # IMAGE_FORMAT is in the form $registry/$org/$image:$$component, ie
 # quay.io/openshift/release:$component
@@ -22,6 +22,7 @@ then
 fi
 
 oc project $NAMESPACE
+oc adm policy add-cluster-role-to-user admin -z default
 
 echo "Deleting test job if it exists"
 oc delete job molecule-integration-test --wait --ignore-not-found
