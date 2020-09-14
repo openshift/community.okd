@@ -289,7 +289,7 @@ except ImportError:
     pass
 
 TRIGGER_ANNOTATION = 'image.openshift.io/triggers'
-TRIGGER_CONTAINER = re.compile(r"(?P<path>.*)\[((?P<index>[0-9]+)|\?\(@\.name==[\"'\\]*(?P<name>\w+))")
+TRIGGER_CONTAINER = re.compile(r"(?P<path>.*)\[((?P<index>[0-9]+)|\?\(@\.name==[\"'\\]*(?P<name>[a-z0-9]([-a-z0-9]*[a-z0-9])?))")
 
 
 class OKDRawModule(KubernetesRawModule):
