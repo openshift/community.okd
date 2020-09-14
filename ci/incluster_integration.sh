@@ -40,23 +40,34 @@ spec:
   parallelism: 1
 EOF
 
-function wait_for_success {
-  oc wait --for=condition=complete job/molecule-integration-test --timeout 5m
-  oc logs job/molecule-integration-test
-  echo "Molecule integration tests ran successfully"
-  exit 0
+function check_success {
+  oc wait --for=condition=complete job/molecule-integration-test --timeout 5s \
+   && oc logs job/molecule-integration-test \
+   && echo "Molecule integration tests ran successfully" \
+   && return 0
+  return 1
 }
 
-function wait_for_failure {
-  oc wait --for=condition=failed job/molecule-integration-test --timeout 5m
-  oc logs job/molecule-integration-test
-  echo "Molecule integration tests failed, see logs for more information..."
-  exit 1
+function check_failure {
+  oc wait --for=condition=failed job/molecule-integration-test --timeout 5s \
+   && oc logs job/molecule-integration-test \
+   && echo "Molecule integration tests failed, see logs for more information..." \
+   && return 0
+  return 1
 }
 
-# Ensure the child processes are killed
-trap 'kill -SIGTERM 0' SIGINT EXIT
+runtime="15 minute"
+endtime=$(date -ud "$runtime" +%s)
 
 echo "Waiting for test job to complete"
-wait_for_success &
-wait_for_failure
+while [[ $(date -u +%s) -le $endtime ]]
+do
+  if check_success
+  then
+    exit 0
+  elif check_failure
+  then
+    exit 1
+  fi
+  sleep 10
+done
