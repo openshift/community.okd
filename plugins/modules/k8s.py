@@ -397,9 +397,19 @@ class OKDRawModule(KubernetesRawModule):
                         image = existing['spec']['template']['spec']['containers'][old_container_index]['image']
                         definition['spec']['template']['spec']['containers'][new_container_index]['image'] = image
 
-                    trigger_index = get_index(trigger['imageChangeParams'], [x.get('imageChangeParams') for x in existing_triggers], ['containerNames', 'from'])
-                    if trigger_index is not None and existing_triggers[trigger_index].get('imageChangeParams', {}).get('lastTriggeredImage'):
-                        definition['spec']['triggers'][i]['lastTriggeredImage'] = existing_triggers[trigger_index]['imageChangeParams']['lastTriggeredImage']
+                    existing_index = get_index(trigger['imageChangeParams'], [x.get('imageChangeParams') for x in existing_triggers], ['containerNames'])
+                    if existing_index is not None:
+                        existing_image = existing_triggers[existing_index].get('imageChangeParams', {}).get('lastTriggeredImage')
+                        if existing_image:
+                            definition['spec']['triggers'][i]['imageChangeParams']['lastTriggeredImage'] = existing_image
+                        existing_from = existing_triggers[existing_index].get('imageChangeParams', {}).get('from', {})
+                        new_from = trigger['imageChangeParams'].get('from', {})
+                        existing_namespace = existing_from.get('namespace')
+                        existing_name = existing_from.get('name', False)
+                        new_name = new_from.get('name', True)
+                        add_namespace = existing_namespace and 'namespace' not in new_from.keys() and existing_name == new_name
+                        if add_namespace:
+                            definition['spec']['triggers'][i]['imageChangeParams']['from']['namespace'] = existing_from['namespace']
 
         return definition
 
