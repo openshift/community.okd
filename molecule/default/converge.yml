@@ -49,18 +49,6 @@
       debug:
         var: output
 
-- name: Converge
-  hosts: localhost
-  connection: local
-  gather_facts: no
-
-  vars:
-    ansible_python_interpreter: '{{ virtualenv_interpreter }}'
-
-  vars_files:
-    - vars/main.yml
-
-  tasks:
     - vars:
         image: docker.io/python
         image_name: python
@@ -70,25 +58,31 @@
           - python
           - '-m'
           - http.server
+        namespace: idempotence-testing
       block:
+        - name: Create a namespace
+          community.okd.k8s:
+            name: '{{ namespace }}'
+            kind: Namespace
+            api_version: v1
+
         - name: Create imagestream
           community.okd.k8s:
-            namespace: testing
+            namespace: '{{ namespace }}'
             definition: '{{ okd_imagestream_template }}'
 
         - name: Create DeploymentConfig to reference ImageStream
           community.okd.k8s:
             name: '{{ k8s_pod_name }}'
-            namespace: testing
+            namespace: '{{ namespace }}'
             definition: '{{ okd_dc_template }}'
           vars:
             k8s_pod_name: is-idempotent-dc
 
-
         - name: Create Deployment to reference ImageStream
           community.okd.k8s:
             name: '{{ k8s_pod_name }}'
-            namespace: testing
+            namespace: '{{ namespace }}'
             definition: '{{ k8s_deployment_template | combine(metadata)  }}'
           vars:
             k8s_pod_annotations:
