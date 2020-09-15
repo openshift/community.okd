@@ -22,7 +22,8 @@ then
 fi
 
 oc project $NAMESPACE
-oc adm policy add-cluster-role-to-user admin -z default
+oc adm policy add-cluster-role-to-user cluster-admin -z default
+oc adm policy who-can create projectrequests
 
 echo "Deleting test job if it exists"
 oc delete job molecule-integration-test --wait --ignore-not-found
