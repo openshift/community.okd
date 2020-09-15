@@ -52,7 +52,7 @@ spec:
 EOF
 
 function check_success {
-  oc wait --for=condition=complete job/molecule-integration-test --timeout 5s \
+  oc wait --for=condition=complete job/molecule-integration-test --timeout 5s -n $NAMESPACE \
    && oc logs job/molecule-integration-test \
    && echo "Molecule integration tests ran successfully" \
    && return 0
@@ -60,7 +60,7 @@ function check_success {
 }
 
 function check_failure {
-  oc wait --for=condition=failed job/molecule-integration-test --timeout 5s \
+  oc wait --for=condition=failed job/molecule-integration-test --timeout 5s -n $NAMESPACE \
    && oc logs job/molecule-integration-test \
    && echo "Molecule integration tests failed, see logs for more information..." \
    && return 0
