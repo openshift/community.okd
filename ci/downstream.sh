@@ -189,7 +189,7 @@ f_test_integration_option()
     f_install_kubernetes_core_from_src
     pushd "${_build_dir}" || return
         f_log_info "INTEGRATION TEST WD: ${PWD}"
-        molecule test
+        OVERRIDE_COLLECTION_PATH="${_tmp_dir}" molecule test
     popd || return
     f_cleanup
 }
