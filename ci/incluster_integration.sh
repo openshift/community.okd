@@ -2,7 +2,7 @@
 
 set -x
 
-NAMESPACE=${NAMESPACE:-ansible-okd-test}
+NAMESPACE=${NAMESPACE:-default}
 
 # IMAGE_FORMAT is in the form $registry/$org/$image:$$component, ie
 # quay.io/openshift/release:$component
