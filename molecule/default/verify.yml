@@ -59,3 +59,5 @@
         virtualenv_site_packages: no
 
     - import_tasks: tasks/validate_not_installed.yml
+
+    - import_tasks: tasks/k8s_auth.yml
