@@ -15,3 +15,30 @@
         virtualenv: "{{ virtualenv }}"
         virtualenv_command: "{{ virtualenv_command }}"
         virtualenv_site_packages: no
+
+    - name: 'Configure htpasswd secret (username: test, password: testing123)'
+      community.okd.k8s:
+        definition:
+          apiVersion: v1
+          kind: Secret
+          metadata:
+            name: htpass-secret
+            namespace: openshift-config
+          stringData:
+            htpasswd: "test:$2y$05$zgjczyp96jCIp//CGmnWiefhd7G3l54IdsZoV4IwA1UWtd04L0lE2"
+
+    - name: Configure htpasswd identity provider
+      community.okd.k8s:
+        definition:
+          apiVersion: config.openshift.io/v1
+          kind: OAuth
+          metadata:
+            name: cluster
+          spec:
+            identityProviders:
+            - name: htpasswd_provider
+              mappingMethod: claim
+              type: HTPasswd
+              htpasswd:
+                fileData:
+                  name: htpass-secret

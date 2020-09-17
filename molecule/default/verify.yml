@@ -60,4 +60,4 @@
 
     - import_tasks: tasks/validate_not_installed.yml
 
-    - import_tasks: tasks/k8s_auth.yml
+    - import_tasks: tasks/openshift_auth.yml
