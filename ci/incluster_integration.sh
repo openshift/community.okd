@@ -2,6 +2,8 @@
 
 set -x
 
+NAMESPACE=${NAMESPACE:-default}
+
 # IMAGE_FORMAT is in the form $registry/$org/$image:$$component, ie
 # quay.io/openshift/release:$component
 # To test with your own image, build and push the test image
@@ -13,6 +15,15 @@ component='molecule-test-runner'
 eval IMAGE=$IMAGE_FORMAT
 
 PULL_POLICY=${PULL_POLICY:-IfNotPresent}
+
+if ! oc get namespace $NAMESPACE
+then
+  oc create namespace $NAMESPACE
+fi
+
+oc project $NAMESPACE
+oc adm policy add-cluster-role-to-user cluster-admin -z default
+oc adm policy who-can create projectrequests
 
 echo "Deleting test job if it exists"
 oc delete job molecule-integration-test --wait --ignore-not-found
@@ -40,22 +51,36 @@ spec:
   parallelism: 1
 EOF
 
-function wait_for_success {
-  oc wait --for=condition=complete job/molecule-integration-test --timeout 5m
-  echo "Molecule integration tests ran successfully"
-  exit 0
+function check_success {
+  oc wait --for=condition=complete job/molecule-integration-test --timeout 5s -n $NAMESPACE \
+   && oc logs job/molecule-integration-test \
+   && echo "Molecule integration tests ran successfully" \
+   && return 0
+  return 1
 }
 
-function wait_for_failure {
-  oc wait --for=condition=failed job/molecule-integration-test --timeout 5m
-  oc logs job/molecule-integration-test
-  echo "Molecule integration tests failed, see logs for more information..."
-  exit 1
+function check_failure {
+  oc wait --for=condition=failed job/molecule-integration-test --timeout 5s -n $NAMESPACE \
+   && oc logs job/molecule-integration-test \
+   && echo "Molecule integration tests failed, see logs for more information..." \
+   && return 0
+  return 1
 }
 
-# Ensure the child processes are killed
-trap 'kill -SIGTERM 0' SIGINT EXIT
+runtime="15 minute"
+endtime=$(date -ud "$runtime" +%s)
 
 echo "Waiting for test job to complete"
-wait_for_success &
-wait_for_failure
+while [[ $(date -u +%s) -le $endtime ]]
+do
+  if check_success
+  then
+    exit 0
+  elif check_failure
+  then
+    exit 1
+  fi
+  sleep 10
+done
+
+exit 1

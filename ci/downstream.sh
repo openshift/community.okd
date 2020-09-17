@@ -133,9 +133,8 @@ f_install_kubernetes_core_from_src()
     #        ansible-galaxy collection install -p "${install_collections_dir}" "${community_k8s_tmpdir}"/kubernetes-core-*.tar.gz
     #    popd
     #popd
-        git clone https://github.com/maxamillion/community.kubernetes "${community_k8s_tmpdir}"
+        git clone https://github.com/ansible-collections/community.kubernetes "${community_k8s_tmpdir}"
         pushd "${community_k8s_tmpdir}"
-            git checkout downstream/fix_collection_name
             make downstream-build
             ansible-galaxy collection install -p "${install_collections_dir}" "${community_k8s_tmpdir}"/kubernetes-core-*.tar.gz
         popd
@@ -189,7 +188,7 @@ f_test_integration_option()
     f_install_kubernetes_core_from_src
     pushd "${_build_dir}" || return
         f_log_info "INTEGRATION TEST WD: ${PWD}"
-        make test-integration-incluster
+        OVERRIDE_COLLECTION_PATH="${_tmp_dir}" molecule test
     popd || return
     f_cleanup
 }

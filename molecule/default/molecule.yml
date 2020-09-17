@@ -9,6 +9,9 @@ platforms:
       - k8s
 provisioner:
   name: ansible
+  log: true
+  options:
+    vvv: True
   config_options:
     inventory:
       enable_plugins: community.okd.openshift
@@ -26,7 +29,7 @@ provisioner:
         playbook_namespace: molecule-tests
   env:
     ANSIBLE_FORCE_COLOR: 'true'
-    ANSIBLE_COLLECTIONS_PATHS: ${MOLECULE_PROJECT_DIRECTORY}
+    ANSIBLE_COLLECTIONS_PATHS: ${OVERRIDE_COLLECTION_PATH:-$MOLECULE_PROJECT_DIRECTORY}
 verifier:
   name: ansible
   lint: |
