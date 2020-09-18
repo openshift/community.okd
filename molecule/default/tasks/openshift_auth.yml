@@ -2,10 +2,6 @@
 - vars:
     openshift_host: 'https://kubernetes.default.svc'
   block:
-    - name: Debug print kubeconfig
-      debug:
-        var: kubeconfig
-
     - name: Log in (obtain access token)
       community.okd.openshift_auth:
         username: test

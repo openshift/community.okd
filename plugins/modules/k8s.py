@@ -328,7 +328,7 @@ class OKDRawModule(KubernetesRawModule):
                 if resource.kind == 'DeploymentConfig':
                     if definition.get('spec', {}).get('triggers'):
                         definition = self.resolve_imagestream_triggers(existing, definition)
-                elif existing['metadata'].get('annotations', '{}').get(TRIGGER_ANNOTATION):
+                elif existing['metadata'].get('annotations', {}).get(TRIGGER_ANNOTATION):
                     definition = self.resolve_imagestream_trigger_annotation(existing, definition)
 
         return super(OKDRawModule, self).perform_action(resource, definition)

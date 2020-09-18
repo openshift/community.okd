@@ -111,11 +111,36 @@ EXAMPLES = r'''
 '''
 
 # Returned value names need to match k8s modules parameter names, to make it
-# easy to pass returned values of k8s_auth to other k8s modules.
+# easy to pass returned values of openshift_auth to other k8s modules.
 # Discussion: https://github.com/ansible/ansible/pull/50807#discussion_r248827899
 RETURN = r'''
 openshift_auth:
   description: OpenShift authentication facts.
+  returned: success
+  type: complex
+  contains:
+    api_key:
+      description: Authentication token.
+      returned: success
+      type: str
+    host:
+      description: URL for accessing the API server.
+      returned: success
+      type: str
+    ca_cert:
+      description: Path to a CA certificate file used to verify connection to the API server.
+      returned: success
+      type: str
+    validate_certs:
+      description: "Whether or not to verify the API server's SSL certificates."
+      returned: success
+      type: bool
+    username:
+      description: Username for authenticating with the API server.
+      returned: success
+      type: str
+k8s_auth:
+  description: Same as returned openshift_auth. Kept only for backwards compatibility
   returned: success
   type: complex
   contains:
@@ -237,7 +262,8 @@ class OpenShiftAuthModule(AnsibleModule):
             self.openshift_logout()
             result = dict()
 
-        self.exit_json(changed=False, k8s_auth=result)
+        # return k8s_auth as well for backwards compatibility
+        self.exit_json(changed=False, openshift_auth=result, k8s_auth=result)
 
     def openshift_discover(self):
         url = '{0}/.well-known/oauth-authorization-server'.format(self.con_host)
