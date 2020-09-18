@@ -20,14 +20,14 @@ author:
   - Fabian von Feilitzsch (@fabianvf)
 
 description:
-  - "This module handles authenticating to OpenShift clusters requiring I(explicit) authentication procedures,
+  - This module handles authenticating to OpenShift clusters requiring I(explicit) authentication procedures,
     meaning ones where a client logs in (obtains an authentication token), performs API operations using said
     token and then logs out (revokes the token).
- - "On the other hand a popular configuration for username+password authentication is one utilizing HTTP Basic
+  - On the other hand a popular configuration for username+password authentication is one utilizing HTTP Basic
     Auth, which does not involve any additional login/logout steps (instead login credentials can be attached
     to each and every API call performed) and as such is handled directly by the C(k8s) module (and other
     resource–specific modules) by utilizing the C(host), C(username) and C(password) parameters. Please
-    consult your preferred module's documentation for more details."
+    consult your preferred module's documentation for more details.
 
 options:
   state:

@@ -1,7 +1,6 @@
 ---
 - vars:
-    kubeconfig: "{{ lookup('file', lookup('env', 'KUBECONFIG') or '~/.kube/config' )| from_yaml }}"
-    openshift_host: '{{ kubeconfig.clusters.0.cluster.server }}'
+    openshift_host: 'https://kubernetes.default.svc'
   block:
     - name: Debug print kubeconfig
       debug:
