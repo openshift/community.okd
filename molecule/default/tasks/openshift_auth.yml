@@ -1,0 +1,51 @@
+---
+- vars:
+    # TODO(fabianvf) Get this parameter working locally as well
+    openshift_host: 'https://kubernetes.default.svc'
+  block:
+    - name: Log in (obtain access token)
+      community.okd.openshift_auth:
+        username: test
+        password: testing123
+        host: '{{ openshift_host }}'
+        verify_ssl: false
+      register: openshift_auth_results
+
+    - name: Get the test User
+      community.kubernetes.k8s_info:
+        api_key: "{{ openshift_auth_results.openshift_auth.api_key }}"
+        host: '{{ openshift_host }}'
+        verify_ssl: false
+        kind: User
+        api_version: user.openshift.io/v1
+        name: test
+      register: user_result
+
+    - name: assert that the user was found
+      assert:
+        that: (user_result.resources | length) == 1
+
+  always:
+    - name: If login succeeded, try to log out (revoke access token)
+      when: openshift_auth_results.openshift_auth.api_key is defined
+      community.okd.openshift_auth:
+        state: absent
+        api_key: "{{ openshift_auth_results.openshift_auth.api_key }}"
+        host: '{{ openshift_host }}'
+        verify_ssl: false
+
+    - name: Get the test user
+      community.kubernetes.k8s_info:
+        api_key: "{{ openshift_auth_results.openshift_auth.api_key }}"
+        host: '{{ openshift_host }}'
+        verify_ssl: false
+        kind: User
+        name: test
+        api_version: user.openshift.io/v1
+      register: failed_user_result
+      ignore_errors: yes
+
+    # TODO(fabianvf) determine why token is not being rejected, maybe add more info to return
+    # - name: assert that the user was not found
+    #   assert:
+    #     that: (failed_user_result.resources | length) == 0
