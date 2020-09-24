@@ -60,6 +60,8 @@ For documentation on how to use individual plugins included in this collection, 
 
 If you want to develop new content for this collection or improve what's already here, the easiest way to work on the collection is to clone it into one of the configured [`COLLECTIONS_PATHS`](https://docs.ansible.com/ansible/latest/reference_appendices/config.html#collections-paths), and work on it there.
 
+See [Contributing to community.okd](CONTRIBUTING.md).
+
 The `tests` directory contains configuration for running sanity tests using [`ansible-test`](https://docs.ansible.com/ansible/latest/dev_guide/testing_integration.html).
 
 You can run the `ansible-test` sanity tests with the command:
