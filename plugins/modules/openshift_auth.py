@@ -15,6 +15,8 @@ module: openshift_auth
 
 short_description: Authenticate to OpenShift clusters which require an explicit login step
 
+version_added: "0.2.0"
+
 author:
   - KubeVirt Team (@kubevirt)
   - Fabian von Feilitzsch (@fabianvf)
