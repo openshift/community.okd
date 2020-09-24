@@ -16,6 +16,7 @@ Click on the name of a plugin or module to view that content's documentation:
     - [openshift](https://docs.ansible.com/ansible/2.10/collections/community/kubernetes/openshift_inventory.html)
   - **Modules**:
     - [k8s](https://docs.ansible.com/ansible/2.10/collections/community/kubernetes/k8s_inventory.html)
+    - [openshift_auth](https://github.com/ansible-collections/community.okd/blob/main/plugins/modules/openshift_auth.py)
 
 > **Note**: These documentation links currently link to older module versions. For the latest module documentation, please use `ansible-doc` in the CLI.
 
@@ -33,7 +34,7 @@ You can also include it in a `requirements.yml` file and install it via `ansible
 ---
 collections:
   - name: community.okd
-    version: 0.1.0
+    version: 0.2.0
 ```
 
 ### Installing the OpenShift Python Library
@@ -99,7 +100,7 @@ where the `IMAGE_FORMAT` environment variable is the full reference to your cont
 
 Releases are automatically built and pushed to Ansible Galaxy for any new tag. Before tagging a release, make sure to do the following:
 
-  1. Update `galaxy.yml` and this README's `requirements.yml` example with the new `version` for the collection.
+  1. Update `galaxy.yml`, this README's `requirements.yml` example, and the `Makefile` with the new `version` for the collection.
   1. Update the CHANGELOG:
     1. Make sure you have [`antsibull-changelog`](https://pypi.org/project/antsibull-changelog/) installed.
     1. Make sure there are fragments for all known changes in `changelogs/fragments`.

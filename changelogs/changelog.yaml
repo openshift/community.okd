@@ -26,3 +26,21 @@ releases:
     - 7-molecule-tests.yml
     - 8-stale-bot.yml
     release_date: '2020-09-04'
+  0.2.0:
+    changes:
+      major_changes:
+      - openshift_auth - new module (migrated from k8s_auth in community.kubernetes)
+        (https://github.com/ansible-collections/community.okd/pull/33).
+      minor_changes:
+      - Add a contribution guide (https://github.com/ansible-collections/community.okd/pull/37).
+      - Use the API Group APIVersion for the `Route` object (https://github.com/ansible-collections/community.okd/pull/27).
+    fragments:
+    - 27-route-api-group.yml
+    - 33-add-k8s_auth.yml
+    - 36-contribution-guide.yml
+    modules:
+    - description: Authenticate to OpenShift clusters which require an explicit login
+        step
+      name: openshift_auth
+      namespace: ''
+    release_date: '2020-09-24'

@@ -5,6 +5,25 @@ OKD Collection Release Notes
 .. contents:: Topics
 
 
+v0.2.0
+======
+
+Major Changes
+-------------
+
+- openshift_auth - new module (migrated from k8s_auth in community.kubernetes) (https://github.com/ansible-collections/community.okd/pull/33).
+
+Minor Changes
+-------------
+
+- Add a contribution guide (https://github.com/ansible-collections/community.okd/pull/37).
+- Use the API Group APIVersion for the `Route` object (https://github.com/ansible-collections/community.okd/pull/27).
+
+New Modules
+-----------
+
+- openshift_auth - Authenticate to OpenShift clusters which require an explicit login step
+
 v0.1.0
 ======
 
