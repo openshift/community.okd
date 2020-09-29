@@ -77,7 +77,7 @@ options:
     type: str
   tls:
     description:
-      - TLS configuration for the newly created route.
+      - TLS certificate configuration for the newly created route.
     type: object
     contains:
       ca_certificate:
@@ -97,47 +97,72 @@ options:
         description:
           - Path to a key file on the target host.
         type: str
-      insecure_policy:
-        description:
-          - Sets the InsecureEdgeTerminationPolicy for the Route.
-        type: str
-        choices:
-          - Allow
-          - Disable
-          - Redirect
-        default: Disable
-      termination:
-        description:
-          - The termination type of the Route.
-        choices:
-          - Edge
-          - Passthrough
-          - Reencrypt
-        default: Edge
+  insecure_policy:
+    description:
+      - Sets the InsecureEdgeTerminationPolicy for the Route.
+    type: str
+    choices:
+      - allow
+      - disable
+      - redirect
+    default: disable
+  termination:
+    description:
+      - The termination type of the Route.
+    choices:
+      - edge
+      - passthrough
+      - reencrypt
+    default: edge
 '''
 
 EXAMPLES = r'''
-- name: Create a Service for an nginx deployment that connects port 80 to port 8000 in the container
-  community.okd.openshift_expose:
-    deployment: nginx
-    namespace: default
-    port: '80'
-    target_port: '8000'
-  register: nginx_service
+- name: Create hello-world deployment
+  community.okd.k8s:
+    definition:
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: hello-kubernetes
+        namespace: default
+      spec:
+        replicas: 3
+        selector:
+          matchLabels:
+            app: hello-kubernetes
+        template:
+          metadata:
+            labels:
+              app: hello-kubernetes
+          spec:
+            containers:
+            - name: hello-kubernetes
+              image: paulbouwer/hello-kubernetes:1.8
+              ports:
+              - containerPort: 8080
 
-- name: Create a second service based on the above service, that connects port 443 to port 8443 in the container
-  community.okd.openshift_expose:
-    service: '{{ nginx_service.result.metadata.name }}'
-    namespace: default
-    port: '443'
-    target_port: '8443'
-    name: nginx-https
+- name: Create Service for the hello-world deployment
+  community.okd.k8s:
+    definition:
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: hello-kubernetes
+        namespace: default
+      spec:
+        ports:
+        - port: 80
+          targetPort: 8080
+        selector:
+          app: hello-kubernetes
 
-- name: Create a service for a pod
+- name: Expose the insecure hello-world service externally
   community.okd.openshift_expose:
-    pod: hello-world
+    service: hello-kubernetes
     namespace: default
-    name: hello-world
+    insecure_policy: allow
+    termination: edge
+  register: route
 '''
 
 RETURN = r'''
@@ -153,6 +178,11 @@ result:
       type: complex
     status:
       type: complex
+     duration:
+       description: elapsed time of task in seconds
+       returned: when C(wait) is true
+       type: int
+       sample: 48
 '''
 
 import copy
@@ -192,13 +222,89 @@ class OpenShiftExpose(K8sAnsibleMixin):
             certificate=dict(type='str'),
             destination_ca_certificate=dict(type='str'),
             key=dict(type='str'),
-            insecure_policy=dict(type='str', choices=['Allow', 'Disable', 'Redirect'], default='Disable'),
-            termination=dict(choices=['Edge', 'Passthrough', 'Reencrypt'], default='Edge'),
-        )
+        ))
+        spec['insecure_policy'] = dict(type='str', choices=['Allow', 'Disable', 'Redirect'], default='Disable')
+        spec['termination'] = dict(choices=['Edge', 'Passthrough', 'Reencrypt'], default='Edge')
+
         return spec
 
     def execute_module(self):
-        raise NotImplementedError
+        self.client = self.get_api_client()
+        v1_services = self.find_resource('Service', 'v1', fail=True)
+        v1_routes = self.find_resource('Route', 'route.openshift.io/v1', fail=True)
+
+        service_name = self.params['service']
+        namespace = self.params['namespace']
+        insecure_policy=self.params.get('insecure_policy', 'Disable').capitalize()
+        termination_type = self.params.get('termination', 'Edge').capitalize()
+
+        route_name = self.params.get('name') or  service_name
+        labels = self.params.get('labels')
+        hostname = self.params.get('hostname')
+        path = self.params.get('path')
+        wildcard_policy = self.params.get('wildcard_policy')
+        port = self.params.get('port')
+
+        if self.params.get('tls'):
+            tls_ca_cert = self.params['tls'].get('ca_certificate')
+            tls_cert = self.params['tls'].get('certificate')
+            tls_dest_ca_cert = self.params['tls'].get('destination_ca_certificate')
+            tls_key = self.params['tls'].get('key')
+        else:
+            tls_ca_cert = tls_cert = tls_dest_ca_cert = tls_key = None
+
+        try:
+            target_service = v1_services.get(name=service_name, namespace=namespace)
+        except DynamicApiError as exc:
+            self.fail_json(msg='Failed to retrieve service to be exposed: {0}'.format(exc.body),
+                           error=exc.status, status=exc.status, reason=exc.reason)
+        except Exception as exc:
+            self.fail_json(msg='Failed to retrieve service to be exposed: {0}'.format(to_native(exc)),
+                           error='', status='', reason='')
+
+
+        route = {
+            'apiVersion': 'route.openshift.io/v1',
+            'kind': 'Route',
+            'metadata': {
+                'name': route_name,
+                'namespace': namespace,
+                'labels': labels,
+            },
+            'spec': {
+                'tls': {
+                    'insecureEdgeTerminationPolicy': insecure_policy,
+                    'termination': termination_type,
+                },
+                'to': {
+                    'kind': 'Service',
+                    'name': service_name,
+                },
+                'wildcardPolicy': wildcard_policy
+            }
+        }
+
+        # Want to conditionally add these so we don't overwrite what is automically added when nothing is provided
+        if hostname:
+            route['spec']['host'] = hostname
+        if path:
+            route['spec']['path'] = path
+        if port:
+            route['port'] = {
+                'targetPort': port
+            }
+        if tls_ca_cert:
+            route['tls']['caCertificate'] = tls_ca_cert
+        if tls_cert:
+            route['tls']['certificate'] = tls_cert
+        if tls_dest_ca_cert:
+            route['tls']['destinationCACertificate'] = tls_dest_ca_cert
+        if tls_key:
+            route['tls']['key'] = tls_key
+
+        result = self.perform_action(v1_routes, route)
+
+        self.module.exit_json(result=result)
 
 
 def main():
