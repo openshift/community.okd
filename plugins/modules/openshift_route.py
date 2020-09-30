@@ -10,7 +10,7 @@ __metaclass__ = type
 
 
 DOCUMENTATION = r'''
-module: openshift_expose
+module: openshift_route
 
 short_description: Expose a Service as an OpenShift Route.
 
@@ -20,7 +20,7 @@ author: "Fabian von Feilitzsch (@fabianvf)"
 
 description:
   - Looks up a Service and creates a new Route based on it.
-  - Analogous to `oc expose` for creating Routes, but does not support creating Services.
+  - Analogous to `oc expose` and `oc create route` for creating Routes, but does not support creating Services.
   - For creating Services from other resources, see community.kubernetes.k8s_expose
 
 extends_documentation_fragment:
@@ -163,7 +163,7 @@ EXAMPLES = r'''
           app: hello-kubernetes
 
 - name: Expose the insecure hello-world service externally
-  community.okd.openshift_expose:
+  community.okd.openshift_route:
     service: hello-kubernetes
     namespace: default
     insecure_policy: allow
@@ -198,7 +198,7 @@ from ansible_collections.community.kubernetes.plugins.module_utils.common import
 )
 
 
-class OpenShiftExpose(K8sAnsibleMixin):
+class OpenShiftRoute(K8sAnsibleMixin):
 
     def __init__(self):
         self.module = AnsibleModule(
@@ -213,7 +213,7 @@ class OpenShiftExpose(K8sAnsibleMixin):
         self.check_mode = self.module.check_mode
         self.warnings = []
         self.params['merge_type'] = None
-        super(OpenShiftExpose, self).__init__()
+        super(OpenShiftRoute, self).__init__()
 
     @property
     def argspec(self):
@@ -339,7 +339,7 @@ class OpenShiftExpose(K8sAnsibleMixin):
 
 
 def main():
-    OpenShiftExpose().execute_module()
+    OpenShiftRoute().execute_module()
 
 
 if __name__ == '__main__':

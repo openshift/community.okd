@@ -1,0 +1,59 @@
+---
+- name: Create Deployment
+  community.okd.k8s:
+    wait: yes
+    definition:
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: hello-kubernetes
+        namespace: default
+      spec:
+        replicas: 3
+        selector:
+          matchLabels:
+            app: hello-kubernetes
+        template:
+          metadata:
+            labels:
+              app: hello-kubernetes
+          spec:
+            containers:
+            - name: hello-kubernetes
+              image: paulbouwer/hello-kubernetes:1.8
+              ports:
+              - containerPort: 8080
+
+- name: Create Service
+  community.okd.k8s:
+    wait: yes
+    definition:
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: hello-kubernetes
+        namespace: default
+      spec:
+        ports:
+        - port: 80
+          targetPort: 8080
+        selector:
+          app: hello-kubernetes
+
+
+- name: Create Route
+  community.okd.openshift_route:
+    service: hello-kubernetes
+    namespace: default
+    name: test1
+
+- name: Create Route with fewest possible arguments
+  community.okd.openshift_route:
+    service: hello-kubernetes
+    namespace: default
+
+- name: Create edge-terminated route
+  community.okd.openshift_route:
+    service: hello-kubernetes
+    namespace: default
+    name: hello-kubernetes-https
