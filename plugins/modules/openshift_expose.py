@@ -77,43 +77,49 @@ options:
     type: str
   tls:
     description:
-      - TLS certificate configuration for the newly created route.
+      - TLS configuration for the newly created route.
+      - Only used when I(termination) is set.
     type: object
     contains:
       ca_certificate:
         description:
           - Path to a CA certificate file on the target host.
+          - Not supported when I(termination) is set to passthrough.
         type: str
       certificate:
         description:
           - Path to a certificate file on the target host.
+          - Not supported when I(termination) is set to passthrough.
         type: str
       destination_ca_certificate:
         description:
           - Path to a CA certificate file used for securing the connection.
-          - Defaults to the Service CA
+          - Only used when I(termination) is set to reencrypt.
+          - Defaults to the Service CA.
         type: str
       key:
         description:
           - Path to a key file on the target host.
+          - Not supported when I(termination) is set to passthrough.
         type: str
-  insecure_policy:
-    description:
-      - Sets the InsecureEdgeTerminationPolicy for the Route.
-    type: str
-    choices:
-      - allow
-      - disable
-      - redirect
-    default: disable
+      insecure_policy:
+        description:
+          - Sets the InsecureEdgeTerminationPolicy for the Route.
+          - Not supported when I(termination) is set to reencrypt.
+          - When I(termination) is set to passthrough, only redirect is supported.
+          - If not provided, insecure traffic will be disallowed.
+        type: str
+        choices:
+          - allow
+          - redirect
   termination:
     description:
       - The termination type of the Route.
+      - If left empty no termination type will be set, and the route will be insecure.
     choices:
       - edge
       - passthrough
       - reencrypt
-    default: edge
 '''
 
 EXAMPLES = r'''
@@ -161,7 +167,6 @@ EXAMPLES = r'''
     service: hello-kubernetes
     namespace: default
     insecure_policy: allow
-    termination: edge
   register: route
 '''
 
@@ -202,6 +207,12 @@ class OpenShiftExpose(K8sAnsibleMixin):
         )
         self.params = self.module.params
         self.fail_json = self.module.fail_json
+        # TODO: should probably make it so that at least some of these aren't required for perform_action
+        self.append_hash = False
+        self.apply = False
+        self.check_mode = self.module.check_mode
+        self.warnings = []
+        self.params['merge_type'] = None
         super(OpenShiftExpose, self).__init__()
 
     @property
@@ -215,16 +226,16 @@ class OpenShiftExpose(K8sAnsibleMixin):
         spec['name'] = dict(type='str')
         spec['hostname'] = dict(type='str')
         spec['path'] = dict(type='str')
-        spec['wildcard_policy'] = dict(choices=['None', 'Subdomain'], default=None, type='str')
+        spec['wildcard_policy'] = dict(choices=[None, 'Subdomain'], default=None, type='str')
         spec['port'] = dict(type='str')
         spec['tls'] = dict(type='object', contains=dict(
             ca_certificate=dict(type='str'),
             certificate=dict(type='str'),
             destination_ca_certificate=dict(type='str'),
             key=dict(type='str'),
+            insecure_policy=dict(type='str', choices=['allow', 'redirect']),
         ))
-        spec['insecure_policy'] = dict(type='str', choices=['Allow', 'Disable', 'Redirect'], default='Disable')
-        spec['termination'] = dict(choices=['Edge', 'Passthrough', 'Reencrypt'], default='Edge')
+        spec['termination'] = dict(choices=['edge', 'passthrough', 'reencrypt'])
 
         return spec
 
@@ -235,10 +246,9 @@ class OpenShiftExpose(K8sAnsibleMixin):
 
         service_name = self.params['service']
         namespace = self.params['namespace']
-        insecure_policy=self.params.get('insecure_policy', 'Disable').capitalize()
-        termination_type = self.params.get('termination', 'Edge').capitalize()
+        termination_type = self.params.get('termination')
 
-        route_name = self.params.get('name') or  service_name
+        route_name = self.params.get('name') or service_name
         labels = self.params.get('labels')
         hostname = self.params.get('hostname')
         path = self.params.get('path')
@@ -250,8 +260,9 @@ class OpenShiftExpose(K8sAnsibleMixin):
             tls_cert = self.params['tls'].get('certificate')
             tls_dest_ca_cert = self.params['tls'].get('destination_ca_certificate')
             tls_key = self.params['tls'].get('key')
+            tls_insecure_policy = self.params['tls'].get('insecure_policy')
         else:
-            tls_ca_cert = tls_cert = tls_dest_ca_cert = tls_key = None
+            tls_ca_cert = tls_cert = tls_dest_ca_cert = tls_key = tls_insecure_policy = None
 
         try:
             target_service = v1_services.get(name=service_name, namespace=namespace)
@@ -272,10 +283,7 @@ class OpenShiftExpose(K8sAnsibleMixin):
                 'labels': labels,
             },
             'spec': {
-                'tls': {
-                    'insecureEdgeTerminationPolicy': insecure_policy,
-                    'termination': termination_type,
-                },
+                'tls': {},
                 'to': {
                     'kind': 'Service',
                     'name': service_name,
@@ -285,26 +293,49 @@ class OpenShiftExpose(K8sAnsibleMixin):
         }
 
         # Want to conditionally add these so we don't overwrite what is automically added when nothing is provided
+        if termination_type:
+            route['spec']['tls'] = dict(termination=termination_type.capitalize())
+            if tls_insecure_policy:
+                if termination_type == 'edge':
+                    route['spec']['tls']['insecureEdgeTerminationPolicy'] = tls_insecure_policy.capitalize()
+                elif termination_type == 'passthrough':
+                    if tls_insecure_policy != 'redirect':
+                        self.fail_json("'redirect' is the only supported insecureEdgeTerminationPolicy for passthrough routes")
+                    route['spec']['tls']['insecureEdgeTerminationPolicy'] = tls_insecure_policy.capitalize()
+                elif termination_type == 'reencrypt':
+                    self.fail_json("'tls.insecure_policy' is not supported with reencrypt routes")
+            else:
+                route['spec']['tls']['insecureEdgeTerminationPolicy'] = None
+            if tls_ca_cert:
+                if termination_type == 'passthrough':
+                    self.fail_json("'tls.ca_certificate' is not supported with passthrough routes")
+                route['tls']['caCertificate'] = tls_ca_cert
+            if tls_cert:
+                if termination_type == 'passthrough':
+                    self.fail_json("'tls.certificate' is not supported with passthrough routes")
+                route['tls']['certificate'] = tls_cert
+            if tls_key:
+                if termination_type == 'passthrough':
+                    self.fail_json("'tls.key' is not supported with passthrough routes")
+                route['tls']['key'] = tls_key
+            if tls_dest_ca_cert:
+                if termination_type != 'reencrypt':
+                    self.fail_json("'destination_certificate' is only valid for reencrypt routes")
+                route['tls']['destinationCACertificate'] = tls_dest_ca_cert
+        else:
+            route['spec']['tls'] = None
         if hostname:
             route['spec']['host'] = hostname
         if path:
             route['spec']['path'] = path
         if port:
-            route['port'] = {
+            route['spec']['port'] = {
                 'targetPort': port
             }
-        if tls_ca_cert:
-            route['tls']['caCertificate'] = tls_ca_cert
-        if tls_cert:
-            route['tls']['certificate'] = tls_cert
-        if tls_dest_ca_cert:
-            route['tls']['destinationCACertificate'] = tls_dest_ca_cert
-        if tls_key:
-            route['tls']['key'] = tls_key
 
         result = self.perform_action(v1_routes, route)
 
-        self.module.exit_json(result=result)
+        self.module.exit_json(**result)
 
 
 def main():
