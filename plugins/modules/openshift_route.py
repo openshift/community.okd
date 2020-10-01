@@ -66,10 +66,10 @@ options:
   wildcard_policy:
     description:
       - The wildcard policy for the hostname.
+      - Currently only Subdomain is supported.
+      - If not provided, the default of None will be used.
     choices:
-      - None
       - Subdomain
-    default: None
     type: str
   port:
     description:
@@ -79,8 +79,8 @@ options:
     description:
       - TLS configuration for the newly created route.
       - Only used when I(termination) is set.
-    type: object
-    contains:
+    type: dict
+    suboptions:
       ca_certificate:
         description:
           - Path to a CA certificate file on the target host.
@@ -120,6 +120,7 @@ options:
       - edge
       - passthrough
       - reencrypt
+    type: str
 '''
 
 EXAMPLES = r'''
@@ -183,19 +184,25 @@ result:
       type: complex
     status:
       type: complex
-     duration:
-       description: elapsed time of task in seconds
-       returned: when C(wait) is true
-       type: int
-       sample: 48
+duration:
+  description: elapsed time of task in seconds
+  returned: when C(wait) is true
+  type: int
+  sample: 48
 '''
 
 import copy
 
 from ansible.module_utils.basic import AnsibleModule
+from ansible.module_utils._text import to_native
 from ansible_collections.community.kubernetes.plugins.module_utils.common import (
     K8sAnsibleMixin, AUTH_ARG_SPEC, WAIT_ARG_SPEC
 )
+
+try:
+    from openshift.dynamic.exceptions import DynamicApiError
+except ImportError:
+    pass
 
 
 class OpenShiftRoute(K8sAnsibleMixin):
@@ -226,7 +233,7 @@ class OpenShiftRoute(K8sAnsibleMixin):
         spec['name'] = dict(type='str')
         spec['hostname'] = dict(type='str')
         spec['path'] = dict(type='str')
-        spec['wildcard_policy'] = dict(choices=[None, 'Subdomain'], default=None, type='str')
+        spec['wildcard_policy'] = dict(choices=['Subdomain'], type='str')
         spec['port'] = dict(type='str')
         spec['tls'] = dict(type='object', contains=dict(
             ca_certificate=dict(type='str'),
@@ -272,7 +279,6 @@ class OpenShiftRoute(K8sAnsibleMixin):
         except Exception as exc:
             self.fail_json(msg='Failed to retrieve service to be exposed: {0}'.format(to_native(exc)),
                            error='', status='', reason='')
-
 
         route = {
             'apiVersion': 'route.openshift.io/v1',
