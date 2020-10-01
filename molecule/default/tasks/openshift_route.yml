@@ -20,9 +20,9 @@
           spec:
             containers:
             - name: hello-kubernetes
-              image: docker.io/nginxdemos/hello:plain-text
+              image: docker.io/openshift/hello-openshift
               ports:
-              - containerPort: 80
+              - containerPort: 8080
 
 - name: Create Service
   community.okd.k8s:
@@ -36,10 +36,9 @@
       spec:
         ports:
         - port: 80
-          targetPort: 80
+          targetPort: 8080
         selector:
           app: hello-kubernetes
-
 
 - name: Create Route with fewest possible arguments
   community.okd.openshift_route:
@@ -51,6 +50,8 @@
   uri:
     url: 'http://{{ route.result.spec.host }}'
     return_content: yes
+  until: result is successful
+  retries: 10
   register: result
 
 - name: Assert the page content is as expected
@@ -58,24 +59,22 @@
     that:
       - not result.redirected
       - result.status == 200
-      - "'hello-kubernetes' in (result.content | from_yaml)['Server name']"
+      - result.content == 'Hello OpenShift!\n'
 
 - name: Create Route with custom name and wait
   community.okd.openshift_route:
     service: hello-kubernetes
     namespace: default
     name: test1
-    # wait: yes
+    wait: yes
   register: route
 
-# - name: Assert that the condition is properly set
-#   assert:
-#     that:
-#       - route.duration is defined
-#       - route.result.status.conditions is defined
-#       - route.result.status.conditions.0 is defined
-#       - route.result.status.conditions.0.type == 'Admitted'
-#       - route.result.status.conditions.0.status == 'True'
+- name: Assert that the condition is properly set
+  assert:
+    that:
+      - route.duration is defined
+      - route.result.status.ingress.0.conditions.0.type == 'Admitted'
+      - route.result.status.ingress.0.conditions.0.status == 'True'
 
 - name: Attempt to hit http URL
   uri:
@@ -88,7 +87,7 @@
     that:
       - not result.redirected
       - result.status == 200
-      - "'hello-kubernetes' in (result.content | from_yaml)['Server name']"
+      - result.content == 'Hello OpenShift!\n'
 
 - name: Create edge-terminated route that allows insecure traffic
   community.okd.openshift_route:
@@ -104,6 +103,8 @@
   uri:
     url: 'http://{{ route.result.spec.host }}'
     return_content: yes
+  until: result is successful
+  retries: 10
   register: result
 
 - name: Assert the page content is as expected
@@ -111,13 +112,15 @@
     that:
       - not result.redirected
       - result.status == 200
-      - "'hello-kubernetes' in (result.content | from_yaml)['Server name']"
+      - result.content == 'Hello OpenShift!\n'
 
 - name: Attempt to hit https URL
   uri:
     url: 'https://{{ route.result.spec.host }}'
     validate_certs: no
     return_content: yes
+  until: result is successful
+  retries: 10
   register: result
 
 - name: Assert the page content is as expected
@@ -125,7 +128,7 @@
     that:
       - not result.redirected
       - result.status == 200
-      - "'hello-kubernetes' in (result.content | from_yaml)['Server name']"
+      - result.content == 'Hello OpenShift!\n'
 
 - name: Alter edge-terminated route to redirect insecure traffic
   community.okd.openshift_route:
@@ -142,6 +145,8 @@
     url: 'http://{{ route.result.spec.host }}'
     return_content: yes
     validate_certs: no
+  until: result is successful
+  retries: 10
   register: result
 
 - name: Assert the page content is as expected
@@ -149,13 +154,15 @@
     that:
       - result.redirected
       - result.status == 200
-      - "'hello-kubernetes' in (result.content | from_yaml)['Server name']"
+      - result.content == 'Hello OpenShift!\n'
 
 - name: Attempt to hit https URL
   uri:
     url: 'https://{{ route.result.spec.host }}'
     validate_certs: no
     return_content: yes
+  until: result is successful
+  retries: 10
   register: result
 
 - name: Assert the page content is as expected
@@ -163,7 +170,7 @@
     that:
       - not result.redirected
       - result.status == 200
-      - "'hello-kubernetes' in (result.content | from_yaml)['Server name']"
+      - result.content == 'Hello OpenShift!\n'
 
 - name: Alter edge-terminated route disallow
   community.okd.openshift_route:
@@ -180,6 +187,8 @@
     url: 'https://{{ route.result.spec.host }}'
     validate_certs: no
     return_content: yes
+  until: result is successful
+  retries: 10
   register: result
 
 - name: Assert the page content is as expected
@@ -187,13 +196,14 @@
     that:
       - not result.redirected
       - result.status == 200
-      - "'hello-kubernetes' in (result.content | from_yaml)['Server name']"
+      - result.content == 'Hello OpenShift!\n'
 
 - name: Attempt to hit http URL
   uri:
     url: 'http://{{ route.result.spec.host }}'
-    return_content: yes
     status_code: 503
+  until: result is successful
+  retries: 10
   register: result
 
 - debug: var=result
@@ -202,5 +212,4 @@
   assert:
     that:
       - not result.redirected
-      - result.status == 200
-      - "'hello-kubernetes' in (result.content | from_yaml)['Server name']"
+      - result.status == 503

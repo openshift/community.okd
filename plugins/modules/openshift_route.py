@@ -259,14 +259,11 @@ class OpenShiftRoute(K8sAnsibleMixin):
         namespace = self.params['namespace']
         termination_type = self.params.get('termination')
 
-        if self.params.get('wait') and not self.params.get('wait_condition'):
-            # TODO: Routes (of course) don't obey the normal status format, need to
-            # patch wait so it works
-            # self.params['wait_condition'] = {
-            #     'type': 'Admitted',
-            #     'status': 'True'
-            # }
-            pass
+        # We need to do something a little wonky to wait if the user doesn't supply a custom condition
+        wait = self.params.get('wait') and not self.params.get('wait_condition')
+        if wait:
+            # Don't use default wait logic in perform_action
+            self.params['wait'] = False
 
         route_name = self.params.get('name') or service_name
         labels = self.params.get('labels')
@@ -356,6 +353,10 @@ class OpenShiftRoute(K8sAnsibleMixin):
             route['spec']['path'] = path
 
         result = self.perform_action(v1_routes, route)
+        timeout = self.params.get('wait_timeout')
+        sleep = self.params.get('wait_sleep')
+        if wait:
+            success, result['result'], result['duration'] = self._wait_for(v1_routes, route_name, namespace, wait_predicate, sleep, timeout, 'present')
 
         self.module.exit_json(**result)
 
@@ -368,6 +369,19 @@ class OpenShiftRoute(K8sAnsibleMixin):
                     return p.name
                 return p.targetPort
         return None
+
+
+def wait_predicate(route):
+    if not(route.status and route.status.ingress):
+        return False
+    for ingress in route.status.ingress:
+        match = [x for x in ingress.conditions if x.type == 'Admitted']
+        if not match:
+            return False
+        match = match[0]
+        if match.status != "True":
+            return False
+    return True
 
 
 def main():
