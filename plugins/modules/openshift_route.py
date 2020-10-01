@@ -208,6 +208,8 @@ except ImportError:
 class OpenShiftRoute(K8sAnsibleMixin):
 
     def __init__(self):
+        super(OpenShiftRoute, self).__init__()
+
         self.module = AnsibleModule(
             argument_spec=self.argspec,
             supports_check_mode=True,
