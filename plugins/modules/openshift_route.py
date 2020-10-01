@@ -200,7 +200,7 @@ from ansible_collections.community.kubernetes.plugins.module_utils.common import
 )
 
 try:
-    from openshift.dynamic.exceptions import DynamicApiError
+    from openshift.dynamic.exceptions import DynamicApiError, NotFoundError
 except ImportError:
     pass
 
@@ -216,7 +216,9 @@ class OpenShiftRoute(K8sAnsibleMixin):
         )
         self.params = self.module.params
         self.fail_json = self.module.fail_json
-        # TODO: should probably make it so that at least some of these aren't required for perform_action
+
+        # TODO: should probably make it so that at least some of these aren't required for perform_action to work
+        # Or at least explicitly pass them in
         self.append_hash = False
         self.apply = False
         self.check_mode = self.module.check_mode
@@ -237,7 +239,7 @@ class OpenShiftRoute(K8sAnsibleMixin):
         spec['path'] = dict(type='str')
         spec['wildcard_policy'] = dict(choices=['Subdomain'], type='str')
         spec['port'] = dict(type='str')
-        spec['tls'] = dict(type='object', contains=dict(
+        spec['tls'] = dict(type='dict', contains=dict(
             ca_certificate=dict(type='str'),
             certificate=dict(type='str'),
             destination_ca_certificate=dict(type='str'),
@@ -257,6 +259,15 @@ class OpenShiftRoute(K8sAnsibleMixin):
         namespace = self.params['namespace']
         termination_type = self.params.get('termination')
 
+        if self.params.get('wait') and not self.params.get('wait_condition'):
+            # TODO: Routes (of course) don't obey the normal status format, need to
+            # patch wait so it works
+            # self.params['wait_condition'] = {
+            #     'type': 'Admitted',
+            #     'status': 'True'
+            # }
+            pass
+
         route_name = self.params.get('name') or service_name
         labels = self.params.get('labels')
         hostname = self.params.get('hostname')
@@ -275,6 +286,10 @@ class OpenShiftRoute(K8sAnsibleMixin):
 
         try:
             target_service = v1_services.get(name=service_name, namespace=namespace)
+        except NotFoundError:
+            if not port:
+                self.fail_json(msg="You need to provide the 'port' argument when exposing a non-existent service")
+            target_service = None
         except DynamicApiError as exc:
             self.fail_json(msg='Failed to retrieve service to be exposed: {0}'.format(exc.body),
                            error=exc.status, status=exc.status, reason=exc.reason)
@@ -295,6 +310,9 @@ class OpenShiftRoute(K8sAnsibleMixin):
                 'to': {
                     'kind': 'Service',
                     'name': service_name,
+                },
+                'port': {
+                    'targetPort': self.set_port(target_service, port),
                 },
                 'wildcardPolicy': wildcard_policy
             }
@@ -336,14 +354,20 @@ class OpenShiftRoute(K8sAnsibleMixin):
             route['spec']['host'] = hostname
         if path:
             route['spec']['path'] = path
-        if port:
-            route['spec']['port'] = {
-                'targetPort': port
-            }
 
         result = self.perform_action(v1_routes, route)
 
         self.module.exit_json(**result)
+
+    def set_port(self, service, port_arg):
+        if port_arg:
+            return port_arg
+        for p in service.spec.ports:
+            if p.protocol == 'TCP':
+                if p.name is not None:
+                    return p.name
+                return p.targetPort
+        return None
 
 
 def main():
