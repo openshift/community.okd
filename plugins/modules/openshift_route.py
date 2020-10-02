@@ -191,14 +191,100 @@ result:
       description: Standard object metadata. Includes name, namespace, annotations, labels, etc.
       returned: success
       type: complex
+      contains:
+          name:
+              description: The name of the created Route
+              type: str
+          namespace:
+              description: The namespace of the create Route
+              type: str
     spec:
       description: Specification for the Route
       returned: success
       type: complex
+      contains:
+          host:
+              description: Host is an alias/DNS that points to the service.
+              type: str
+          path:
+              description: Path that the router watches for, to route traffic for to the service.
+              type: str
+          port:
+              description: Defines a port mapping from a router to an endpoint in the service endpoints.
+              type: complex
+              contains:
+                  targetPort:
+                      description: The target port on pods selected by the service this route points to.
+                      type: str
+          tls:
+              description: Defines config used to secure a route and provide termination.
+              type: complex
+              contains:
+                  caCertificate:
+                      description: Provides the cert authority certificate contents.
+                      type: str
+                  certificate:
+                      description: Provides certificate contents.
+                      type: str
+                  destinationCACertificate:
+                      description: Provides the contents of the ca certificate of the final destination.
+                      type: str
+                  insecureEdgeTerminationPolicy:
+                      description: Indicates the desired behavior for insecure connections to a route.
+                      type: str
+                  key:
+                      description: Provides key file contents.
+                      type: str
+                  termination:
+                      description: Indicates termination type.
+                      type: str
+          to:
+              description: Specifies the target that resolve into endpoints.
+              type: complex
+              contains:
+                  kind:
+                      description: The kind of target that the route is referring to. Currently, only 'Service' is allowed.
+                      type: str
+                  name:
+                      description: Name of the service/target that is being referred to. e.g. name of the service.
+                      type: str
+                  weight:
+                      description: Specifies the target's relative weight against other target reference objects.
+                      type: int
+          wildcardPolicy:
+              description: Wildcard policy if any for the route.
+              type: str
     status:
       description: Current status details for the Route
       returned: success
       type: complex
+      contains:
+          ingress:
+              description: List of places where the route may be exposed.
+              type: complex
+              contains:
+                conditions:
+                    description: Array of status conditions for the Route ingress.
+                    type: complex
+                    contains:
+                        type:
+                            description: The type of the condition. Currently only 'Ready'.
+                            type: str
+                        status:
+                            description: The status of the condition. Can be True, False, Unknown.
+                            type: str
+                host:
+                    description: The host string under which the route is exposed.
+                    type: str
+                routerCanonicalHostname:
+                    description: The external host name for the router that can be used as a CNAME for the host requested for this route. May not be set.
+                    type: str
+                routerName:
+                    description: A name chosen by the router to identify itself.
+                    type: str
+                wildcardPolicy:
+                    description: The wildcard policy that was allowed where this route is exposed.
+                    type: str
 duration:
   description: elapsed time of task in seconds
   returned: when C(wait) is true
@@ -268,7 +354,7 @@ class OpenShiftRoute(K8sAnsibleMixin):
         spec['path'] = dict(type='str')
         spec['wildcard_policy'] = dict(choices=['Subdomain'], type='str')
         spec['port'] = dict(type='str')
-        spec['tls'] = dict(type='dict', contains=dict(
+        spec['tls'] = dict(type='dict', options=dict(
             ca_certificate=dict(type='str'),
             certificate=dict(type='str'),
             destination_ca_certificate=dict(type='str'),
@@ -319,10 +405,10 @@ class OpenShiftRoute(K8sAnsibleMixin):
             target_service = None
         except DynamicApiError as exc:
             self.module.fail_json(msg='Failed to retrieve service to be exposed: {0}'.format(exc.body),
-                           error=exc.status, status=exc.status, reason=exc.reason)
+                                  error=exc.status, status=exc.status, reason=exc.reason)
         except Exception as exc:
             self.module.fail_json(msg='Failed to retrieve service to be exposed: {0}'.format(to_native(exc)),
-                           error='', status='', reason='')
+                                  error='', status='', reason='')
 
         route = {
             'apiVersion': 'route.openshift.io/v1',
