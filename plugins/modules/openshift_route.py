@@ -230,8 +230,6 @@ class OpenShiftRoute(K8sAnsibleMixin):
             supports_check_mode=True,
         )
         self.params = self.module.params
-        self.fail_json = self.module.fail_json
-
         # TODO: should probably make it so that at least some of these aren't required for perform_action to work
         # Or at least explicitly pass them in
         self.append_hash = False
@@ -239,6 +237,10 @@ class OpenShiftRoute(K8sAnsibleMixin):
         self.check_mode = self.module.check_mode
         self.warnings = []
         self.params['merge_type'] = None
+
+    @property
+    def fail_json(self):
+        return self.module.fail_json
 
     @property
     def argspec(self):
