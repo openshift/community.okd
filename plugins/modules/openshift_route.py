@@ -26,6 +26,7 @@ description:
 extends_documentation_fragment:
   - community.kubernetes.k8s_auth_options
   - community.kubernetes.k8s_wait_options
+  - community.kubernetes.k8s_state_options
 
 requirements:
   - "python >= 2.7"
@@ -174,15 +175,29 @@ EXAMPLES = r'''
 RETURN = r'''
 result:
   description:
-  - The Route object that was created or updated
+    - The Route object that was created or updated. Will be empty in the case of deletion.
   returned: success
   type: complex
   contains:
+    apiVersion:
+      description: The versioned schema of this representation of an object.
+      returned: success
+      type: str
+    kind:
+      description: Represents the REST resource this object represents.
+      returned: success
+      type: str
     metadata:
+      description: Standard object metadata. Includes name, namespace, annotations, labels, etc.
+      returned: success
       type: complex
     spec:
+      description: Specification for the Route
+      returned: success
       type: complex
     status:
+      description: Current status details for the Route
+      returned: success
       type: complex
 duration:
   description: elapsed time of task in seconds
@@ -196,7 +211,7 @@ import copy
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils._text import to_native
 from ansible_collections.community.kubernetes.plugins.module_utils.common import (
-    K8sAnsibleMixin, AUTH_ARG_SPEC, WAIT_ARG_SPEC
+    K8sAnsibleMixin, AUTH_ARG_SPEC, WAIT_ARG_SPEC, COMMON_ARG_SPEC
 )
 
 try:
@@ -224,12 +239,12 @@ class OpenShiftRoute(K8sAnsibleMixin):
         self.check_mode = self.module.check_mode
         self.warnings = []
         self.params['merge_type'] = None
-        super(OpenShiftRoute, self).__init__()
 
     @property
     def argspec(self):
         spec = copy.deepcopy(AUTH_ARG_SPEC)
         spec.update(copy.deepcopy(WAIT_ARG_SPEC))
+        spec.update(copy.deepcopy(COMMON_ARG_SPEC))
 
         spec['service'] = dict(type='str', required=True, aliases=['svc'])
         spec['namespace'] = dict(required=True, type='str')
@@ -258,10 +273,11 @@ class OpenShiftRoute(K8sAnsibleMixin):
         service_name = self.params['service']
         namespace = self.params['namespace']
         termination_type = self.params.get('termination')
+        state = self.params.get('state')
 
         # We need to do something a little wonky to wait if the user doesn't supply a custom condition
-        wait = self.params.get('wait') and not self.params.get('wait_condition')
-        if wait:
+        custom_wait = self.params.get('wait') and not self.params.get('wait_condition') and state != 'absent'
+        if custom_wait:
             # Don't use default wait logic in perform_action
             self.params['wait'] = False
 
@@ -355,8 +371,8 @@ class OpenShiftRoute(K8sAnsibleMixin):
         result = self.perform_action(v1_routes, route)
         timeout = self.params.get('wait_timeout')
         sleep = self.params.get('wait_sleep')
-        if wait:
-            success, result['result'], result['duration'] = self._wait_for(v1_routes, route_name, namespace, wait_predicate, sleep, timeout, 'present')
+        if custom_wait:
+            success, result['result'], result['duration'] = self._wait_for(v1_routes, route_name, namespace, wait_predicate, sleep, timeout, state)
 
         self.module.exit_json(**result)
 

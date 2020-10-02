@@ -184,6 +184,8 @@
     termination: edge
   register: route
 
+- debug: var=route
+
 - name: Attempt to hit https URL
   uri:
     url: 'https://{{ route.result.spec.host }}'
