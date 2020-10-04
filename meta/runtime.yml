@@ -7,4 +7,3 @@ action_groups:
     - k8s_auth
     - openshift_auth
     - openshift_route
-
