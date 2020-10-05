@@ -61,6 +61,13 @@
       - result.status == 200
       - result.content == 'Hello OpenShift!\n'
 
+- name: Delete route
+  community.okd.openshift_route:
+    name: '{{ route.result.metadata.name }}'
+    namespace: default
+    state: absent
+    wait: yes
+
 - name: Create Route with custom name and wait
   community.okd.openshift_route:
     service: hello-kubernetes
@@ -88,6 +95,13 @@
       - not result.redirected
       - result.status == 200
       - result.content == 'Hello OpenShift!\n'
+
+- name: Delete route
+  community.okd.openshift_route:
+    name: '{{ route.result.metadata.name }}'
+    namespace: default
+    state: absent
+    wait: yes
 
 - name: Create edge-terminated route that allows insecure traffic
   community.okd.openshift_route:
@@ -174,13 +188,13 @@
       - result.status == 200
       - result.content == 'Hello OpenShift!\n'
 
-- name: Alter edge-terminated route disallow
+- name: Alter edge-terminated route with insecure traffic disabled
   community.okd.openshift_route:
     service: hello-kubernetes
     namespace: default
     name: hello-kubernetes-https
     tls:
-      insecure_policy: null
+      insecure_policy: disable
     termination: edge
   register: route
 
@@ -217,3 +231,10 @@
     that:
       - not result.redirected
       - result.status == 503
+
+- name: Delete route
+  community.okd.openshift_route:
+    name: '{{ route.result.metadata.name }}'
+    namespace: default
+    state: absent
+    wait: yes

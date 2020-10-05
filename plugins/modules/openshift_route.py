@@ -37,8 +37,8 @@ options:
   service:
     description:
       - The name of the service to expose.
+      - Required when I(state) is not absent.
     type: str
-    required: yes
     aliases: ['svc']
   namespace:
     description:
@@ -113,14 +113,17 @@ options:
         choices:
           - allow
           - redirect
+          - disable
   termination:
     description:
       - The termination type of the Route.
       - If left empty no termination type will be set, and the route will be insecure.
+      - When set to insecure I(tls) will be ignored.
     choices:
       - edge
       - passthrough
       - reencrypt
+      - insecure
     type: str
 '''
 
@@ -308,6 +311,7 @@ except ImportError as e:
     k8s_collection_import_exception = e
     K8S_COLLECTION_ERROR = traceback.format_exc()
     K8sAnsibleMixin = object
+    AUTH_ARG_SPEC = WAIT_ARG_SPEC = COMMON_ARG_SPEC = {}
 
 try:
     from openshift.dynamic.exceptions import DynamicApiError, NotFoundError
@@ -322,6 +326,7 @@ class OpenShiftRoute(K8sAnsibleMixin):
             argument_spec=self.argspec,
             supports_check_mode=True,
         )
+        self.fail_json = self.module.fail_json
 
         if not HAS_KUBERNETES_COLLECTION:
             self.module.fail_json(
@@ -329,6 +334,7 @@ class OpenShiftRoute(K8sAnsibleMixin):
                 exception=K8S_COLLECTION_ERROR,
                 error=to_native(k8s_collection_import_exception)
             )
+
         super(OpenShiftRoute, self).__init__()
 
         self.params = self.module.params
@@ -346,7 +352,7 @@ class OpenShiftRoute(K8sAnsibleMixin):
         spec.update(copy.deepcopy(WAIT_ARG_SPEC))
         spec.update(copy.deepcopy(COMMON_ARG_SPEC))
 
-        spec['service'] = dict(type='str', required=True, aliases=['svc'])
+        spec['service'] = dict(type='str', aliases=['svc'])
         spec['namespace'] = dict(required=True, type='str')
         spec['labels'] = dict(type='dict')
         spec['name'] = dict(type='str')
@@ -359,21 +365,25 @@ class OpenShiftRoute(K8sAnsibleMixin):
             certificate=dict(type='str'),
             destination_ca_certificate=dict(type='str'),
             key=dict(type='str'),
-            insecure_policy=dict(type='str', choices=['allow', 'redirect']),
+            insecure_policy=dict(type='str', choices=['allow', 'redirect', 'disable']),
         ))
-        spec['termination'] = dict(choices=['edge', 'passthrough', 'reencrypt'])
+        spec['termination'] = dict(choices=['edge', 'passthrough', 'reencrypt', 'insecure'])
 
         return spec
 
     def execute_module(self):
         self.client = self.get_api_client()
-        v1_services = self.find_resource('Service', 'v1', fail=True)
         v1_routes = self.find_resource('Route', 'route.openshift.io/v1', fail=True)
 
-        service_name = self.params['service']
+        service_name = self.params.get('service')
         namespace = self.params['namespace']
         termination_type = self.params.get('termination')
+        if termination_type == 'insecure':
+            termination_type = None
         state = self.params.get('state')
+
+        if state != 'absent' and not service_name:
+            self.fail_json("If 'state' is not 'absent' then 'service' must be provided")
 
         # We need to do something a little wonky to wait if the user doesn't supply a custom condition
         custom_wait = self.params.get('wait') and not self.params.get('wait_condition') and state != 'absent'
@@ -388,15 +398,54 @@ class OpenShiftRoute(K8sAnsibleMixin):
         wildcard_policy = self.params.get('wildcard_policy')
         port = self.params.get('port')
 
-        if self.params.get('tls'):
+        if termination_type and self.params.get('tls'):
             tls_ca_cert = self.params['tls'].get('ca_certificate')
             tls_cert = self.params['tls'].get('certificate')
             tls_dest_ca_cert = self.params['tls'].get('destination_ca_certificate')
             tls_key = self.params['tls'].get('key')
             tls_insecure_policy = self.params['tls'].get('insecure_policy')
+            if tls_insecure_policy == 'disable':
+                tls_insecure_policy = None
         else:
             tls_ca_cert = tls_cert = tls_dest_ca_cert = tls_key = tls_insecure_policy = None
 
+        route = {
+            'apiVersion': 'route.openshift.io/v1',
+            'kind': 'Route',
+            'metadata': {
+                'name': route_name,
+                'namespace': namespace,
+                'labels': labels,
+            },
+            'spec': {}
+        }
+
+        if state != 'absent':
+            route['spec'] = self.build_route_spec(
+                service_name, namespace,
+                port=port,
+                wildcard_policy=wildcard_policy,
+                hostname=hostname,
+                path=path,
+                termination_type=termination_type,
+                tls_insecure_policy=tls_insecure_policy,
+                tls_ca_cert=tls_ca_cert,
+                tls_cert=tls_cert,
+                tls_key=tls_key,
+                tls_dest_ca_cert=tls_dest_ca_cert,
+            )
+
+        result = self.perform_action(v1_routes, route)
+        timeout = self.params.get('wait_timeout')
+        sleep = self.params.get('wait_sleep')
+        if custom_wait:
+            success, result['result'], result['duration'] = self._wait_for(v1_routes, route_name, namespace, wait_predicate, sleep, timeout, state)
+
+        self.module.exit_json(**result)
+
+    def build_route_spec(self, service_name, namespace, port=None, wildcard_policy=None, hostname=None, path=None, termination_type=None,
+                         tls_insecure_policy=None, tls_ca_cert=None, tls_cert=None, tls_key=None, tls_dest_ca_cert=None):
+        v1_services = self.find_resource('Service', 'v1', fail=True)
         try:
             target_service = v1_services.get(name=service_name, namespace=namespace)
         except NotFoundError:
@@ -410,71 +459,56 @@ class OpenShiftRoute(K8sAnsibleMixin):
             self.module.fail_json(msg='Failed to retrieve service to be exposed: {0}'.format(to_native(exc)),
                                   error='', status='', reason='')
 
-        route = {
-            'apiVersion': 'route.openshift.io/v1',
-            'kind': 'Route',
-            'metadata': {
-                'name': route_name,
-                'namespace': namespace,
-                'labels': labels,
+        route_spec = {
+            'tls': {},
+            'to': {
+                'kind': 'Service',
+                'name': service_name,
             },
-            'spec': {
-                'tls': {},
-                'to': {
-                    'kind': 'Service',
-                    'name': service_name,
-                },
-                'port': {
-                    'targetPort': self.set_port(target_service, port),
-                },
-                'wildcardPolicy': wildcard_policy
-            }
+            'port': {
+                'targetPort': self.set_port(target_service, port),
+            },
+            'wildcardPolicy': wildcard_policy
         }
 
         # Want to conditionally add these so we don't overwrite what is automically added when nothing is provided
         if termination_type:
-            route['spec']['tls'] = dict(termination=termination_type.capitalize())
+            route_spec['tls'] = dict(termination=termination_type.capitalize())
             if tls_insecure_policy:
                 if termination_type == 'edge':
-                    route['spec']['tls']['insecureEdgeTerminationPolicy'] = tls_insecure_policy.capitalize()
+                    route_spec['tls']['insecureEdgeTerminationPolicy'] = tls_insecure_policy.capitalize()
                 elif termination_type == 'passthrough':
                     if tls_insecure_policy != 'redirect':
                         self.module.fail_json("'redirect' is the only supported insecureEdgeTerminationPolicy for passthrough routes")
-                    route['spec']['tls']['insecureEdgeTerminationPolicy'] = tls_insecure_policy.capitalize()
+                    route_spec['tls']['insecureEdgeTerminationPolicy'] = tls_insecure_policy.capitalize()
                 elif termination_type == 'reencrypt':
                     self.module.fail_json("'tls.insecure_policy' is not supported with reencrypt routes")
             else:
-                route['spec']['tls']['insecureEdgeTerminationPolicy'] = None
+                route_spec['tls']['insecureEdgeTerminationPolicy'] = None
             if tls_ca_cert:
                 if termination_type == 'passthrough':
                     self.module.fail_json("'tls.ca_certificate' is not supported with passthrough routes")
-                route['tls']['caCertificate'] = tls_ca_cert
+                route_spec['tls']['caCertificate'] = tls_ca_cert
             if tls_cert:
                 if termination_type == 'passthrough':
                     self.module.fail_json("'tls.certificate' is not supported with passthrough routes")
-                route['tls']['certificate'] = tls_cert
+                route_spec['tls']['certificate'] = tls_cert
             if tls_key:
                 if termination_type == 'passthrough':
                     self.module.fail_json("'tls.key' is not supported with passthrough routes")
-                route['tls']['key'] = tls_key
+                route_spec['tls']['key'] = tls_key
             if tls_dest_ca_cert:
                 if termination_type != 'reencrypt':
                     self.module.fail_json("'destination_certificate' is only valid for reencrypt routes")
-                route['tls']['destinationCACertificate'] = tls_dest_ca_cert
+                route_spec['tls']['destinationCACertificate'] = tls_dest_ca_cert
         else:
-            route['spec']['tls'] = None
+            route_spec['tls'] = None
         if hostname:
-            route['spec']['host'] = hostname
+            route_spec['host'] = hostname
         if path:
-            route['spec']['path'] = path
+            route_spec['path'] = path
 
-        result = self.perform_action(v1_routes, route)
-        timeout = self.params.get('wait_timeout')
-        sleep = self.params.get('wait_sleep')
-        if custom_wait:
-            success, result['result'], result['duration'] = self._wait_for(v1_routes, route_name, namespace, wait_predicate, sleep, timeout, state)
-
-        self.module.exit_json(**result)
+        return route_spec
 
     def set_port(self, service, port_arg):
         if port_arg:
