@@ -114,6 +114,7 @@ options:
           - allow
           - redirect
           - disallow
+        default: disallow
   termination:
     description:
       - The termination type of the Route.
@@ -366,7 +367,7 @@ class OpenShiftRoute(K8sAnsibleMixin):
             certificate=dict(type='str'),
             destination_ca_certificate=dict(type='str'),
             key=dict(type='str'),
-            insecure_policy=dict(type='str', choices=['allow', 'redirect', 'disallow']),
+            insecure_policy=dict(type='str', choices=['allow', 'redirect', 'disallow'], default='disallow'),
         ))
         spec['termination'] = dict(choices=['edge', 'passthrough', 'reencrypt', 'insecure'], default='insecure')
 
