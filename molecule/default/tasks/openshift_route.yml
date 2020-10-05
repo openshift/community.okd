@@ -194,7 +194,7 @@
     namespace: default
     name: hello-kubernetes-https
     tls:
-      insecure_policy: disable
+      insecure_policy: disallow
     termination: edge
   register: route
 

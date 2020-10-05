@@ -113,7 +113,7 @@ options:
         choices:
           - allow
           - redirect
-          - disable
+          - disallow
   termination:
     description:
       - The termination type of the Route.
@@ -124,6 +124,7 @@ options:
       - passthrough
       - reencrypt
       - insecure
+    default: insecure
     type: str
 '''
 
@@ -365,9 +366,9 @@ class OpenShiftRoute(K8sAnsibleMixin):
             certificate=dict(type='str'),
             destination_ca_certificate=dict(type='str'),
             key=dict(type='str'),
-            insecure_policy=dict(type='str', choices=['allow', 'redirect', 'disable']),
+            insecure_policy=dict(type='str', choices=['allow', 'redirect', 'disallow']),
         ))
-        spec['termination'] = dict(choices=['edge', 'passthrough', 'reencrypt', 'insecure'])
+        spec['termination'] = dict(choices=['edge', 'passthrough', 'reencrypt', 'insecure'], default='insecure')
 
         return spec
 
@@ -404,7 +405,7 @@ class OpenShiftRoute(K8sAnsibleMixin):
             tls_dest_ca_cert = self.params['tls'].get('destination_ca_certificate')
             tls_key = self.params['tls'].get('key')
             tls_insecure_policy = self.params['tls'].get('insecure_policy')
-            if tls_insecure_policy == 'disable':
+            if tls_insecure_policy == 'disallow':
                 tls_insecure_policy = None
         else:
             tls_ca_cert = tls_cert = tls_dest_ca_cert = tls_key = tls_insecure_policy = None
