@@ -46,7 +46,6 @@ options:
   namespace:
     description:
       - The namespace that the template can be found in.
-    required: yes
     type: str
   parameters:
     description:
@@ -67,6 +66,7 @@ RETURN = r'''
 '''
 
 import re
+import os
 import copy
 import traceback
 
@@ -91,6 +91,7 @@ except ImportError:
     pass
 
 DOTENV_PARSER = re.compile(r"(?x)^(\s*(\#.*|\s*|(export\s+)?(?P<key>[A-z_][A-z0-9_.]*)=(?P<value>.+?)?)\s*)[\r\n]*$")
+
 
 class OpenShiftProcess(K8sAnsibleMixin):
 
