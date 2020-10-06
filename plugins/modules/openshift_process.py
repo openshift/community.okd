@@ -26,8 +26,6 @@ description:
 
 extends_documentation_fragment:
   - community.kubernetes.k8s_auth_options
-  - community.kubernetes.k8s_wait_options
-  - community.kubernetes.k8s_state_options
   - community.kubernetes.k8s_resource_options
 
 requirements:
@@ -47,6 +45,10 @@ options:
     description:
       - The namespace that the template can be found in.
     type: str
+  namespace_target:
+    description:
+      - The namespace that resources should be created, updated, or deleted in.
+      - Only used when I(state) is present or absent.
   parameters:
     description:
       - 'A set of key: value pairs that will be used to set/override values in the Template.'
@@ -57,6 +59,17 @@ options:
       - A path to a file containing template parameter values to override/set values in the Template.
       - Corresponds to the `--param-file` argument to oc process.
     type: str
+  state:
+    description:
+    - Determines what to do with the rendered Template.
+    - The state I(rendered) will render the Template based on the provided parameters, and return the rendered
+        objects in the I(objects) field. These can then be referenced in future tasks.
+    - The state I(present) will cause the resources in the rendered Template to be created if they do not
+        already exist, and patched if they do.
+    - The state I(absent) will delete the resources in the rendered Template.
+    type: str
+    default: rendered
+    choices: [ absent, present, renderered ]
 '''
 
 EXAMPLES = r'''
@@ -75,7 +88,7 @@ from ansible.module_utils._text import to_native
 
 try:
     from ansible_collections.community.kubernetes.plugins.module_utils.common import (
-        K8sAnsibleMixin, AUTH_ARG_SPEC, WAIT_ARG_SPEC, COMMON_ARG_SPEC, RESOURCE_ARG_SPEC
+        K8sAnsibleMixin, AUTH_ARG_SPEC, RESOURCE_ARG_SPEC, WAIT_ARG_SPEC
     )
     HAS_KUBERNETES_COLLECTION = True
 except ImportError as e:
@@ -83,7 +96,7 @@ except ImportError as e:
     k8s_collection_import_exception = e
     K8S_COLLECTION_ERROR = traceback.format_exc()
     K8sAnsibleMixin = object
-    AUTH_ARG_SPEC = WAIT_ARG_SPEC = COMMON_ARG_SPEC = RESOURCE_ARG_SPEC = {}
+    AUTH_ARG_SPEC = RESOURCE_ARG_SPEC = WAIT_ARG_SPEC = {}
 
 try:
     from openshift.dynamic.exceptions import DynamicApiError, NotFoundError
@@ -101,6 +114,7 @@ class OpenShiftProcess(K8sAnsibleMixin):
             supports_check_mode=True,
         )
         self.fail_json = self.module.fail_json
+        self.exit_json = self.module.exit_json
 
         if not HAS_KUBERNETES_COLLECTION:
             self.module.fail_json(
@@ -117,11 +131,12 @@ class OpenShiftProcess(K8sAnsibleMixin):
     @property
     def argspec(self):
         spec = copy.deepcopy(AUTH_ARG_SPEC)
-        spec.update(copy.deepcopy(WAIT_ARG_SPEC))
-        spec.update(copy.deepcopy(COMMON_ARG_SPEC))
+        spec = copy.deepcopy(WAIT_ARG_SPEC)
         spec.update(copy.deepcopy(RESOURCE_ARG_SPEC))
 
+        spec['state'] = dict(type='str', default='rendered', choices=['present', 'absent', 'rendered'])
         spec['namespace'] = dict(type='str')
+        spec['namespace_target'] = dict(type='str')
         spec['parameters'] = dict(type='dict')
         spec['name'] = dict(type='str')
         spec['parameter_file'] = dict(type='str')
@@ -191,6 +206,16 @@ class OpenShiftProcess(K8sAnsibleMixin):
 
         result['message'] = response['message']
         result['objects'] = response['objects']
+
+        if state != 'rendered':
+            self.resource_definitions = response['objects']
+            self.kind = self.api_version = self.name = None
+            self.namespace = self.params.get('namespace_target')
+            self.append_hash = False
+            self.apply = False
+            self.params['validate'] = None
+            self.params['merge_type'] = None
+            super(OpenShiftProcess, self).execute_module()
 
         self.module.exit_json(**result)
 
