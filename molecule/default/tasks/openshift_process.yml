@@ -1,0 +1,11 @@
+---
+- name: Process a template in the cluster
+  community.okd.openshift_process:
+    name: nginx-example
+    namespace: openshift # only needed if using a template already on the server
+    parameters:
+      NAMESPACE: default
+      NAME: test123
+  register: result
+
+- debug: var=result

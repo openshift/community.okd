@@ -62,3 +62,4 @@
 
     - import_tasks: tasks/openshift_auth.yml
     - import_tasks: tasks/openshift_route.yml
+    - import_tasks: tasks/openshift_process.yml
