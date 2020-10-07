@@ -26,6 +26,7 @@ description:
 
 extends_documentation_fragment:
   - community.kubernetes.k8s_auth_options
+  - community.kubernetes.k8s_wait_options
   - community.kubernetes.k8s_resource_options
 
 requirements:
@@ -69,7 +70,7 @@ options:
     - The state I(absent) will delete the resources in the rendered Template.
     type: str
     default: rendered
-    choices: [ absent, present, renderered ]
+    choices: [ absent, present, rendered ]
 '''
 
 EXAMPLES = r'''
@@ -131,7 +132,7 @@ class OpenShiftProcess(K8sAnsibleMixin):
     @property
     def argspec(self):
         spec = copy.deepcopy(AUTH_ARG_SPEC)
-        spec = copy.deepcopy(WAIT_ARG_SPEC)
+        spec.update(copy.deepcopy(WAIT_ARG_SPEC))
         spec.update(copy.deepcopy(RESOURCE_ARG_SPEC))
 
         spec['state'] = dict(type='str', default='rendered', choices=['present', 'absent', 'rendered'])
