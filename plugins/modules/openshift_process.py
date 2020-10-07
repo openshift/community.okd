@@ -64,7 +64,7 @@ options:
     description:
     - Determines what to do with the rendered Template.
     - The state I(rendered) will render the Template based on the provided parameters, and return the rendered
-        objects in the I(objects) field. These can then be referenced in future tasks.
+        objects in the I(resources) field. These can then be referenced in future tasks.
     - The state I(present) will cause the resources in the rendered Template to be created if they do not
         already exist, and patched if they do.
     - The state I(absent) will delete the resources in the rendered Template.
@@ -157,7 +157,7 @@ class OpenShiftProcess(K8sAnsibleMixin):
 
         state = self.params.get('state')
 
-        parameters = self.params.get('parameters', {})
+        parameters = self.params.get('parameters') or {}
         parameter_file = self.params.get('parameter_file')
 
         if (name and definition) or (name and src) or (src and definition):
@@ -192,7 +192,7 @@ class OpenShiftProcess(K8sAnsibleMixin):
             parameters = self.parse_dotenv_and_merge(parameters, parameter_file)
 
         for k, v in parameters.items():
-            template = self.update_template_params(template, k, v)
+            template = self.update_template_param(template, k, v)
 
         result = {'changed': False}
 
@@ -206,7 +206,7 @@ class OpenShiftProcess(K8sAnsibleMixin):
                                   error='', status='', reason='')
 
         result['message'] = response['message']
-        result['objects'] = response['objects']
+        result['resources'] = response['objects']
 
         if state != 'rendered':
             self.resource_definitions = response['objects']
@@ -220,7 +220,7 @@ class OpenShiftProcess(K8sAnsibleMixin):
 
         self.module.exit_json(**result)
 
-    def update_template_params(self, template, k, v):
+    def update_template_param(self, template, k, v):
         for i, param in enumerate(template['parameters']):
             if param['name'] == k:
                 template['parameters'][i]['value'] = v
@@ -233,7 +233,14 @@ class OpenShiftProcess(K8sAnsibleMixin):
             self.fail(msg="Error accessing {0}. Does the file exist?".format(path))
         try:
             with open(path, 'r') as f:
+                multiline = ''
                 for line in f.readlines():
+                    if line.endswith('\\'):
+                        multiline += ' '.join(line.rsplit('\\', 1))
+                        continue
+                    if multiline:
+                        line = multiline + line
+                        multiline = ''
                     match = DOTENV_PARSER.search(line).groupdict()
                     if match.get('key'):
                         if match['key'] in parameters:

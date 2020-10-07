@@ -10,34 +10,33 @@
     name: nginx-example
     namespace: openshift # only needed if using a template already on the server
     parameters:
-      NAMESPACE: default
+      NAMESPACE: openshift
       NAME: test123
   register: result
 
-- name: Create the rendered objects
+- name: Create the rendered resources
   community.okd.k8s:
     namespace: process-test
     definition: '{{ item }}'
     wait: yes
     apply: yes
-  loop: '{{ result.objects }}'
+  loop: '{{ result.resources }}'
 
-- name: Delete the rendered objects
+- name: Delete the rendered resources
   community.okd.k8s:
     namespace: process-test
     definition: '{{ item }}'
     wait: yes
     state: absent
-  loop: '{{ result.objects }}'
+  loop: '{{ result.resources }}'
 
-- debug: var=result
 
 - name: Process a template and create the resources in the cluster
   community.okd.openshift_process:
     name: nginx-example
     namespace: openshift # only needed if using a template already on the server
     parameters:
-      NAMESPACE: default
+      NAMESPACE: openshift
       NAME: test123
     state: present
     namespace_target: process-test
@@ -48,7 +47,7 @@
     name: nginx-example
     namespace: openshift # only needed if using a template already on the server
     parameters:
-      NAMESPACE: default
+      NAMESPACE: openshift
       NAME: test123
       MEMORY_LIMIT: 1Gi
     state: present
@@ -60,8 +59,43 @@
     name: nginx-example
     namespace: openshift # only needed if using a template already on the server
     parameters:
-      NAMESPACE: default
+      NAMESPACE: openshift
       NAME: test123
     state: absent
     namespace_target: process-test
   register: result
+
+- name: Process a template with parameters from an env file and create the resources
+  community.okd.openshift_process:
+    name: nginx-example
+    namespace: openshift
+    namespace_target: process-test
+    parameter_file: '{{ files_dir }}/nginx.env'
+    state: present
+    wait: yes
+
+- name: Process a template with parameters from an env file and delete the resources
+  community.okd.openshift_process:
+    name: nginx-example
+    namespace: openshift
+    namespace_target: process-test
+    parameter_file: '{{ files_dir }}/nginx.env'
+    state: absent
+    wait: yes
+
+
+- name: Process a template with duplicate values
+  community.okd.openshift_process:
+    name: nginx-example
+    namespace: openshift # only needed if using a template already on the server
+    parameters:
+      NAME: test123
+    parameter_file: '{{ files_dir }}/nginx.env'
+  ignore_errors: yes
+  register: result
+
+- name: Assert the expected failure occurred
+  assert:
+    that:
+      - result.msg is defined
+      - result.msg == "Duplicate value for 'NAME' detected in parameter file"
