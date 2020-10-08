@@ -235,13 +235,17 @@ class OpenShiftProcess(K8sAnsibleMixin):
             with open(path, 'r') as f:
                 multiline = ''
                 for line in f.readlines():
+                    line = line.strip()
                     if line.endswith('\\'):
                         multiline += ' '.join(line.rsplit('\\', 1))
                         continue
                     if multiline:
-                        line = multiline + line.strip()
+                        line = multiline + line
                         multiline = ''
-                    match = DOTENV_PARSER.search(line).groupdict()
+                    match = DOTENV_PARSER.search(line)
+                    if not match:
+                        continue
+                    match = match.groupdict()
                     if match.get('key'):
                         if match['key'] in parameters:
                             self.fail_json(msg="Duplicate value for '{0}' detected in parameter file".format(match['key']))
