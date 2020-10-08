@@ -74,9 +74,133 @@ options:
 '''
 
 EXAMPLES = r'''
+- name: Process a template in the cluster
+  community.okd.openshift_process:
+    name: nginx-example
+    namespace: openshift # only needed if using a template already on the server
+    parameters:
+      NAMESPACE: openshift
+      NAME: test123
+    state: rendered
+  register: result
+
+- name: Create the rendered resources using apply
+  community.okd.k8s:
+    namespace: default
+    definition: '{{ item }}'
+    wait: yes
+    apply: yes
+  loop: '{{ result.resources }}'
+
+- name: Process a template with parameters from an env file and create the resources
+  community.okd.openshift_process:
+    name: nginx-example
+    namespace: openshift
+    namespace_target: default
+    parameter_file: 'files/nginx.env'
+    state: present
+    wait: yes
+
+- name: Process a local template and create the resources
+  community.okd.openshift_process:
+    src: files/example-template.yaml
+    parameter_file: files/example.env
+    namespace_target: default
+    state: present
+
+- name: Process a local template, delete the resources, and wait for them to terminate
+  community.okd.openshift_process:
+    src: files/example-template.yaml
+    parameter_file: files/example.env
+    namespace_target: default
+    state: absent
+    wait: yes
 '''
 
 RETURN = r'''
+result:
+  description:
+  - The created, patched, or otherwise present object. Will be empty in the case of a deletion.
+  returned: on success when state is present or absent
+  type: complex
+  contains:
+     apiVersion:
+       description: The versioned schema of this representation of an object.
+       returned: success
+       type: str
+     kind:
+       description: Represents the REST resource this object represents.
+       returned: success
+       type: str
+     metadata:
+       description: Standard object metadata. Includes name, namespace, annotations, labels, etc.
+       returned: success
+       type: complex
+       contains:
+           name:
+             description: The name of the resource
+             type: str
+           namespace:
+             description: The namespace of the resource
+             type: str
+     spec:
+       description: Specific attributes of the object. Will vary based on the I(api_version) and I(kind).
+       returned: success
+       type: dict
+     status:
+       description: Current status details for the object.
+       returned: success
+       type: complex
+       contains:
+         conditions:
+             type: complex
+             description: Array of status conditions for the object. Not guaranteed to be present
+     items:
+       description: Returned only when multiple yaml documents are passed to src or resource_definition
+       returned: when resource_definition or src contains list of objects
+       type: list
+     duration:
+       description: elapsed time of task in seconds
+       returned: when C(wait) is true
+       type: int
+       sample: 48
+resources:
+  type: complex
+  description:
+  - The rendered resources defined in the Template
+  returned: on success when state is rendered
+  contains:
+     apiVersion:
+       description: The versioned schema of this representation of an object.
+       returned: success
+       type: str
+     kind:
+       description: Represents the REST resource this object represents.
+       returned: success
+       type: str
+     metadata:
+       description: Standard object metadata. Includes name, namespace, annotations, labels, etc.
+       returned: success
+       type: complex
+       contains:
+           name:
+             description: The name of the resource
+             type: str
+           namespace:
+             description: The namespace of the resource
+             type: str
+     spec:
+       description: Specific attributes of the object. Will vary based on the I(api_version) and I(kind).
+       returned: success
+       type: dict
+     status:
+       description: Current status details for the object.
+       returned: success
+       type: dict
+       contains:
+         conditions:
+             type: complex
+             description: Array of status conditions for the object. Not guaranteed to be present
 '''
 
 import re
