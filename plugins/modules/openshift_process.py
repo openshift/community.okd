@@ -239,7 +239,7 @@ class OpenShiftProcess(K8sAnsibleMixin):
                         multiline += ' '.join(line.rsplit('\\', 1))
                         continue
                     if multiline:
-                        line = multiline + line
+                        line = multiline + line.strip()
                         multiline = ''
                     match = DOTENV_PARSER.search(line).groupdict()
                     if match.get('key'):

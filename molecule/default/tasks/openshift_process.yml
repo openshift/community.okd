@@ -30,7 +30,6 @@
     state: absent
   loop: '{{ result.resources }}'
 
-
 - name: Process a template and create the resources in the cluster
   community.okd.openshift_process:
     name: nginx-example
@@ -99,3 +98,55 @@
     that:
       - result.msg is defined
       - result.msg == "Duplicate value for 'NAME' detected in parameter file"
+
+- name: Process a local template
+  community.okd.openshift_process:
+    src: '{{ files_dir }}/simple-template.yaml'
+    parameter_file: '{{ files_dir }}/example.env'
+  register: rendered
+
+- name: Process a local template and create the resources
+  community.okd.openshift_process:
+    src: '{{ files_dir }}/simple-template.yaml'
+    parameter_file: '{{ files_dir }}/example.env'
+    namespace_target: process-test
+    state: present
+  register: result
+
+- assert:
+    that: result is changed
+
+- name: Create the processed resources
+  community.okd.k8s:
+    namespace: process-test
+    definition: '{{ item }}'
+  loop: '{{ rendered.resources }}'
+  register: result
+
+- assert:
+    that: result is not changed
+
+- name: Process a local template and create the resources
+  community.okd.openshift_process:
+    definition: "{{ lookup('template', files_dir +  '/simple-template.yaml') | from_yaml }}"
+    parameter_file: '{{ files_dir }}/example.env'
+    namespace_target: process-test
+    state: present
+  register: result
+
+- assert:
+    that: result is not changed
+
+- name: Get the created configmap
+  community.kubernetes.k8s_info:
+    api_version: v1
+    kind: ConfigMap
+    name: example
+    namespace: process-test
+  register: templated_cm
+
+- assert:
+    that:
+      - (templated_cm.resources | length) == 1
+      - templated_cm.resources.0.data.content is defined
+      - templated_cm.resources.0.data.content == "This is a long message that may take one or more lines to parse but should still work without issue"
