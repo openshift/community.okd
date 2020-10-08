@@ -150,3 +150,19 @@
       - (templated_cm.resources | length) == 1
       - templated_cm.resources.0.data.content is defined
       - templated_cm.resources.0.data.content == "This is a long message that may take one or more lines to parse but should still work without issue"
+
+- name: Create the Template resource
+  community.okd.k8s:
+    src: '{{ files_dir }}/simple-template.yaml'
+    namespace: process-test
+
+- name: Process the template and create the resources
+  community.okd.openshift_process:
+    name: simple-example
+    namespace: process-test # only needed if using a template already on the server
+    parameter_file: '{{ files_dir }}/example.env'
+    state: present
+  register: result
+
+- assert:
+    that: result is not changed
