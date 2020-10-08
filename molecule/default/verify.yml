@@ -62,6 +62,19 @@
 
     - import_tasks: tasks/openshift_auth.yml
     - import_tasks: tasks/openshift_route.yml
-    - import_tasks: tasks/openshift_process.yml
-      vars:
-        files_dir: '{{ playbook_dir }}/files'
+    - block:
+        - name: Create namespace
+          community.okd.k8s:
+            api_version: v1
+            kind: Namespace
+            name: process-test
+        - import_tasks: tasks/openshift_process.yml
+          vars:
+            files_dir: '{{ playbook_dir }}/files'
+      always:
+        - name: Delete namespace
+          community.okd.k8s:
+            api_version: v1
+            kind: Namespace
+            name: process-test
+            state: absent

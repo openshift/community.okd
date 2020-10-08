@@ -152,6 +152,7 @@ class OpenShiftProcess(K8sAnsibleMixin):
 
         name = self.params.get('name')
         namespace = self.params.get('namespace')
+        namespace_target = self.params.get('namespace_target')
         definition = self.params.get('resource_definition')
         src = self.params.get('src')
 
@@ -175,8 +176,9 @@ class OpenShiftProcess(K8sAnsibleMixin):
             elif len(self.resource_definitions) > 1:
                 self.fail_json('Multiple Template resources found in src or resource_definition, only one Template may be processed at a time')
             template = self.resource_definitions[0]
-
-        if name and namespace:
+            template_namespace = template.get('metadata', {}).get('namespace')
+            namespace = template_namespace or namespace or namespace_target or 'default'
+        elif name and namespace:
             try:
                 template = v1_templates.get(name=name, namespace=namespace).to_dict()
             except DynamicApiError as exc:
@@ -185,7 +187,7 @@ class OpenShiftProcess(K8sAnsibleMixin):
             except Exception as exc:
                 self.module.fail_json(msg="Failed to retrieve Template with name '{0}' in namespace '{1}': {2}".format(name, namespace, to_native(exc)),
                                       error='', status='', reason='')
-        elif not template:
+        else:
             self.fail_json("One of resource_definition, src, or name and namespace must be provided")
 
         if parameter_file:
@@ -197,7 +199,7 @@ class OpenShiftProcess(K8sAnsibleMixin):
         result = {'changed': False}
 
         try:
-            response = v1_processed_templates.create(body=template).to_dict()
+            response = v1_processed_templates.create(body=template, namespace=namespace).to_dict()
         except DynamicApiError as exc:
             self.fail_json(msg="Server failed to render the Template: {0}".format(exc.body),
                            error=exc.status, status=exc.status, reason=exc.reason)

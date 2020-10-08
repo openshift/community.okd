@@ -1,9 +1,4 @@
 ---
-- name: Create namespace
-  community.okd.k8s:
-    api_version: v1
-    kind: Namespace
-    name: process-test
 
 - name: Process a template in the cluster
   community.okd.openshift_process:
@@ -160,6 +155,7 @@
   community.okd.openshift_process:
     name: simple-example
     namespace: process-test # only needed if using a template already on the server
+    namespace_target: process_test
     parameter_file: '{{ files_dir }}/example.env'
     state: present
   register: result
