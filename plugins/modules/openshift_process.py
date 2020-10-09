@@ -14,7 +14,7 @@ module: openshift_process
 
 short_description: Process an OpenShift template.openshift.io/v1 Template
 
-version_added: "1.1.0"
+version_added: "0.3.0"
 
 author: "Fabian von Feilitzsch (@fabianvf)"
 
