@@ -14,7 +14,7 @@ module: openshift_route
 
 short_description: Expose a Service as an OpenShift Route.
 
-version_added: "1.1.0"
+version_added: "0.3.0"
 
 author: "Fabian von Feilitzsch (@fabianvf)"
 
