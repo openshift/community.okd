@@ -36,7 +36,7 @@ You can also include it in a `requirements.yml` file and install it via `ansible
 ---
 collections:
   - name: community.okd
-    version: 0.2.0
+    version: 0.3.0
 ```
 
 ### Installing the OpenShift Python Library
@@ -102,7 +102,11 @@ where the `IMAGE_FORMAT` environment variable is the full reference to your cont
 
 Releases are automatically built and pushed to Ansible Galaxy for any new tag. Before tagging a release, make sure to do the following:
 
-  1. Update `galaxy.yml`, this README's `requirements.yml` example, and the `Makefile` with the new `version` for the collection.
+  1. Update the version in the following places:
+    a. The `version` in `galaxy.yml`
+    b. This README's `requirements.yml` example
+    c. The `DOWNSTREAM_VERSION` in `ci/downstream.sh`
+    d. The `VERSION` in `Makefile`
   1. Update the CHANGELOG:
     1. Make sure you have [`antsibull-changelog`](https://pypi.org/project/antsibull-changelog/) installed.
     1. Make sure there are fragments for all known changes in `changelogs/fragments`.

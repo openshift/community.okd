@@ -1,0 +1,3 @@
+---
+major_changes:
+  - Add openshift_route module for creating routes from services (https://github.com/ansible-collections/community.okd/pull/40).

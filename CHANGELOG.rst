@@ -5,6 +5,21 @@ OKD Collection Release Notes
 .. contents:: Topics
 
 
+v0.3.0
+======
+
+Major Changes
+-------------
+
+- Add openshift_process module for template rendering and optional application of rendered resources (https://github.com/ansible-collections/community.okd/pull/44).
+- Add openshift_route module for creating routes from services (https://github.com/ansible-collections/community.okd/pull/40).
+
+New Modules
+-----------
+
+- openshift_process - Process an OpenShift template.openshift.io/v1 Template
+- openshift_route - Expose a Service as an OpenShift Route.
+
 v0.2.0
 ======
 
