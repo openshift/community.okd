@@ -17,8 +17,10 @@ Click on the name of a plugin or module to view that content's documentation:
   - **Modules**:
     - [k8s](https://docs.ansible.com/ansible/2.10/collections/community/kubernetes/k8s_inventory.html)
     - [openshift_auth](https://github.com/ansible-collections/community.okd/blob/main/plugins/modules/openshift_auth.py)
+    - [openshift_process](https://github.com/ansible-collections/community.okd/blob/main/plugins/modules/openshift_process.py)
+    - [openshift_route](https://github.com/ansible-collections/community.okd/blob/main/plugins/modules/openshift_route.py)
 
-> **Note**: These documentation links currently link to older module versions. For the latest module documentation, please use `ansible-doc` in the CLI.
+> **Note**: Some of these documentation links currently link to older module versions. For the latest module documentation, please use `ansible-doc` in the CLI.
 
 ## Installation and Usage
 
