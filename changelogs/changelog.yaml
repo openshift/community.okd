@@ -44,3 +44,20 @@ releases:
       name: openshift_auth
       namespace: ''
     release_date: '2020-09-24'
+  0.3.0:
+    changes:
+      major_changes:
+      - Add openshift_process module for template rendering and optional application
+        of rendered resources (https://github.com/ansible-collections/community.okd/pull/44).
+      - Add openshift_route module for creating routes from services (https://github.com/ansible-collections/community.okd/pull/40).
+    fragments:
+    - 40-openshift_route.yml
+    - 44-openshift_process.yml
+    modules:
+    - description: Process an OpenShift template.openshift.io/v1 Template
+      name: openshift_process
+      namespace: ''
+    - description: Expose a Service as an OpenShift Route.
+      name: openshift_route
+      namespace: ''
+    release_date: '2020-10-12'
