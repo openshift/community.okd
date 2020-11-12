@@ -31,15 +31,16 @@ f_show_help()
 f_text_sub()
 {
     # Switch FQCN and dependent components
-    sed -i "s/community-okd/redhat-openshift/" "${_build_dir}/Makefile"
-    sed -i "s/community\/okd/redhat\/openshift/" "${_build_dir}/Makefile"
-    sed -i "s/^VERSION\:/VERSION: ${DOWNSTREAM_VERSION}/" "${_build_dir}/Makefile"
-    sed -i "s/name\:.*$/name: openshift/" "${_build_dir}/galaxy.yml"
-    sed -i "s/namespace\:.*$/namespace: redhat/" "${_build_dir}/galaxy.yml"
-    sed -i "s/Kubernetes/OpenShift/g" "${_build_dir}/galaxy.yml"
-    sed -i "s/^version\:.*$/version: ${DOWNSTREAM_VERSION}/" "${_build_dir}/galaxy.yml"
-    find ${_build_dir} -type f -exec sed -i "s/community\.kubernetes/kubernetes\.core/g" {} \;
-    find ${_build_dir} -type f -exec sed -i "s/community\.okd/redhat\.openshift/g" {} \;
+    sed -i.bak "s/community-okd/redhat-openshift/" "${_build_dir}/Makefile"
+    sed -i.bak "s/community\/okd/redhat\/openshift/" "${_build_dir}/Makefile"
+    sed -i.bak "s/^VERSION\:/VERSION: ${DOWNSTREAM_VERSION}/" "${_build_dir}/Makefile"
+    sed -i.bak "s/name\:.*$/name: openshift/" "${_build_dir}/galaxy.yml"
+    sed -i.bak "s/namespace\:.*$/namespace: redhat/" "${_build_dir}/galaxy.yml"
+    sed -i.bak "s/Kubernetes/OpenShift/g" "${_build_dir}/galaxy.yml"
+    sed -i.bak "s/^version\:.*$/version: ${DOWNSTREAM_VERSION}/" "${_build_dir}/galaxy.yml"
+    find ${_build_dir} -type f -exec sed -i.bak "s/community\.kubernetes/kubernetes\.core/g" {} \;
+    find ${_build_dir} -type f -exec sed -i.bak "s/community\.okd/redhat\.openshift/g" {} \;
+    find "${_build_dir}" -type f -name "*.bak" -delete
 }
 
 f_prep()
@@ -111,12 +112,14 @@ f_create_collection_dir_structure()
     do
         cp -r "./${d_name}" "${_build_dir}/${d_name}"
     done
-    for exclude_file in "${_file_exclude[@]}";
-    do
-        if [[ -f "${_build_dir}/${exclude_file}" ]]; then
-            rm -f "${_build_dir}/${exclude_file}"
-        fi
-    done
+    if [ -n "${_file_exclude:-}" ]; then
+        for exclude_file in "${_file_exclude[@]}";
+        do
+            if [[ -f "${_build_dir}/${exclude_file}" ]]; then
+                rm -f "${_build_dir}/${exclude_file}"
+            fi
+        done
+    fi
 }
 
 f_install_kubernetes_core_from_src()
