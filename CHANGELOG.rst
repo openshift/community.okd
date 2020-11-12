@@ -5,6 +5,14 @@ OKD Collection Release Notes
 .. contents:: Topics
 
 
+v1.0.0
+======
+
+Minor Changes
+-------------
+
+- Released version 1 to Automation Hub as redhat.openshift (https://github.com/ansible-collections/community.okd/issues/51).
+
 v0.3.0
 ======
 

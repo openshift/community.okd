@@ -61,3 +61,10 @@ releases:
       name: openshift_route
       namespace: ''
     release_date: '2020-10-12'
+  1.0.0:
+    changes:
+      minor_changes:
+      - Released version 1 to Automation Hub as redhat.openshift (https://github.com/ansible-collections/community.okd/issues/51).
+    fragments:
+    - 51-redhat-openshift-ah-release.yml
+    release_date: '2020-11-12'

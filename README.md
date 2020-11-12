@@ -36,7 +36,7 @@ You can also include it in a `requirements.yml` file and install it via `ansible
 ---
 collections:
   - name: community.okd
-    version: 0.3.0
+    version: 1.0.0
 ```
 
 ### Installing the OpenShift Python Library
