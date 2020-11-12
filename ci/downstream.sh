@@ -31,6 +31,10 @@ f_show_help()
 f_text_sub()
 {
     # Switch FQCN and dependent components
+    OKD_sed_files="${_build_dir}/README.md ${_build_dir}/CHANGELOG.rst ${_build_dir}/changelogs/config.yaml ${_build_dir}/ci/downstream.sh ${_build_dir}/galaxy.yml"
+    for okd_file in ${OKD_sed_files[@]}; do sed -i.bak "s/OKD/OpenShift/g" "${okd_file}"; done
+
+    sed -i.bak "s/Ansible Galaxy/Automation Hub/" "${_build_dir}/README.md"
     sed -i.bak "s/community-okd/redhat-openshift/" "${_build_dir}/Makefile"
     sed -i.bak "s/community\/okd/redhat\/openshift/" "${_build_dir}/Makefile"
     sed -i.bak "s/^VERSION\:/VERSION: ${DOWNSTREAM_VERSION}/" "${_build_dir}/Makefile"
@@ -38,6 +42,8 @@ f_text_sub()
     sed -i.bak "s/namespace\:.*$/namespace: redhat/" "${_build_dir}/galaxy.yml"
     sed -i.bak "s/Kubernetes/OpenShift/g" "${_build_dir}/galaxy.yml"
     sed -i.bak "s/^version\:.*$/version: ${DOWNSTREAM_VERSION}/" "${_build_dir}/galaxy.yml"
+    sed -i.bak "/STARTREMOVE/,/ENDREMOVE/d" "${_build_dir}/README.md"
+    
     find ${_build_dir} -type f -exec sed -i.bak "s/community\.kubernetes/kubernetes\.core/g" {} \;
     find ${_build_dir} -type f -exec sed -i.bak "s/community\.okd/redhat\.openshift/g" {} \;
     find "${_build_dir}" -type f -name "*.bak" -delete

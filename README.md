@@ -1,10 +1,11 @@
-# OKD/OpenShift Collection for Ansible
+# OKD Collection for Ansible
 
+<!--- STARTREMOVE --->
 [![CI](https://github.com/ansible-collections/community.okd/workflows/CI/badge.svg?event=push)](https://github.com/ansible-collections/community.okd/actions) [![Codecov](https://img.shields.io/codecov/c/github/ansible-collections/community.okd)](https://codecov.io/gh/ansible-collections/community.okd)
 
 This repo hosts the `community.okd` Ansible Collection.
 
-The collection includes a variety of Ansible content to help automate the management of applications in OKD/OpenShift clusters, as well as the provisioning and maintenance of clusters themselves.
+The collection includes a variety of Ansible content to help automate the management of applications in OKD clusters, as well as the provisioning and maintenance of clusters themselves.
 
 ## Included content
 
@@ -21,6 +22,8 @@ Click on the name of a plugin or module to view that content's documentation:
     - [openshift_route](https://github.com/ansible-collections/community.okd/blob/main/plugins/modules/openshift_route.py)
 
 > **Note**: Some of these documentation links currently link to older module versions. For the latest module documentation, please use `ansible-doc` in the CLI.
+
+<!--- ENDREMOVE --->
 
 ## Installation and Usage
 
@@ -59,6 +62,7 @@ connections:
 
 For documentation on how to use individual plugins included in this collection, please see the links in the 'Included content' section earlier in this README.
 
+<!--- STARTREMOVE --->
 ## Testing and Development
 
 If you want to develop new content for this collection or improve what's already here, the easiest way to work on the collection is to clone it into one of the configured [`COLLECTIONS_PATHS`](https://docs.ansible.com/ansible/latest/reference_appendices/config.html#collections-paths), and work on it there.
@@ -115,6 +119,7 @@ Releases are automatically built and pushed to Ansible Galaxy for any new tag. B
   1. Tag the version in Git and push to GitHub.
 
 After the version is published, verify it exists on the [OKD Collection Galaxy page](https://galaxy.ansible.com/community/okd).
+<!--- ENDREMOVE --->
 
 ## More Information
 
