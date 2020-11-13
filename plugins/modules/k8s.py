@@ -36,10 +36,10 @@ description:
   - Optimized for OKD/OpenShift Kubernetes flavors
 
 extends_documentation_fragment:
-  - community.kubernetes.k8s_state_options
-  - community.kubernetes.k8s_name_options
-  - community.kubernetes.k8s_resource_options
-  - community.kubernetes.k8s_auth_options
+  - kubernetes.core.k8s_state_options
+  - kubernetes.core.k8s_name_options
+  - kubernetes.core.k8s_resource_options
+  - kubernetes.core.k8s_auth_options
 
 notes:
   - If your OpenShift Python library is not 0.9.0 or newer and you are trying to
@@ -273,7 +273,7 @@ from functools import reduce
 from ansible.module_utils._text import to_native
 
 try:
-    from ansible_collections.community.kubernetes.plugins.module_utils.raw import KubernetesRawModule
+    from ansible_collections.kubernetes.core.plugins.module_utils.raw import KubernetesRawModule
     HAS_KUBERNETES_COLLECTION = True
 except ImportError as e:
     HAS_KUBERNETES_COLLECTION = False
@@ -297,7 +297,7 @@ class OKDRawModule(KubernetesRawModule):
     def __init__(self):
         if not HAS_KUBERNETES_COLLECTION:
             self.fail_json(
-                msg="The community.kubernetes collection must be installed",
+                msg="The kubernetes.core collection must be installed",
                 exception=K8S_COLLECTION_ERROR,
                 error=to_native(k8s_collection_import_exception)
             )

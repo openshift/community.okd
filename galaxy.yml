@@ -5,7 +5,7 @@ authors:
   - willthames (https://github.com/willthames)
   - Akasurde (https://github.com/akasurde)
 dependencies:
-  community.kubernetes: '>=1.0.0'
+  kubernetes.core: '>=1.1.1'
 description: OKD Collection for Ansible.
 documentation: ''
 homepage: ''

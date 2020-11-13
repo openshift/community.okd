@@ -21,12 +21,12 @@ author: "Fabian von Feilitzsch (@fabianvf)"
 description:
   - Looks up a Service and creates a new Route based on it.
   - Analogous to `oc expose` and `oc create route` for creating Routes, but does not support creating Services.
-  - For creating Services from other resources, see community.kubernetes.k8s_expose
+  - For creating Services from other resources, see kubernetes.core.k8s_expose
 
 extends_documentation_fragment:
-  - community.kubernetes.k8s_auth_options
-  - community.kubernetes.k8s_wait_options
-  - community.kubernetes.k8s_state_options
+  - kubernetes.core.k8s_auth_options
+  - kubernetes.core.k8s_wait_options
+  - kubernetes.core.k8s_state_options
 
 requirements:
   - "python >= 2.7"
@@ -304,7 +304,7 @@ from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils._text import to_native
 
 try:
-    from ansible_collections.community.kubernetes.plugins.module_utils.common import (
+    from ansible_collections.kubernetes.core.plugins.module_utils.common import (
         K8sAnsibleMixin, AUTH_ARG_SPEC, WAIT_ARG_SPEC, COMMON_ARG_SPEC
     )
     HAS_KUBERNETES_COLLECTION = True
@@ -332,7 +332,7 @@ class OpenShiftRoute(K8sAnsibleMixin):
 
         if not HAS_KUBERNETES_COLLECTION:
             self.module.fail_json(
-                msg="The community.kubernetes collection must be installed",
+                msg="The kubernetes.core collection must be installed",
                 exception=K8S_COLLECTION_ERROR,
                 error=to_native(k8s_collection_import_exception)
             )

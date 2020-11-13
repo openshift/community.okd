@@ -99,7 +99,7 @@ EXAMPLES = r'''
     # Previous task provides the token/api_key, while all other parameters
     # are taken from module_defaults
     - name: Get a list of all pods from any namespace
-      community.kubernetes.k8s_info:
+      kubernetes.core.k8s_info:
         api_key: "{{ openshift_auth_results.openshift_auth.api_key }}"
         kind: Pod
       register: pod_list
