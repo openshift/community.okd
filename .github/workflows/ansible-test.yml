@@ -111,7 +111,7 @@ jobs:
   #         fail_ci_if_error: false
   #
   downstream-sanity-29:
-    name: Sanity (Ⓐ${{ matrix.ansible }}+py${{ matrix.python }})
+    name: Downstream Sanity (Ⓐ${{ matrix.ansible }}+py${{ matrix.python }})
     strategy:
       matrix:
         ansible:
