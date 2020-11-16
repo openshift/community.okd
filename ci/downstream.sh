@@ -127,25 +127,11 @@ f_create_collection_dir_structure()
     fi
 }
 
-f_install_kubernetes_core_from_src()
+f_install_kubernetes_core()
 {
-    local community_k8s_tmpdir="${_tmp_dir}/kubernetes.core"
     local install_collections_dir="${_tmp_dir}/ansible_collections"
-    mkdir -p "${community_k8s_tmpdir}"
     pushd "${_tmp_dir}"
-    #    curl -L \
-    #        https://github.com/ansible-collections/kubernetes.core/archive/main.tar.gz \
-    #        | tar -xz -C "${community_k8s_tmpdir}" --strip-components 1
-    #    pushd "${community_k8s_tmpdir}"
-    #        make downstream-build
-    #        ansible-galaxy collection install -p "${install_collections_dir}" "${community_k8s_tmpdir}"/kubernetes-core-*.tar.gz
-    #    popd
-    #popd
-        git clone https://github.com/ansible-collections/kubernetes.core "${community_k8s_tmpdir}"
-        pushd "${community_k8s_tmpdir}"
-            make downstream-build
-            ansible-galaxy collection install -p "${install_collections_dir}" "${community_k8s_tmpdir}"/kubernetes-core-*.tar.gz
-        popd
+        ansible-galaxy collection install -p "${install_collections_dir}" kubernetes.core
     popd
 }
 
@@ -170,7 +156,7 @@ f_test_sanity_option()
 {
     f_log_info "${FUNCNAME[0]}"
     f_common_steps
-    f_install_kubernetes_core_from_src
+    f_install_kubernetes_core
     pushd "${_build_dir}" || return
         ansible-galaxy collection build
         f_log_info "SANITY TEST PWD: ${PWD}"
@@ -193,7 +179,7 @@ f_test_integration_option()
 {
     f_log_info "${FUNCNAME[0]}"
     f_common_steps
-    f_install_kubernetes_core_from_src
+    f_install_kubernetes_core
     pushd "${_build_dir}" || return
         f_log_info "INTEGRATION TEST WD: ${PWD}"
         OVERRIDE_COLLECTION_PATH="${_tmp_dir}" molecule test
