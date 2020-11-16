@@ -44,7 +44,7 @@ f_text_sub()
     sed -i.bak "s/^version\:.*$/version: ${DOWNSTREAM_VERSION}/" "${_build_dir}/galaxy.yml"
     sed -i.bak "/STARTREMOVE/,/ENDREMOVE/d" "${_build_dir}/README.md"
 
-    find ${_build_dir} -type f -exec sed -i.bak "s/community\.okd/redhat\.openshift/g" {} \;
+    find "${_build_dir}" -type f -exec sed -i.bak "s/community\.okd/redhat\.openshift/g" {} \;
     find "${_build_dir}" -type f -name "*.bak" -delete
 }
 
@@ -146,11 +146,11 @@ f_handle_doc_fragments_workaround()
     local rendered_fragments="./rendereddocfragments.txt"
 
     # Build the collection, export its docs, render them, stitch is all back together
-    pushd "${_build_dir}"
+    pushd "${_build_dir}" || return
         ansible-galaxy collection build
         ansible-galaxy collection install -p "${install_collections_dir}" ./*.tar.gz
         rm ./*.tar.gz
-        for doc_fragment_mod in ${_doc_fragment_modules[@]}
+        for doc_fragment_mod in "${_doc_fragment_modules[@]}"
         do
             local module_py="plugins/modules/${doc_fragment_mod}.py"
             f_log_info "Processing doc fragments for ${module_py}"
