@@ -43,8 +43,7 @@ f_text_sub()
     sed -i.bak "s/Kubernetes/OpenShift/g" "${_build_dir}/galaxy.yml"
     sed -i.bak "s/^version\:.*$/version: ${DOWNSTREAM_VERSION}/" "${_build_dir}/galaxy.yml"
     sed -i.bak "/STARTREMOVE/,/ENDREMOVE/d" "${_build_dir}/README.md"
-    
-    find ${_build_dir} -type f -exec sed -i.bak "s/community\.kubernetes/kubernetes\.core/g" {} \;
+
     find ${_build_dir} -type f -exec sed -i.bak "s/community\.okd/redhat\.openshift/g" {} \;
     find "${_build_dir}" -type f -name "*.bak" -delete
 }
@@ -128,25 +127,11 @@ f_create_collection_dir_structure()
     fi
 }
 
-f_install_kubernetes_core_from_src()
+f_install_kubernetes_core()
 {
-    local community_k8s_tmpdir="${_tmp_dir}/community.kubernetes"
     local install_collections_dir="${_tmp_dir}/ansible_collections"
-    mkdir -p "${community_k8s_tmpdir}"
     pushd "${_tmp_dir}"
-    #    curl -L \
-    #        https://github.com/ansible-collections/community.kubernetes/archive/main.tar.gz \
-    #        | tar -xz -C "${community_k8s_tmpdir}" --strip-components 1
-    #    pushd "${community_k8s_tmpdir}"
-    #        make downstream-build
-    #        ansible-galaxy collection install -p "${install_collections_dir}" "${community_k8s_tmpdir}"/kubernetes-core-*.tar.gz
-    #    popd
-    #popd
-        git clone https://github.com/ansible-collections/community.kubernetes "${community_k8s_tmpdir}"
-        pushd "${community_k8s_tmpdir}"
-            make downstream-build
-            ansible-galaxy collection install -p "${install_collections_dir}" "${community_k8s_tmpdir}"/kubernetes-core-*.tar.gz
-        popd
+        ansible-galaxy collection install -p "${install_collections_dir}" kubernetes.core
     popd
 }
 
@@ -171,11 +156,11 @@ f_test_sanity_option()
 {
     f_log_info "${FUNCNAME[0]}"
     f_common_steps
-    f_install_kubernetes_core_from_src
+    f_install_kubernetes_core
     pushd "${_build_dir}" || return
         ansible-galaxy collection build
         f_log_info "SANITY TEST PWD: ${PWD}"
-        ## Can't do this because the upstream community.kubernetes dependency logic
+        ## Can't do this because the upstream kubernetes.core dependency logic
         ## is bound as a Makefile dep to the test-sanity target
         #SANITY_TEST_ARGS="--docker --color --python 3.6" make test-sanity
         # Run tests in docker if available, venv otherwise
@@ -194,7 +179,7 @@ f_test_integration_option()
 {
     f_log_info "${FUNCNAME[0]}"
     f_common_steps
-    f_install_kubernetes_core_from_src
+    f_install_kubernetes_core
     pushd "${_build_dir}" || return
         f_log_info "INTEGRATION TEST WD: ${PWD}"
         OVERRIDE_COLLECTION_PATH="${_tmp_dir}" molecule test
@@ -211,7 +196,7 @@ f_build_option()
         f_log_info "BUILD WD: ${PWD}"
         # FIXME 
         #   This doesn't work because we end up either recursively curl'ing 
-        #   community.kubernetes and redoing the text replacement over and over
+        #   kubernetes.core and redoing the text replacement over and over
         #         
         # make build 
         ansible-galaxy collection build
