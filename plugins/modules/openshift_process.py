@@ -8,7 +8,7 @@ from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
-
+##### STARTREMOVE (downstream)
 DOCUMENTATION = r'''
 module: openshift_process
 
@@ -202,6 +202,7 @@ resources:
              type: complex
              description: Array of status conditions for the object. Not guaranteed to be present
 '''
+##### ENDREMOVE (downstream)
 
 import re
 import os

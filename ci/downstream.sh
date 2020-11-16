@@ -76,9 +76,18 @@ f_prep()
         tests
     )
 
+    # Modules with inherited doc fragments from kubernetes.core that need
+    # rendering to deal with Galaxy/AH lack of functionality.
+    _doc_fragment_modules=(
+        k8s
+        openshift_process
+        openshift_route
+    )
+
 
     # Temp build dir 
     _tmp_dir=$(mktemp -d)
+    _start_dir="${PWD}"
     _build_dir="${_tmp_dir}/ansible_collections/redhat/openshift"
     mkdir -p "${_build_dir}"
 }
@@ -127,9 +136,40 @@ f_create_collection_dir_structure()
     fi
 }
 
+f_handle_doc_fragments_workaround()
+{
+    f_log_info "${FUNCNAME[0]}"
+    local install_collections_dir="${_tmp_dir}/ansible_collections"
+    local temp_fragments_json="${_tmp_dir}/fragments.json"
+    local temp_start="${_tmp_dir}/startfile.txt"
+    local temp_end="${_tmp_dir}/endfile.txt"
+    local rendered_fragments="./rendereddocfragments.txt"
+
+    # Build the collection, export its docs, render them, stitch is all back together
+    pushd "${_build_dir}"
+        ansible-galaxy collection build
+        ansible-galaxy collection install -p "${install_collections_dir}" ./*.tar.gz
+        rm ./*.tar.gz
+        for doc_fragment_mod in ${_doc_fragment_modules[@]}
+        do
+            local module_py="plugins/modules/${doc_fragment_mod}.py"
+            f_log_info "Processing doc fragments for ${module_py}"
+            ansible-doc -j "redhat.openshift.${doc_fragment_mod}" > "${temp_fragments_json}"
+            "${_start_dir}/ci/downstream_fragments.py" "redhat.openshift.${doc_fragment_mod}" "${temp_fragments_json}" 
+            sed -n '/STARTREMOVE/q;p' "${module_py}" > "${temp_start}"
+            sed '0,/ENDREMOVE/d' "${module_py}" > "${temp_end}"
+            cat "${temp_start}" "${rendered_fragments}" "${temp_end}" > "${module_py}"
+        done
+        rm -f "${rendered_fragments}" 
+    popd
+
+}
+
 f_install_kubernetes_core()
 {
+    f_log_info "${FUNCNAME[0]}"
     local install_collections_dir="${_tmp_dir}/ansible_collections"
+
     pushd "${_tmp_dir}"
         ansible-galaxy collection install -p "${install_collections_dir}" kubernetes.core
     popd
@@ -148,6 +188,7 @@ f_common_steps()
     f_log_info "${FUNCNAME[0]}"
     f_prep
     f_create_collection_dir_structure
+    f_handle_doc_fragments_workaround
     f_text_sub
 }
 

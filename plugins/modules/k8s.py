@@ -15,6 +15,7 @@ ANSIBLE_METADATA = {'metadata_version': '1.1',
                     'status': ['preview'],
                     'supported_by': 'community'}
 
+##### STARTREMOVE (downstream)
 DOCUMENTATION = '''
 
 module: k8s
@@ -264,6 +265,7 @@ result:
        type: int
        sample: 48
 '''
+##### ENDREMOVE (downstream)
 
 import re
 import operator
