@@ -8,7 +8,7 @@ from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
-##### STARTREMOVE (downstream)
+# STARTREMOVE (downstream)
 DOCUMENTATION = r'''
 module: openshift_route
 
@@ -296,7 +296,7 @@ duration:
   type: int
   sample: 48
 '''
-##### ENDREMOVE (downstream)
+# ENDREMOVE (downstream)
 
 import copy
 import traceback

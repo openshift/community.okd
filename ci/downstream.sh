@@ -1,4 +1,4 @@
-#!/bin/bash -eu
+#!/bin/bash -e
 
 # Script to dual-home the upstream and downstream Collection in a single repo
 #
@@ -85,7 +85,7 @@ f_prep()
     )
 
 
-    # Temp build dir 
+    # Temp build dir
     _tmp_dir=$(mktemp -d)
     _start_dir="${PWD}"
     _build_dir="${_tmp_dir}/ansible_collections/redhat/openshift"
@@ -155,13 +155,21 @@ f_handle_doc_fragments_workaround()
             local module_py="plugins/modules/${doc_fragment_mod}.py"
             f_log_info "Processing doc fragments for ${module_py}"
             ANSIBLE_COLLECTIONS_PATH="${install_collections_dir}" \
+            ANSIBLE_COLLECTIONS_PATHS="${ANSIBLE_COLLECTIONS_PATH}:${install_collections_dir}" \
                 ansible-doc -j "redhat.openshift.${doc_fragment_mod}" > "${temp_fragments_json}"
-            "${_start_dir}/ci/downstream_fragments.py" "redhat.openshift.${doc_fragment_mod}" "${temp_fragments_json}" 
+            # FIXME: Check Python interpreter from environment variable to work with prow
+            if [ -e /usr/bin/python3.6 ]; then
+                PYTHON="/usr/bin/python3.6"
+            else
+                PYTHON="python"
+            fi
+            "${PYTHON}" "${_start_dir}/ci/downstream_fragments.py" "redhat.openshift.${doc_fragment_mod}" "${temp_fragments_json}"
             sed -n '/STARTREMOVE/q;p' "${module_py}" > "${temp_start}"
             sed '0,/ENDREMOVE/d' "${module_py}" > "${temp_end}"
             cat "${temp_start}" "${rendered_fragments}" "${temp_end}" > "${module_py}"
+            cat "${module_py}"
         done
-        rm -f "${rendered_fragments}" 
+        rm -f "${rendered_fragments}"
         rm -fr "${install_collections_dir}"
     popd
 
@@ -235,16 +243,16 @@ f_build_option()
 {
     f_log_info "${FUNCNAME[0]}"
     f_common_steps
-    pushd "${_build_dir}" || return 
+    pushd "${_build_dir}" || return
         f_log_info "BUILD WD: ${PWD}"
-        # FIXME 
-        #   This doesn't work because we end up either recursively curl'ing 
+        # FIXME
+        #   This doesn't work because we end up either recursively curl'ing
         #   kubernetes.core and redoing the text replacement over and over
-        #         
-        # make build 
+        #
+        # make build
         ansible-galaxy collection build
 
-    popd || return 
+    popd || return
     f_copy_collection_to_working_dir
     f_cleanup
 }
@@ -259,19 +267,19 @@ fi
 while getopts ":sirb" option
 do
   case $option in
-    s) 
+    s)
         f_test_sanity_option
         ;;
-    i) 
+    i)
         f_test_integration_option
         ;;
-    r) 
+    r)
         f_release_option
         ;;
-    b) 
+    b)
         f_build_option
         ;;
-    *) 
+    *)
         printf "ERROR: Unimplemented option chosen.\n"
         f_show_help
         f_exit 1

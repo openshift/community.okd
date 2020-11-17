@@ -6,16 +6,9 @@
 
 
 from __future__ import absolute_import, division, print_function
-
-
 __metaclass__ = type
 
-
-ANSIBLE_METADATA = {'metadata_version': '1.1',
-                    'status': ['preview'],
-                    'supported_by': 'community'}
-
-##### STARTREMOVE (downstream)
+# STARTREMOVE (downstream)
 DOCUMENTATION = '''
 
 module: k8s
@@ -113,8 +106,8 @@ options:
         description:
         - The value of the reason field in your desired condition
         - For example, if a C(Deployment) is paused, The C(Progressing) C(type) will have the C(DeploymentPaused) reason.
-        - The possible reasons in a condition are specific to each resource type in Kubernetes. See the API documentation of the status field
-          for a given resource to see possible choices.
+        - The possible reasons in a condition are specific to each resource type in Kubernetes.
+          See the API documentation of the status field for a given resource to see possible choices.
     type: dict
   validate:
     description:
@@ -265,7 +258,7 @@ result:
        type: int
        sample: 48
 '''
-##### ENDREMOVE (downstream)
+# ENDREMOVE (downstream)
 
 import re
 import operator
@@ -398,7 +391,9 @@ class OKDRawModule(KubernetesRawModule):
                         image = existing['spec']['template']['spec']['containers'][old_container_index]['image']
                         definition['spec']['template']['spec']['containers'][new_container_index]['image'] = image
 
-                    existing_index = self.get_index(trigger['imageChangeParams'], [x.get('imageChangeParams') for x in existing_triggers], ['containerNames'])
+                    existing_index = self.get_index(trigger['imageChangeParams'],
+                                                    [x.get('imageChangeParams') for x in existing_triggers],
+                                                    ['containerNames'])
                     if existing_index is not None:
                         existing_image = existing_triggers[existing_index].get('imageChangeParams', {}).get('lastTriggeredImage')
                         if existing_image:
