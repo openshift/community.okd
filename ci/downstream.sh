@@ -154,7 +154,8 @@ f_handle_doc_fragments_workaround()
         do
             local module_py="plugins/modules/${doc_fragment_mod}.py"
             f_log_info "Processing doc fragments for ${module_py}"
-            ansible-doc -j "redhat.openshift.${doc_fragment_mod}" > "${temp_fragments_json}"
+            ANSIBLE_COLLECTIONS_PATH="${install_collections_dir}" \
+                ansible-doc -j "redhat.openshift.${doc_fragment_mod}" > "${temp_fragments_json}"
             "${_start_dir}/ci/downstream_fragments.py" "redhat.openshift.${doc_fragment_mod}" "${temp_fragments_json}" 
             sed -n '/STARTREMOVE/q;p' "${module_py}" > "${temp_start}"
             sed '0,/ENDREMOVE/d' "${module_py}" > "${temp_end}"
