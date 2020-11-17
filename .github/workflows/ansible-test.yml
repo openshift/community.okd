@@ -49,7 +49,7 @@ jobs:
 
       # run ansible-test sanity inside of Docker.
       # The docker container has all the pinned dependencies that are required.
-      # Explicity specify the version of Python we want to test
+      # Explicitly specify the version of Python we want to test
       - name: Run sanity tests
         run: make upstream-test-sanity TEST_ARGS='--python ${{ matrix.python }}'
         working-directory: ./ansible_collections/community/okd
@@ -135,7 +135,7 @@ jobs:
 
       # run ansible-test sanity inside of Docker.
       # The docker container has all the pinned dependencies that are required.
-      # Explicity specify the version of Python we want to test
+      # Explicitly specify the version of Python we want to test
       - name: Run sanity tests
         run: make downstream-test-sanity
         working-directory: ./ansible_collections/community/okd

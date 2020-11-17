@@ -5,10 +5,9 @@
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 from __future__ import absolute_import, division, print_function
-
 __metaclass__ = type
 
-
+# STARTREMOVE (downstream)
 DOCUMENTATION = r'''
 module: openshift_process
 
@@ -40,7 +39,7 @@ options:
       - The name of the Template to process.
       - The Template must be present in the cluster.
       - When provided, I(namespace) is required.
-      - Mutually exlusive with I(resource_definition) or I(src)
+      - Mutually exclusive with I(resource_definition) or I(src)
     type: str
   namespace:
     description:
@@ -202,6 +201,7 @@ resources:
              type: complex
              description: Array of status conditions for the object. Not guaranteed to be present
 '''
+# ENDREMOVE (downstream)
 
 import re
 import os
