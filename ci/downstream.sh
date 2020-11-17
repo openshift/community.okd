@@ -145,7 +145,7 @@ f_handle_doc_fragments_workaround()
     local temp_end="${_tmp_dir}/endfile.txt"
     local rendered_fragments="./rendereddocfragments.txt"
 
-    # Build the collection, export its docs, render them, stitch is all back together
+    # Build the collection, export docs, render them, stitch it all back together
     pushd "${_build_dir}" || return
         ansible-galaxy collection build
         ansible-galaxy collection install -p "${install_collections_dir}" ./*.tar.gz
