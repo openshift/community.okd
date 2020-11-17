@@ -1,0 +1,3 @@
+---
+bugfixes:
+  - Generate downstream redhat.openshift documentation (https://github.com/ansible-collections/community.okd/pull/59).
