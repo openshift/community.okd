@@ -139,7 +139,7 @@ f_create_collection_dir_structure()
 f_handle_doc_fragments_workaround()
 {
     f_log_info "${FUNCNAME[0]}"
-    local install_collections_dir="${_tmp_dir}/ansible_collections"
+    local install_collections_dir="${_build_dir}/collections/"
     local temp_fragments_json="${_tmp_dir}/fragments.json"
     local temp_start="${_tmp_dir}/startfile.txt"
     local temp_end="${_tmp_dir}/endfile.txt"
@@ -161,6 +161,7 @@ f_handle_doc_fragments_workaround()
             cat "${temp_start}" "${rendered_fragments}" "${temp_end}" > "${module_py}"
         done
         rm -f "${rendered_fragments}" 
+        rm -fr "${install_collections_dir}"
     popd
 
 }
