@@ -189,8 +189,8 @@ f_common_steps()
     f_log_info "${FUNCNAME[0]}"
     f_prep
     f_create_collection_dir_structure
-    f_handle_doc_fragments_workaround
     f_text_sub
+    f_handle_doc_fragments_workaround
 }
 
 # Run the test sanity scanerio
