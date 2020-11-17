@@ -68,3 +68,10 @@ releases:
     fragments:
     - 51-redhat-openshift-ah-release.yml
     release_date: '2020-11-12'
+  1.0.1:
+    changes:
+      bugfixes:
+      - Generate downstream redhat.openshift documentation (https://github.com/ansible-collections/community.okd/pull/59).
+    fragments:
+    - 59-downstream-docs.yml
+    release_date: '2020-11-17'

@@ -1,9 +1,17 @@
-==============================================================================
+============================
 OKD Collection Release Notes
-==============================================================================
+============================
 
 .. contents:: Topics
 
+
+v1.0.1
+======
+
+Bugfixes
+--------
+
+- Generate downstream redhat.openshift documentation (https://github.com/ansible-collections/community.okd/pull/59).
 
 v1.0.0
 ======
