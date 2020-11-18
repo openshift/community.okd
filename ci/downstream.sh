@@ -1,4 +1,4 @@
-#!/bin/bash -e
+#!/bin/bash -eu
 
 # Script to dual-home the upstream and downstream Collection in a single repo
 #
@@ -32,6 +32,7 @@ f_text_sub()
 {
     # Switch FQCN and dependent components
     OKD_sed_files="${_build_dir}/README.md ${_build_dir}/CHANGELOG.rst ${_build_dir}/changelogs/config.yaml ${_build_dir}/ci/downstream.sh ${_build_dir}/galaxy.yml"
+    # shellcheck disable=SC2068
     for okd_file in ${OKD_sed_files[@]}; do sed -i.bak "s/OKD/OpenShift/g" "${okd_file}"; done
 
     sed -i.bak "s/============================/==================================/" "${_build_dir}/CHANGELOG.rst"
@@ -155,6 +156,8 @@ f_handle_doc_fragments_workaround()
         do
             local module_py="plugins/modules/${doc_fragment_mod}.py"
             f_log_info "Processing doc fragments for ${module_py}"
+            # We need following variable for ansible-doc only
+            # shellcheck disable=SC2097,SC2098
             ANSIBLE_COLLECTIONS_PATH="${install_collections_dir}" \
             ANSIBLE_COLLECTIONS_PATHS="${ANSIBLE_COLLECTIONS_PATH}:${install_collections_dir}" \
                 ansible-doc -j "redhat.openshift.${doc_fragment_mod}" > "${temp_fragments_json}"
@@ -166,9 +169,8 @@ f_handle_doc_fragments_workaround()
             fi
             "${PYTHON}" "${_start_dir}/ci/downstream_fragments.py" "redhat.openshift.${doc_fragment_mod}" "${temp_fragments_json}"
             sed -n '/STARTREMOVE/q;p' "${module_py}" > "${temp_start}"
-            sed '0,/ENDREMOVE/d' "${module_py}" > "${temp_end}"
+            sed '1,/ENDREMOVE/d' "${module_py}" > "${temp_end}"
             cat "${temp_start}" "${rendered_fragments}" "${temp_end}" > "${module_py}"
-            cat "${module_py}"
         done
         rm -f "${rendered_fragments}"
         rm -fr "${install_collections_dir}"
