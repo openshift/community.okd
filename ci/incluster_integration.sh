@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -eu
 
 set -x
 
@@ -11,17 +11,18 @@ NAMESPACE=${NAMESPACE:-default}
 # and set the IMAGE_FORMAT environment variable so that it properly
 # resolves to your image. For example, quay.io/mynamespace/$component
 # would resolve to quay.io/mynamespace/molecule-test-runner
+# shellcheck disable=SC2034
 component='molecule-test-runner'
-eval IMAGE=$IMAGE_FORMAT
+eval IMAGE="$IMAGE_FORMAT"
 
 PULL_POLICY=${PULL_POLICY:-IfNotPresent}
 
-if ! oc get namespace $NAMESPACE
+if ! oc get namespace "$NAMESPACE"
 then
-  oc create namespace $NAMESPACE
+  oc create namespace "$NAMESPACE"
 fi
 
-oc project $NAMESPACE
+oc project "$NAMESPACE"
 oc adm policy add-cluster-role-to-user cluster-admin -z default
 oc adm policy who-can create projectrequests
 
@@ -52,7 +53,7 @@ spec:
 EOF
 
 function check_success {
-  oc wait --for=condition=complete job/molecule-integration-test --timeout 5s -n $NAMESPACE \
+  oc wait --for=condition=complete job/molecule-integration-test --timeout 5s -n "$NAMESPACE" \
    && oc logs job/molecule-integration-test \
    && echo "Molecule integration tests ran successfully" \
    && return 0
@@ -60,7 +61,7 @@ function check_success {
 }
 
 function check_failure {
-  oc wait --for=condition=failed job/molecule-integration-test --timeout 5s -n $NAMESPACE \
+  oc wait --for=condition=failed job/molecule-integration-test --timeout 5s -n "$NAMESPACE" \
    && oc logs job/molecule-integration-test \
    && echo "Molecule integration tests failed, see logs for more information..." \
    && return 0

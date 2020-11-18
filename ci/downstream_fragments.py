@@ -1,8 +1,11 @@
 #!/usr/bin/env python
 
+from __future__ import (absolute_import, division, print_function)
+__metaclass__ = type
+
 import json
-import yaml
 import sys
+import yaml
 
 with open("./rendereddocfragments.txt", 'w') as df_fd:
     with open(sys.argv[2], 'r') as fd:
@@ -22,5 +25,3 @@ with open("./rendereddocfragments.txt", 'w') as df_fd:
         df_fd.write("RETURN = '''\n")
         df_fd.write(yaml.dump(json_docs[sys.argv[1]]['return'], default_flow_style=False))
         df_fd.write("'''\n\n")
-
-
