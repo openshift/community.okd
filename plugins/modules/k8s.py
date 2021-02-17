@@ -134,7 +134,7 @@ options:
       will only work if the same object is passed with state=absent (alternatively, just use state=absent with the name including
       the generated hash and append_hash=no)
     type: bool
-    default: False
+    default: false
   apply:
     description:
     - C(apply) compares the desired resource definition with the previously supplied resource definition,
@@ -142,7 +142,7 @@ options:
     - C(apply) works better with Services than 'force=yes'
     - mutually exclusive with C(merge_type)
     type: bool
-    default: False
+    default: false
 
 requirements:
   - "python >= 2.7"
