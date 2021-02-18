@@ -13,6 +13,7 @@ with open("./rendereddocfragments.txt", 'w') as df_fd:
 
         json_docs[sys.argv[1]]['doc'].pop('collection', '')
         json_docs[sys.argv[1]]['doc'].pop('filename', '')
+        json_docs[sys.argv[1]]['doc'].pop('has_action', '')
 
         df_fd.write("DOCUMENTATION = '''\n")
         df_fd.write(yaml.dump(json_docs[sys.argv[1]]['doc'], default_flow_style=False))
