@@ -71,7 +71,7 @@ DOCUMENTATION = '''
           - name: K8S_AUTH_EXTRA_ARGS
       oc_kubeconfig:
         description:
-          - Path to a oc config file. Defaults to I(~/.kube/conig)
+          - Path to a oc config file. Defaults to I(~/.kube/config)
         default: ''
         vars:
           - name: ansible_oc_kubeconfig
