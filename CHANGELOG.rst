@@ -5,6 +5,14 @@ OKD Collection Release Notes
 .. contents:: Topics
 
 
+v1.0.2
+======
+
+Minor Changes
+-------------
+
+- restrict the version of kubernetes.core dependency (https://github.com/ansible-collections/community.okd/pull/66).
+
 v1.0.1
 ======
 

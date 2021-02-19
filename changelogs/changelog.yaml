@@ -75,3 +75,10 @@ releases:
     fragments:
     - 59-downstream-docs.yml
     release_date: '2020-11-17'
+  1.0.2:
+    changes:
+      minor_changes:
+      - restrict the version of kubernetes.core dependency (https://github.com/ansible-collections/community.okd/pull/66).
+    fragments:
+    - 66-restrict-kubernetes-core-version.yaml
+    release_date: '2021-02-19'
