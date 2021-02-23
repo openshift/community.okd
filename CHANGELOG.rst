@@ -5,6 +5,14 @@ OKD Collection Release Notes
 .. contents:: Topics
 
 
+v1.1.0
+======
+
+Minor Changes
+-------------
+
+- increase the kubernetes.core dependency version number (https://github.com/ansible-collections/community.okd/pull/71).
+
 v1.0.2
 ======
 

@@ -9,7 +9,7 @@
 #       - All functions are prefixed with f_ so it's obvious where they come
 #         from when in use throughout the script
 
-DOWNSTREAM_VERSION="1.0.2"
+DOWNSTREAM_VERSION="1.1.0"
 KEEP_DOWNSTREAM_TMPDIR="${KEEP_DOWNSTREAM_TMPDIR:-''}"
 _build_dir=""
 
