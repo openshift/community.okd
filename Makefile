@@ -1,5 +1,5 @@
 # Also needs to be updated in galaxy.yml
-VERSION = 1.0.2
+VERSION = 1.1.0
 
 # To run sanity tests in a venv, set SANITY_TEST_ARGS to '--venv'
 SANITY_TEST_ARGS ?= --docker --color

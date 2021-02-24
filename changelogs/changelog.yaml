@@ -82,3 +82,10 @@ releases:
     fragments:
     - 66-restrict-kubernetes-core-version.yaml
     release_date: '2021-02-19'
+  1.1.0:
+    changes:
+      minor_changes:
+      - increase the kubernetes.core dependency version number (https://github.com/ansible-collections/community.okd/pull/71).
+    fragments:
+    - 71-bump-kubernetes-core-version.yaml
+    release_date: '2021-02-23'
