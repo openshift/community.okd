@@ -1,6 +1,9 @@
 ---
-requires_ansible: '>=2.9'
+requires_ansible: '>=2.9.10'
 plugin_routing:
   modules:
     k8s_auth:
       redirect: community.okd.openshift_auth
+  action:
+    k8s:
+      redirect: kubernetes.core.k8s_info
