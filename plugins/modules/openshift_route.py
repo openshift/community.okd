@@ -367,7 +367,7 @@ class OpenShiftRoute(K8sAnsibleMixin):
             ca_certificate=dict(type='str'),
             certificate=dict(type='str'),
             destination_ca_certificate=dict(type='str'),
-            key=dict(type='str'),
+            key=dict(type='str', no_log=False),
             insecure_policy=dict(type='str', choices=['allow', 'redirect', 'disallow'], default='disallow'),
         ))
         spec['termination'] = dict(choices=['edge', 'passthrough', 'reencrypt', 'insecure'], default='insecure')
