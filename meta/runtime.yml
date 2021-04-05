@@ -1,2 +1,6 @@
 ---
 requires_ansible: '>=2.9'
+plugin_routing:
+  modules:
+    k8s_auth:
+      redirect: community.okd.openshift_auth
