@@ -89,3 +89,16 @@ releases:
     fragments:
     - 71-bump-kubernetes-core-version.yaml
     release_date: '2021-02-23'
+  1.1.1:
+    changes:
+      bugfixes:
+      - add missing requirements.txt file needed for execution environments (https://github.com/ansible-collections/community.okd/pull/78).
+      - openshift_route - default to ``no_log=False`` for the ``key`` parameter in
+        TLS configuration to fix sanity failures (https://github.com/ansible-collections/community.okd/pull/77).
+      - restrict molecule version to <3.3.0 to address breaking change (https://github.com/ansible-collections/community.okd/pull/77).
+      - update CI to work with ansible 2.11 (https://github.com/ansible-collections/community.okd/pull/80).
+    fragments:
+    - 77-fix-ci-failure.yaml
+    - 78-add-requirements-file.yaml
+    - 80-update-ci.yaml
+    release_date: '2021-04-06'
