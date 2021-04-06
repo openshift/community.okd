@@ -1,0 +1,2 @@
+bugfixes:
+  - include requirements.txt in downstream build process (https://github.com/ansible-collections/community.okd/pull/81).
