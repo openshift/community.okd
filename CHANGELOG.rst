@@ -14,6 +14,7 @@ Bugfixes
 - add missing requirements.txt file needed for execution environments (https://github.com/ansible-collections/community.okd/pull/78).
 - openshift_route - default to ``no_log=False`` for the ``key`` parameter in TLS configuration to fix sanity failures (https://github.com/ansible-collections/community.okd/pull/77).
 - restrict molecule version to <3.3.0 to address breaking change (https://github.com/ansible-collections/community.okd/pull/77).
+- update CI to work with ansible 2.11 (https://github.com/ansible-collections/community.okd/pull/80).
 
 v1.1.0
 ======
