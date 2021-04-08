@@ -102,3 +102,10 @@ releases:
     - 78-add-requirements-file.yaml
     - 80-update-ci.yaml
     release_date: '2021-04-06'
+  1.1.2:
+    changes:
+      bugfixes:
+      - include requirements.txt in downstream build process (https://github.com/ansible-collections/community.okd/pull/81).
+    fragments:
+    - 81-include-requirements.yaml
+    release_date: '2021-04-08'

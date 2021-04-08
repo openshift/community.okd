@@ -5,6 +5,14 @@ OKD Collection Release Notes
 .. contents:: Topics
 
 
+v1.1.2
+======
+
+Bugfixes
+--------
+
+- include requirements.txt in downstream build process (https://github.com/ansible-collections/community.okd/pull/81).
+
 v1.1.1
 ======
 
