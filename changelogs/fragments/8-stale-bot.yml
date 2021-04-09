@@ -1,3 +1,0 @@
----
-minor_changes:
-  - Integrate stale bot for issue queue maintenance (https://github.com/ansible-collections/community.okd/pull/14).

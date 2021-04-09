@@ -1,3 +1,0 @@
----
-minor_changes:
-  - Add incluster Makefile target for CI (https://github.com/ansible-collections/community.okd/pull/13).

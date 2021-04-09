@@ -1,3 +1,0 @@
----
-minor_changes:
-  - Use the API Group APIVersion for the `Route` object (https://github.com/ansible-collections/community.okd/pull/27).

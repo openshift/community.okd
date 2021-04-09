@@ -1,3 +1,0 @@
----
-minor_changes:
-  - Docker container can run as an arbitrary user (https://github.com/ansible-collections/community.okd/pull/12).

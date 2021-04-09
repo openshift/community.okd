@@ -1,3 +1,0 @@
----
-major_changes:
-  - Add downstream build scripts to build redhat.openshift (https://github.com/ansible-collections/community.okd/pull/20).
