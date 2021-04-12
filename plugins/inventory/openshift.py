@@ -22,7 +22,7 @@ DOCUMENTATION = '''
       plugin:
         description: token that ensures this is a source file for the 'openshift' plugin.
         required: True
-        choices: ['openshift']
+        choices: ['openshift', 'community.okd.openshift']
       connections:
           description:
           - Optional list of cluster connection settings. If no connections are provided, the default
