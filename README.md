@@ -7,21 +7,40 @@ This repo hosts the `community.okd` Ansible Collection.
 
 The collection includes a variety of Ansible content to help automate the management of applications in OKD clusters, as well as the provisioning and maintenance of clusters themselves.
 
+<!--start requires_ansible-->
+## Ansible version compatibility
+
+This collection has been tested against following Ansible versions: **>=2.9**.
+
+Plugins and modules within a collection may be tested with only specific Ansible versions.
+A collection may contain metadata that identifies these versions.
+PEP440 is the schema used to describe the versions of Ansible.
+<!--end requires_ansible-->
+
 ## Included content
 
 Click on the name of a plugin or module to view that content's documentation:
 
-  - **Connection Plugins**:
-    - [oc](https://docs.ansible.com/ansible/2.10/collections/community/general/oc_connection.html)
-  - **Inventory Plugins**:
-    - [openshift](https://docs.ansible.com/ansible/2.10/collections/community/kubernetes/openshift_inventory.html)
-  - **Modules**:
-    - [k8s](https://docs.ansible.com/ansible/2.10/collections/community/kubernetes/k8s_inventory.html)
-    - [openshift_auth](https://github.com/ansible-collections/community.okd/blob/main/plugins/modules/openshift_auth.py)
-    - [openshift_process](https://github.com/ansible-collections/community.okd/blob/main/plugins/modules/openshift_process.py)
-    - [openshift_route](https://github.com/ansible-collections/community.okd/blob/main/plugins/modules/openshift_route.py)
+<!--start collection content-->
+### Connection plugins
+Name | Description
+--- | ---
+[community.okd.oc](https://github.com/ansible-collections/community.okd/blob/main/docs/community.okd.oc_connection.rst)|Execute tasks in pods running on OpenShift.
 
-> **Note**: Some of these documentation links currently link to older module versions. For the latest module documentation, please use `ansible-doc` in the CLI.
+### Modules
+Name | Description
+--- | ---
+[community.okd.k8s](https://github.com/ansible-collections/community.okd/blob/main/docs/community.okd.k8s_module.rst)|Manage OpenShift objects
+[community.okd.openshift_auth](https://github.com/ansible-collections/community.okd/blob/main/docs/community.okd.openshift_auth_module.rst)|Authenticate to OpenShift clusters which require an explicit login step
+[community.okd.openshift_process](https://github.com/ansible-collections/community.okd/blob/main/docs/community.okd.openshift_process_module.rst)|Process an OpenShift template.openshift.io/v1 Template
+[community.okd.openshift_route](https://github.com/ansible-collections/community.okd/blob/main/docs/community.okd.openshift_route_module.rst)|Expose a Service as an OpenShift Route.
+
+### Inventory plugins
+Name | Description
+--- | ---
+[community.okd.openshift](https://github.com/ansible-collections/community.okd/blob/main/docs/community.okd.openshift_inventory.rst)|OpenShift inventory source
+
+<!--end collection content-->
 
 <!--- ENDREMOVE --->
 
