@@ -1,3 +1,0 @@
----
-major_changes:
-  - Add openshift_process module for template rendering and optional application of rendered resources (https://github.com/ansible-collections/community.okd/pull/44).

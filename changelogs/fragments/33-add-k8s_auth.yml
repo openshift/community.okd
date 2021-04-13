@@ -1,3 +1,0 @@
----
-major_changes:
-  - openshift_auth - new module (migrated from k8s_auth in community.kubernetes) (https://github.com/ansible-collections/community.okd/pull/33).

@@ -1,3 +1,0 @@
----
-minor_changes:
-  - Add tests for inventory plugin (https://github.com/ansible-collections/community.okd/pull/16).
