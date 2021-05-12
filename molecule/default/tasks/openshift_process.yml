@@ -167,10 +167,7 @@
 - name: create template with file {{ files_dir }}/pod-template.yaml
   kubernetes.core.k8s:
     namespace: process-test
-    template: 
-      path: "{{ files_dir }}/pod-template.yaml"
-      variable_start_string: '[['
-      variable_end_string: ']]'
+    src:  "{{ files_dir }}/pod-template.yaml"
     state: present
 
 - name: Process pod template
