@@ -21,9 +21,3 @@ parameters:
   - name: NAME 
     description: trailing name of the pod
     required: true
-
-
-
-
-
-
