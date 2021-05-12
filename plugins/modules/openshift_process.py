@@ -330,7 +330,6 @@ class OpenShiftProcess(K8sAnsibleMixin):
         except Exception as exc:
             self.module.fail_json(msg="Server failed to render the Template: {0}".format(to_native(exc)),
                                   error='', status='', reason='')
-        
         result['message'] = ""
         if "message" in response:
           result['message'] = response['message']
