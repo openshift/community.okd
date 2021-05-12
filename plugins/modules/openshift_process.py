@@ -332,7 +332,7 @@ class OpenShiftProcess(K8sAnsibleMixin):
                                   error='', status='', reason='')
         result['message'] = ""
         if "message" in response:
-          result['message'] = response['message']
+            result['message'] = response['message']
         result['resources'] = response['objects']
 
         if state != 'rendered':
