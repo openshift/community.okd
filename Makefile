@@ -3,7 +3,7 @@
 # Also needs to be updated in galaxy.yml
 VERSION = 1.1.2
 
-TEST_ARGS ?= --docker --color
+SANITY_TEST_ARGS ?= --docker --color
 PYTHON_VERSION ?= `python3 -c 'import platform; print("{0}.{1}".format(platform.python_version_tuple()[0], platform.python_version_tuple()[1]))'`
 
 clean:
@@ -18,7 +18,7 @@ install: build
 	ansible-galaxy collection install -p ansible_collections community-okd-$(VERSION).tar.gz
 
 sanity: install
-	cd ansible_collections/community/okd && ansible-test sanity -v --python $(PYTHON_VERSION) $(TEST_ARGS)
+	cd ansible_collections/community/okd && ansible-test sanity -v --python $(PYTHON_VERSION) $(SANITY_TEST_ARGS)
 
 molecule:
 	molecule test

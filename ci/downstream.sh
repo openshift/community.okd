@@ -206,7 +206,7 @@ f_test_sanity_option()
             then
                 make sanity
             else
-                TEST_ARGS="--venv --color" make sanity
+                SANITY_TEST_ARGS="--venv --color" make sanity
             fi
         f_log_info "SANITY TEST PWD: ${PWD}"
         make sanity
