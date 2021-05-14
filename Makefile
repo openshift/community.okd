@@ -4,7 +4,7 @@
 VERSION = 1.1.2
 
 TEST_ARGS ?= ""
-PYTHON_VERSION ?= `python -c 'import platform; print("{0}.{1}".format(platform.python_version_tuple()[0], platform.python_version_tuple()[1]))'`
+PYTHON_VERSION ?= `python3 -c 'import platform; print("{0}.{1}".format(platform.python_version_tuple()[0], platform.python_version_tuple()[1]))'`
 
 clean:
 	rm -f community-okd-$(VERSION).tar.gz
