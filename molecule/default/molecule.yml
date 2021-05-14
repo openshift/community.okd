@@ -1,6 +1,8 @@
 ---
 dependency:
   name: galaxy
+  options:
+    requirements-file: requirements.yml
 driver:
   name: delegated
 platforms:
@@ -38,6 +40,7 @@ verifier:
 scenario:
   name: default
   test_sequence:
+    - dependency
     - lint
     - syntax
     - prepare
