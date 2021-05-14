@@ -202,6 +202,12 @@ f_test_sanity_option()
     f_log_info "${FUNCNAME[0]}"
     f_common_steps
     pushd "${_build_dir}" || return
+        if command -v docker &> /dev/null
+            then
+                make sanity
+            else
+                TEST_ARGS="--venv --color" make sanity
+            fi
         f_log_info "SANITY TEST PWD: ${PWD}"
         make sanity
     popd || return
