@@ -1,0 +1,3 @@
+---
+bugfixes:
+  - fixes test suite to use correct versions of python and dependencies (https://github.com/ansible-collections/community.okd/pull/89).
