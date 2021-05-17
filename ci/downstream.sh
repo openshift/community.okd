@@ -221,7 +221,7 @@ f_test_integration_option()
     f_common_steps
     pushd "${_build_dir}" || return
         f_log_info "INTEGRATION TEST WD: ${PWD}"
-        make molecule
+        OVERRIDE_COLLECTION_PATH="${_tmp_dir}" make molecule
     popd || return
     f_cleanup
 }
