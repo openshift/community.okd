@@ -20,7 +20,7 @@ install: build
 sanity: install
 	cd ansible_collections/community/okd && ansible-test sanity -v --python $(PYTHON_VERSION) $(SANITY_TEST_ARGS)
 
-molecule:
+molecule: install
 	molecule test
 
 test-integration: upstream-test-integration downstream-test-integration
