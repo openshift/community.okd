@@ -31,12 +31,12 @@ description:
   - Optimized for OKD/OpenShift Kubernetes flavors.
 
 extends_documentation_fragment:
-  - kubernetes.core.k8s_state_options
-  - kubernetes.core.k8s_name_options
-  - kubernetes.core.k8s_resource_options
-  - kubernetes.core.k8s_auth_options
-  - kubernetes.core.k8s_wait_options
-  - kubernetes.core.k8s_delete_options
+  - k8s_state_options
+  - k8s_name_options
+  - k8s_resource_options
+  - k8s_auth_options
+  - k8s_wait_options
+  - k8s_delete_options
 
 notes:
   - If your OpenShift Python library is not 0.9.0 or newer and you are trying to

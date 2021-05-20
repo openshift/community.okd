@@ -24,9 +24,9 @@ description:
   - For creating Services from other resources, see kubernetes.core.k8s_expose
 
 extends_documentation_fragment:
-  - kubernetes.core.k8s_auth_options
-  - kubernetes.core.k8s_wait_options
-  - kubernetes.core.k8s_state_options
+  - k8s_auth_options
+  - k8s_wait_options
+  - k8s_state_options
 
 requirements:
   - "python >= 2.7"

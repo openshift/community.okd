@@ -24,9 +24,9 @@ description:
   - For CRUD operations on Template resources themselves, see the community.okd.k8s module.
 
 extends_documentation_fragment:
-  - kubernetes.core.k8s_auth_options
-  - kubernetes.core.k8s_wait_options
-  - kubernetes.core.k8s_resource_options
+  - k8s_auth_options
+  - k8s_wait_options
+  - k8s_resource_options
 
 requirements:
   - "python >= 2.7"
