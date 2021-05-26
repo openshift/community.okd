@@ -67,6 +67,7 @@ f_prep()
         setup.cfg
         .yamllint
         requirements.txt
+        requirements.yml
     )
 
     # Directories to recursively copy downstream (relative repo root dir path)
@@ -179,17 +180,6 @@ f_handle_doc_fragments_workaround()
 
 }
 
-f_install_kubernetes_core()
-{
-    f_log_info "${FUNCNAME[0]}"
-    local install_collections_dir="${_tmp_dir}/ansible_collections"
-
-    pushd "${_tmp_dir}"
-        ansible-galaxy collection install -p "${install_collections_dir}" kubernetes.core
-    popd
-}
-
-
 f_copy_collection_to_working_dir()
 {
     f_log_info "${FUNCNAME[0]}"
@@ -211,20 +201,15 @@ f_test_sanity_option()
 {
     f_log_info "${FUNCNAME[0]}"
     f_common_steps
-    f_install_kubernetes_core
     pushd "${_build_dir}" || return
-        ansible-galaxy collection build
-        f_log_info "SANITY TEST PWD: ${PWD}"
-        ## Can't do this because the upstream kubernetes.core dependency logic
-        ## is bound as a Makefile dep to the test-sanity target
-        #SANITY_TEST_ARGS="--docker --color --python 3.6" make test-sanity
-        # Run tests in docker if available, venv otherwise
         if command -v docker &> /dev/null
-        then
-            ansible-test sanity --docker -v --exclude ci/ --color --python 3.6
-        else
-            ansible-test sanity --venv -v --exclude ci/ --color --python 3.6
-        fi
+            then
+                make sanity
+            else
+                SANITY_TEST_ARGS="--venv --color" make sanity
+            fi
+        f_log_info "SANITY TEST PWD: ${PWD}"
+        make sanity
     popd || return
     f_cleanup
 }
@@ -234,10 +219,9 @@ f_test_integration_option()
 {
     f_log_info "${FUNCNAME[0]}"
     f_common_steps
-    f_install_kubernetes_core
     pushd "${_build_dir}" || return
         f_log_info "INTEGRATION TEST WD: ${PWD}"
-        OVERRIDE_COLLECTION_PATH="${_tmp_dir}" molecule test
+        make molecule
     popd || return
     f_cleanup
 }
@@ -249,13 +233,7 @@ f_build_option()
     f_common_steps
     pushd "${_build_dir}" || return
         f_log_info "BUILD WD: ${PWD}"
-        # FIXME
-        #   This doesn't work because we end up either recursively curl'ing
-        #   kubernetes.core and redoing the text replacement over and over
-        #
-        # make build
-        ansible-galaxy collection build
-
+        make build
     popd || return
     f_copy_collection_to_working_dir
     f_cleanup

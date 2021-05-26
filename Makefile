@@ -1,34 +1,38 @@
+.PHONY: molecule
+
 # Also needs to be updated in galaxy.yml
 VERSION = 1.1.2
 
-# To run sanity tests in a venv, set SANITY_TEST_ARGS to '--venv'
 SANITY_TEST_ARGS ?= --docker --color
+PYTHON_VERSION ?= `python3 -c 'import platform; print("{0}.{1}".format(platform.python_version_tuple()[0], platform.python_version_tuple()[1]))'`
 
 clean:
 	rm -f community-okd-$(VERSION).tar.gz
+	rm -f redhat-openshift-$(VERSION).tar.gz
 	rm -rf ansible_collections
 
 build: clean
 	ansible-galaxy collection build
 
-install-kubernetes-src:
-	ansible-galaxy collection install -p ansible_collections kubernetes.core
-
-install: build install-kubernetes-src
+install: build
 	ansible-galaxy collection install -p ansible_collections community-okd-$(VERSION).tar.gz
+
+sanity: install
+	cd ansible_collections/community/okd && ansible-test sanity -v --python $(PYTHON_VERSION) $(SANITY_TEST_ARGS)
+
+molecule: install
+	molecule test
+
+test-integration: upstream-test-integration downstream-test-integration
+
+test-sanity: upstream-test-sanity downstream-test-sanity
 
 test-integration-incluster:
 	./ci/incluster_integration.sh
 
-test-sanity: upstream-test-sanity downstream-test-sanity
+upstream-test-sanity: sanity
 
-test-integration: upstream-test-integration downstream-test-integration
-
-upstream-test-integration: install
-	molecule test
-
-upstream-test-sanity: install
-	cd ansible_collections/community/okd && ansible-test sanity --exclude ci/ -v $(SANITY_TEST_ARGS)
+upstream-test-integration: molecule
 
 downstream-test-sanity:
 	./ci/downstream.sh -s
