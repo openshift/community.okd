@@ -162,3 +162,22 @@
 
 - assert:
     that: result is not changed
+
+# Processing template without message
+- name: create template with file {{ files_dir }}/pod-template.yaml
+  kubernetes.core.k8s:
+    namespace: process-test
+    src:  "{{ files_dir }}/pod-template.yaml"
+    state: present
+
+- name: Process pod template
+  community.okd.openshift_process:
+    name: pod-template
+    namespace: process-test
+    state: rendered
+    parameters:
+      NAME: ansible
+  register: rendered_template
+
+- assert:
+    that: rendered_template.message == ""
