@@ -48,7 +48,7 @@ Where modules have multiple parameters we recommend running through the 4-step m
 
 For general information on running the integration tests see the
 [Integration Tests page of the Module Development Guide](https://docs.ansible.com/ansible/devel/dev_guide/testing_integration.html#testing-integration),
-especially the section on configuration for cloud tests. For questions about writing tests the Ansible Kubernetes community can be found on Freenode IRC as detailed below.
+especially the section on configuration for cloud tests. For questions about writing tests the Ansible Kubernetes community can be found on Libera.Chat IRC as detailed below.
 
 
 ### Code of Conduct
@@ -58,8 +58,8 @@ Please read and familiarize yourself with this document.
 
 ### IRC
 Our IRC channels may require you to register your nickname. If you receive an error when you connect, see
-[Freenode's Nickname Registration guide](https://freenode.net/kb/answer/registration) for instructions.
+[Libera.Chat's Nickname Registration guide](https://libera.chat/guides/registration) for instructions.
 
-The `#ansible-kubernetes` channel on Freenode IRC is the main and official place to discuss use and development of the `community.okd` collection.
+The `#ansible-kubernetes` channel on [irc.libera.chat](https://libera.chat/) is the main and official place to discuss use and development of the `community.okd` collection.
 
 For more information about Ansible's Kubernetes and OpenShift integration, browse the resources in the [Kubernetes Working Group](https://github.com/ansible/community/wiki/Kubernetes) Community wiki page.
