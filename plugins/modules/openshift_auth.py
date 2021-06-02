@@ -70,7 +70,7 @@ options:
     type: str
 
 requirements:
-  - python >= 2.7
+  - python >= 3.6
   - urllib3
   - requests
   - requests-oauthlib

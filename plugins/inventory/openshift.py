@@ -36,8 +36,8 @@ DOCUMENTATION = '''
               kubeconfig:
                   description:
                   - Path to an existing Kubernetes config file. If not provided, and no other connection
-                    options are provided, the OpenShift client will attempt to load the default
-                    configuration file from I(~/.kube/config.json). Can also be specified via K8S_AUTH_KUBECONFIG
+                    options are provided, the Kubernetes client will attempt to load the default
+                    configuration file from I(~/.kube/config). Can also be specified via K8S_AUTH_KUBECONFIG
                     environment variable.
               context:
                   description:
@@ -85,8 +85,8 @@ DOCUMENTATION = '''
                     to access.
 
     requirements:
-    - "python >= 2.7"
-    - "openshift >= 0.6"
+    - "python >= 3.6"
+    - "kubernetes >= 12.0.0"
     - "PyYAML >= 3.11"
 '''
 
@@ -114,9 +114,10 @@ connections:
 '''
 
 from ansible_collections.kubernetes.core.plugins.inventory.k8s import K8sInventoryException, InventoryModule as K8sInventoryModule, format_dynamic_api_exc
+from ansible_collections.kubernetes.core.plugins.module_utils.common import get_api_client
 
 try:
-    from openshift.dynamic.exceptions import DynamicApiError
+    from kubernetes.dynamic.exceptions import DynamicApiError
 except ImportError:
     pass
 
@@ -135,7 +136,7 @@ class InventoryModule(K8sInventoryModule):
                 raise K8sInventoryException("Expecting connections to be a list.")
 
             for connection in connections:
-                client = self.get_api_client(**connection)
+                client = get_api_client(**connection)
                 name = connection.get('name', self.get_default_host_name(client.configuration.host))
                 if connection.get('namespaces'):
                     namespaces = connection['namespaces']
@@ -144,7 +145,7 @@ class InventoryModule(K8sInventoryModule):
                 for namespace in namespaces:
                     self.get_routes_for_namespace(client, name, namespace)
         else:
-            client = self.get_api_client()
+            client = get_api_client()
             name = self.get_default_host_name(client.configuration.host)
             namespaces = self.get_available_namespaces(client)
             for namespace in namespaces:

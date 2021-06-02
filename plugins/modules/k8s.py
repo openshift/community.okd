@@ -21,7 +21,7 @@ author:
     - "Fabian von Feilitzsch (@fabianvf)"
 
 description:
-  - Use the OpenShift Python client to perform CRUD operations on K8s objects.
+  - Use the Kubernetes Python client to perform CRUD operations on K8s objects.
   - Pass the object definition from a source file or inline. See examples for reading
     files and using Jinja templates or vault-encrypted files.
   - Access to the full range of K8s APIs.
@@ -31,21 +31,28 @@ description:
   - Optimized for OKD/OpenShift Kubernetes flavors.
 
 extends_documentation_fragment:
-  - kubernetes.core.k8s_state_options
   - kubernetes.core.k8s_name_options
   - kubernetes.core.k8s_resource_options
   - kubernetes.core.k8s_auth_options
   - kubernetes.core.k8s_wait_options
   - kubernetes.core.k8s_delete_options
 
-notes:
-  - If your OpenShift Python library is not 0.9.0 or newer and you are trying to
-    remove an item from an associative array/dictionary, for example a label or
-    an annotation, you will need to explicitly set the value of the item to be
-    removed to `null`. Simply deleting the entry in the dictionary will not
-    remove it from openshift or kubernetes.
-
 options:
+  state:
+    description:
+    - Determines if an object should be created, patched, or deleted. When set to C(present), an object will be
+      created, if it does not already exist. If set to C(absent), an existing object will be deleted. If set to
+      C(present), an existing object will be patched, if its attributes differ from those specified using
+      I(resource_definition) or I(src).
+    - C(patched) state is an existing resource that has a given patch applied. If the resource doesn't exist, silently skip it (do not raise an error).
+    type: str
+    default: present
+    choices: [ absent, present, patched ]
+  force:
+    description:
+    - If set to C(yes), and I(state) is C(present), an existing object will be replaced.
+    type: bool
+    default: no
   merge_type:
     description:
     - Whether to override the default patch merge approach with a specific type. By default, the strategic
@@ -53,12 +60,11 @@ options:
     - For example, Custom Resource Definitions typically aren't updatable by the usual strategic merge. You may
       want to use C(merge) if you see "strategic merge patch format is not supported"
     - See U(https://kubernetes.io/docs/tasks/run-application/update-api-object-kubectl-patch/#use-a-json-merge-patch-to-update-a-deployment)
-    - Requires openshift >= 0.6.2
     - If more than one merge_type is given, the merge_types will be tried in order
-    - If openshift >= 0.6.2, this defaults to C(['strategic-merge', 'merge']), which is ideal for using the same parameters
-      on resource kinds that combine Custom Resources and built-in resources. For openshift < 0.6.2, the default
-      is simply C(strategic-merge).
+    - Defaults to C(['strategic-merge', 'merge']), which is ideal for using the same parameters
+      on resource kinds that combine Custom Resources and built-in resources.
     - mutually exclusive with C(apply)
+    - I(merge_type=json) is deprecated and will be removed in version 3.0.0. Please use M(kubernetes.core.k8s_json_patch) instead.
     choices:
     - json
     - merge
@@ -124,10 +130,17 @@ options:
       This functionality requires Jinja 2.7 or newer. Default value is false.'
     type: raw
     version_added: '2.0.0'
+  continue_on_error:
+    description:
+    - Whether to continue on creation/deletion errors when multiple resources are defined.
+    - This has no effect on the validation step which is controlled by the C(validate.fail_on_error) parameter.
+    type: bool
+    default: False
+    version_added: 2.0.0
 
 requirements:
-  - "python >= 2.7"
-  - "openshift >= 0.6"
+  - "python >= 3.6"
+  - "kubernetes >= 12.0.0"
   - "PyYAML >= 3.11"
 '''
 
@@ -240,6 +253,10 @@ result:
        returned: when C(wait) is true
        type: int
        sample: 48
+     error:
+       description: error while trying to create/delete the object.
+       returned: error
+       type: complex
 '''
 # ENDREMOVE (downstream)
 
@@ -253,9 +270,9 @@ from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils._text import to_native
 
 try:
-    from ansible_collections.kubernetes.core.plugins.module_utils.common import (
-        K8sAnsibleMixin, COMMON_ARG_SPEC, NAME_ARG_SPEC,
-        RESOURCE_ARG_SPEC, AUTH_ARG_SPEC, WAIT_ARG_SPEC, DELETE_OPTS_ARG_SPEC)
+    from ansible_collections.kubernetes.core.plugins.module_utils.common import get_api_client, K8sAnsibleMixin
+    from ansible_collections.kubernetes.core.plugins.module_utils.args_common import (
+        NAME_ARG_SPEC, RESOURCE_ARG_SPEC, AUTH_ARG_SPEC, WAIT_ARG_SPEC, DELETE_OPTS_ARG_SPEC)
     HAS_KUBERNETES_COLLECTION = True
 except ImportError as e:
     HAS_KUBERNETES_COLLECTION = False
@@ -264,7 +281,7 @@ except ImportError as e:
 
 try:
     import yaml
-    from openshift.dynamic.exceptions import DynamicApiError, NotFoundError, ForbiddenError
+    from kubernetes.dynamic.exceptions import DynamicApiError, NotFoundError, ForbiddenError
 except ImportError:
     # Exceptions handled in common
     pass
@@ -303,9 +320,9 @@ class OKDRawModule(K8sAnsibleMixin):
                 error=to_native(k8s_collection_import_exception)
             )
 
-        super(OKDRawModule, self).__init__(*args, **kwargs)
+        super(OKDRawModule, self).__init__(module, *args, **kwargs)
 
-        self.client = None
+        self.client = get_api_client(module)
         self.warnings = []
 
         self.kind = k8s_kind or self.params.get('kind')
@@ -314,7 +331,7 @@ class OKDRawModule(K8sAnsibleMixin):
         self.namespace = self.params.get('namespace')
 
         self.check_library_version()
-        self.set_resource_definitions()
+        self.set_resource_definitions(module)
 
     @property
     def validate_spec(self):
@@ -326,8 +343,7 @@ class OKDRawModule(K8sAnsibleMixin):
 
     @property
     def argspec(self):
-        argument_spec = copy.deepcopy(COMMON_ARG_SPEC)
-        argument_spec.update(copy.deepcopy(NAME_ARG_SPEC))
+        argument_spec = copy.deepcopy(NAME_ARG_SPEC)
         argument_spec.update(copy.deepcopy(RESOURCE_ARG_SPEC))
         argument_spec.update(copy.deepcopy(AUTH_ARG_SPEC))
         argument_spec.update(copy.deepcopy(WAIT_ARG_SPEC))
@@ -337,6 +353,9 @@ class OKDRawModule(K8sAnsibleMixin):
         argument_spec['apply'] = dict(type='bool', default=False)
         argument_spec['template'] = dict(type='raw', default=None)
         argument_spec['delete_options'] = dict(type='dict', default=None, options=copy.deepcopy(DELETE_OPTS_ARG_SPEC))
+        argument_spec['continue_on_error'] = dict(type='bool', default=False)
+        argument_spec['state'] = dict(default='present', choices=['present', 'absent', 'patched'])
+        argument_spec['force'] = dict(type='bool', default=False)
         return argument_spec
 
     def perform_action(self, resource, definition):
