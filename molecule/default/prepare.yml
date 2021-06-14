@@ -10,7 +10,6 @@
 
     - pip:
         name:
-          - openshift>=0.9.2
           - coverage
         virtualenv: "{{ virtualenv }}"
         virtualenv_command: "{{ virtualenv_command }}"
