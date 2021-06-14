@@ -17,6 +17,14 @@
         apply: no
       register: output
 
+    - name: Create project and apply
+      community.okd.k8s:
+        name: testing01
+        kind: Project
+        api_version: project.openshift.io/v1
+        apply: yes
+      register: output
+
     - name: show output
       debug:
         var: output
