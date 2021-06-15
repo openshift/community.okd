@@ -10,6 +10,7 @@
 
     - pip:
         name:
+          - kubernetes
           - coverage
         virtualenv: "{{ virtualenv }}"
         virtualenv_command: "{{ virtualenv_command }}"
