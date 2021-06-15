@@ -17,6 +17,11 @@
         apply: no
       register: output
 
+    - name: copy update library
+      ansible.builtin.copy:
+        src: files/k8sdynamicclient.py
+        dest: /opt/ansible/.cache/molecule/ansible/default/collections/ansible_collections/kubernetes/core/plugins/module_utils/k8sdynamicclient.py
+
     - name: Create project and apply
       community.okd.k8s:
         name: testing01
@@ -24,6 +29,14 @@
         api_version: project.openshift.io/v1
         apply: yes
       register: output
+      ignore_errors: yes
+
+    - name: register content
+      set_fact:
+        k_apply: "{{ lookup('file', '/tmp/k8s_apply.txt') }}"
+
+    - debug:
+        msg: "{{ k_apply }}"
 
     - name: show output
       debug:
