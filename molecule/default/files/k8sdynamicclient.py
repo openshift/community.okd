@@ -34,7 +34,7 @@ class K8SDynamicClient(DynamicClient):
             body['metadata']['namespace'] = super().ensure_namespace(resource, namespace, body)
         try:
             with open('/tmp/k8s_apply.txt', 'w') as fh:
-                fh.write("Type of k8s_apply is {}".format(type(k8s_apply)))
+                fh.write("Type of k8s_apply is {0}".format(type(k8s_apply)))
             return k8s_apply(resource, body)
         except ApplyException as e:
             raise ValueError("Could not apply strategic merge to %s/%s: %s" %
