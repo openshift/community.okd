@@ -29,8 +29,8 @@ extends_documentation_fragment:
   - kubernetes.core.k8s_state_options
 
 requirements:
-  - "python >= 2.7"
-  - "openshift >= 0.11.0"
+  - "python >= 3.6"
+  - "kubernetes >= 12.0.0"
   - "PyYAML >= 3.11"
 
 options:
@@ -305,8 +305,9 @@ from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils._text import to_native
 
 try:
-    from ansible_collections.kubernetes.core.plugins.module_utils.common import (
-        K8sAnsibleMixin, AUTH_ARG_SPEC, WAIT_ARG_SPEC, COMMON_ARG_SPEC
+    from ansible_collections.kubernetes.core.plugins.module_utils.common import K8sAnsibleMixin, get_api_client
+    from ansible_collections.kubernetes.core.plugins.module_utils.args_common import (
+        AUTH_ARG_SPEC, WAIT_ARG_SPEC, COMMON_ARG_SPEC
     )
     HAS_KUBERNETES_COLLECTION = True
 except ImportError as e:
@@ -317,7 +318,7 @@ except ImportError as e:
     AUTH_ARG_SPEC = WAIT_ARG_SPEC = COMMON_ARG_SPEC = {}
 
 try:
-    from openshift.dynamic.exceptions import DynamicApiError, NotFoundError
+    from kubernetes.dynamic.exceptions import DynamicApiError, NotFoundError
 except ImportError:
     pass
 
@@ -338,7 +339,7 @@ class OpenShiftRoute(K8sAnsibleMixin):
                 error=to_native(k8s_collection_import_exception)
             )
 
-        super(OpenShiftRoute, self).__init__()
+        super(OpenShiftRoute, self).__init__(self.module)
 
         self.params = self.module.params
         # TODO: should probably make it so that at least some of these aren't required for perform_action to work
@@ -375,7 +376,7 @@ class OpenShiftRoute(K8sAnsibleMixin):
         return spec
 
     def execute_module(self):
-        self.client = self.get_api_client()
+        self.client = get_api_client(self.module)
         v1_routes = self.find_resource('Route', 'route.openshift.io/v1', fail=True)
 
         service_name = self.params.get('service')

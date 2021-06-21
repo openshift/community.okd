@@ -16,7 +16,7 @@ RUN yum install -y \
       python3-setuptools \
  && pip3 install --no-cache-dir --upgrade setuptools pip \
  && pip3 install --no-cache-dir \
-      openshift \
+      kubernetes \
       ansible==2.9.* \
       "molecule<3.3.0" \
   && yum clean all \

@@ -61,11 +61,11 @@ collections:
     version: 1.1.2
 ```
 
-### Installing the OpenShift Python Library
+### Installing the Kubernetes Python Library
 
-Content in this collection requires the [OpenShift Python client](https://pypi.org/project/openshift/) to interact with Kubernetes' APIs. You can install it with:
+Content in this collection requires the [Kubernetes Python client](https://pypi.org/project/kubernetes/) to interact with Kubernetes' APIs. You can install it with:
 
-    pip3 install openshift
+    pip3 install kubernetes
 
 ### Using modules from the OKD Collection in your playbooks
 
