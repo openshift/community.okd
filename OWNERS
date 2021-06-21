@@ -1,12 +1,10 @@
 approvers:
-  - geerlingguy
-  - fabianvf
-  - maxamillion
+  - gravesm
   - akasurde
+  - fabianvf
   - tima
 reviewers:
-  - geerlingguy
-  - fabianvf
-  - maxamillion
+  - gravesm
   - akasurde
+  - fabianvf
   - tima
