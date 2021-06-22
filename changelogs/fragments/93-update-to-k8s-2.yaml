@@ -1,5 +1,0 @@
----
-breaking_changes:
-  - drop python 2 support (https://github.com/openshift/community.okd/pull/93).
-major_changes:
-  - update to use kubernetes.core 2.0 (https://github.com/openshift/community.okd/pull/93).

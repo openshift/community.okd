@@ -26,8 +26,8 @@ Requirements
 ------------
 The below requirements are needed on the local Ansible controller node that executes this inventory.
 
-- python >= 2.7
-- openshift >= 0.6
+- python >= 3.6
+- kubernetes >= 12.0.0
 - PyYAML >= 3.11
 
 
@@ -186,7 +186,7 @@ Parameters
                     <td>
                     </td>
                 <td>
-                        <div>Path to an existing Kubernetes config file. If not provided, and no other connection options are provided, the OpenShift client will attempt to load the default configuration file from <em>~/.kube/config.json</em>. Can also be specified via K8S_AUTH_KUBECONFIG environment variable.</div>
+                        <div>Path to an existing Kubernetes config file. If not provided, and no other connection options are provided, the Kubernetes client will attempt to load the default configuration file from <em>~/.kube/config</em>. Can also be specified via K8S_AUTH_KUBECONFIG environment variable.</div>
                 </td>
             </tr>
             <tr>
@@ -298,6 +298,7 @@ Parameters
                 <td>
                         <ul style="margin: 0; padding: 0"><b>Choices:</b>
                                     <li>openshift</li>
+                                    <li>community.okd.openshift</li>
                         </ul>
                 </td>
                     <td>
@@ -315,7 +316,7 @@ Parameters
 Examples
 --------
 
-.. code-block:: yaml+jinja
+.. code-block:: yaml
 
     # File must be named openshift.yaml or openshift.yml
 

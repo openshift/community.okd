@@ -1,7 +1,7 @@
 .PHONY: molecule
 
 # Also needs to be updated in galaxy.yml
-VERSION = 1.1.2
+VERSION = 2.0.0
 
 SANITY_TEST_ARGS ?= --docker --color
 PYTHON_VERSION ?= `python3 -c 'import platform; print("{0}.{1}".format(platform.python_version_tuple()[0], platform.python_version_tuple()[1]))'`

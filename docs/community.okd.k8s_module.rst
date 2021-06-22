@@ -16,13 +16,13 @@ community.okd.k8s
 
 Synopsis
 --------
-- Use the OpenShift Python client to perform CRUD operations on K8s objects.
+- Use the Kubernetes Python client to perform CRUD operations on K8s objects.
 - Pass the object definition from a source file or inline. See examples for reading files and using Jinja templates or vault-encrypted files.
 - Access to the full range of K8s APIs.
-- Use the :ref:`k8s_info <k8s_info_module>` module to obtain a list of items about an object of type ``kind``
+- Use the :ref:`kubernetes.core.k8s_info <kubernetes.core.k8s_info_module>` module to obtain a list of items about an object of type ``kind``.
 - Authenticate using either a config file, certificates, password or token.
 - Supports check mode.
-- Optimized for OKD/OpenShift Kubernetes flavors
+- Optimized for OKD/OpenShift Kubernetes flavors.
 
 
 
@@ -30,8 +30,8 @@ Requirements
 ------------
 The below requirements are needed on the host that executes this module.
 
-- python >= 2.7
-- openshift >= 0.6
+- python >= 3.6
+- kubernetes >= 12.0.0
 - PyYAML >= 3.11
 
 
@@ -42,12 +42,12 @@ Parameters
 
     <table  border=0 cellpadding=0 class="documentation-table">
         <tr>
-            <th colspan="2">Parameter</th>
+            <th colspan="3">Parameter</th>
             <th>Choices/<font color="blue">Defaults</font></th>
             <th width="100%">Comments</th>
         </tr>
             <tr>
-                <td colspan="2">
+                <td colspan="3">
                     <div class="ansibleOptionAnchor" id="parameter-"></div>
                     <b>api_key</b>
                     <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
@@ -62,7 +62,7 @@ Parameters
                 </td>
             </tr>
             <tr>
-                <td colspan="2">
+                <td colspan="3">
                     <div class="ansibleOptionAnchor" id="parameter-"></div>
                     <b>api_version</b>
                     <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
@@ -82,7 +82,7 @@ Parameters
                 </td>
             </tr>
             <tr>
-                <td colspan="2">
+                <td colspan="3">
                     <div class="ansibleOptionAnchor" id="parameter-"></div>
                     <b>append_hash</b>
                     <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
@@ -104,7 +104,7 @@ Parameters
                 </td>
             </tr>
             <tr>
-                <td colspan="2">
+                <td colspan="3">
                     <div class="ansibleOptionAnchor" id="parameter-"></div>
                     <b>apply</b>
                     <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
@@ -125,7 +125,7 @@ Parameters
                 </td>
             </tr>
             <tr>
-                <td colspan="2">
+                <td colspan="3">
                     <div class="ansibleOptionAnchor" id="parameter-"></div>
                     <b>ca_cert</b>
                     <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
@@ -141,7 +141,7 @@ Parameters
                 </td>
             </tr>
             <tr>
-                <td colspan="2">
+                <td colspan="3">
                     <div class="ansibleOptionAnchor" id="parameter-"></div>
                     <b>client_cert</b>
                     <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
@@ -157,7 +157,7 @@ Parameters
                 </td>
             </tr>
             <tr>
-                <td colspan="2">
+                <td colspan="3">
                     <div class="ansibleOptionAnchor" id="parameter-"></div>
                     <b>client_key</b>
                     <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
@@ -173,7 +173,7 @@ Parameters
                 </td>
             </tr>
             <tr>
-                <td colspan="2">
+                <td colspan="3">
                     <div class="ansibleOptionAnchor" id="parameter-"></div>
                     <b>context</b>
                     <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
@@ -188,7 +188,137 @@ Parameters
                 </td>
             </tr>
             <tr>
+                <td colspan="3">
+                    <div class="ansibleOptionAnchor" id="parameter-"></div>
+                    <b>continue_on_error</b>
+                    <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
+                    <div style="font-size: small">
+                        <span style="color: purple">boolean</span>
+                    </div>
+                    <div style="font-style: italic; font-size: small; color: darkgreen">added in 2.0.0</div>
+                </td>
+                <td>
+                        <ul style="margin: 0; padding: 0"><b>Choices:</b>
+                                    <li><div style="color: blue"><b>no</b>&nbsp;&larr;</div></li>
+                                    <li>yes</li>
+                        </ul>
+                </td>
+                <td>
+                        <div>Whether to continue on creation/deletion errors when multiple resources are defined.</div>
+                        <div>This has no effect on the validation step which is controlled by the <code>validate.fail_on_error</code> parameter.</div>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="3">
+                    <div class="ansibleOptionAnchor" id="parameter-"></div>
+                    <b>delete_options</b>
+                    <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
+                    <div style="font-size: small">
+                        <span style="color: purple">dictionary</span>
+                    </div>
+                    <div style="font-style: italic; font-size: small; color: darkgreen">added in 1.2.0</div>
+                </td>
+                <td>
+                </td>
+                <td>
+                        <div>Configure behavior when deleting an object.</div>
+                        <div>Only used when <em>state=absent</em>.</div>
+                </td>
+            </tr>
+                                <tr>
+                    <td class="elbow-placeholder"></td>
                 <td colspan="2">
+                    <div class="ansibleOptionAnchor" id="parameter-"></div>
+                    <b>gracePeriodSeconds</b>
+                    <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
+                    <div style="font-size: small">
+                        <span style="color: purple">integer</span>
+                    </div>
+                </td>
+                <td>
+                </td>
+                <td>
+                        <div>Specify how many seconds to wait before forcefully terminating.</div>
+                        <div>Only implemented for Pod resources.</div>
+                        <div>If not specified, the default grace period for the object type will be used.</div>
+                </td>
+            </tr>
+            <tr>
+                    <td class="elbow-placeholder"></td>
+                <td colspan="2">
+                    <div class="ansibleOptionAnchor" id="parameter-"></div>
+                    <b>preconditions</b>
+                    <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
+                    <div style="font-size: small">
+                        <span style="color: purple">dictionary</span>
+                    </div>
+                </td>
+                <td>
+                </td>
+                <td>
+                        <div>Specify condition that must be met for delete to proceed.</div>
+                </td>
+            </tr>
+                                <tr>
+                    <td class="elbow-placeholder"></td>
+                    <td class="elbow-placeholder"></td>
+                <td colspan="1">
+                    <div class="ansibleOptionAnchor" id="parameter-"></div>
+                    <b>resourceVersion</b>
+                    <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                    </div>
+                </td>
+                <td>
+                </td>
+                <td>
+                        <div>Specify the resource version of the target object.</div>
+                </td>
+            </tr>
+            <tr>
+                    <td class="elbow-placeholder"></td>
+                    <td class="elbow-placeholder"></td>
+                <td colspan="1">
+                    <div class="ansibleOptionAnchor" id="parameter-"></div>
+                    <b>uid</b>
+                    <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                    </div>
+                </td>
+                <td>
+                </td>
+                <td>
+                        <div>Specify the UID of the target object.</div>
+                </td>
+            </tr>
+
+            <tr>
+                    <td class="elbow-placeholder"></td>
+                <td colspan="2">
+                    <div class="ansibleOptionAnchor" id="parameter-"></div>
+                    <b>propagationPolicy</b>
+                    <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                    </div>
+                </td>
+                <td>
+                        <ul style="margin: 0; padding: 0"><b>Choices:</b>
+                                    <li>Foreground</li>
+                                    <li>Background</li>
+                                    <li>Orphan</li>
+                        </ul>
+                </td>
+                <td>
+                        <div>Use to control how dependent objects are deleted.</div>
+                        <div>If not specified, the default policy for the object type will be used. This may vary across object types.</div>
+                </td>
+            </tr>
+
+            <tr>
+                <td colspan="3">
                     <div class="ansibleOptionAnchor" id="parameter-"></div>
                     <b>force</b>
                     <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
@@ -207,7 +337,7 @@ Parameters
                 </td>
             </tr>
             <tr>
-                <td colspan="2">
+                <td colspan="3">
                     <div class="ansibleOptionAnchor" id="parameter-"></div>
                     <b>host</b>
                     <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
@@ -222,7 +352,7 @@ Parameters
                 </td>
             </tr>
             <tr>
-                <td colspan="2">
+                <td colspan="3">
                     <div class="ansibleOptionAnchor" id="parameter-"></div>
                     <b>kind</b>
                     <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
@@ -240,7 +370,7 @@ Parameters
                 </td>
             </tr>
             <tr>
-                <td colspan="2">
+                <td colspan="3">
                     <div class="ansibleOptionAnchor" id="parameter-"></div>
                     <b>kubeconfig</b>
                     <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
@@ -251,11 +381,11 @@ Parameters
                 <td>
                 </td>
                 <td>
-                        <div>Path to an existing Kubernetes config file. If not provided, and no other connection options are provided, the openshift client will attempt to load the default configuration file from <em>~/.kube/config.json</em>. Can also be specified via K8S_AUTH_KUBECONFIG environment variable.</div>
+                        <div>Path to an existing Kubernetes config file. If not provided, and no other connection options are provided, the Kubernetes client will attempt to load the default configuration file from <em>~/.kube/config</em>. Can also be specified via K8S_AUTH_KUBECONFIG environment variable.</div>
                 </td>
             </tr>
             <tr>
-                <td colspan="2">
+                <td colspan="3">
                     <div class="ansibleOptionAnchor" id="parameter-"></div>
                     <b>merge_type</b>
                     <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
@@ -275,14 +405,14 @@ Parameters
                         <div>Whether to override the default patch merge approach with a specific type. By default, the strategic merge will typically be used.</div>
                         <div>For example, Custom Resource Definitions typically aren&#x27;t updatable by the usual strategic merge. You may want to use <code>merge</code> if you see &quot;strategic merge patch format is not supported&quot;</div>
                         <div>See <a href='https://kubernetes.io/docs/tasks/run-application/update-api-object-kubectl-patch/#use-a-json-merge-patch-to-update-a-deployment'>https://kubernetes.io/docs/tasks/run-application/update-api-object-kubectl-patch/#use-a-json-merge-patch-to-update-a-deployment</a></div>
-                        <div>Requires openshift &gt;= 0.6.2</div>
                         <div>If more than one merge_type is given, the merge_types will be tried in order</div>
-                        <div>If openshift &gt;= 0.6.2, this defaults to <code>[&#x27;strategic-merge&#x27;, &#x27;merge&#x27;]</code>, which is ideal for using the same parameters on resource kinds that combine Custom Resources and built-in resources. For openshift &lt; 0.6.2, the default is simply <code>strategic-merge</code>.</div>
+                        <div>Defaults to <code>[&#x27;strategic-merge&#x27;, &#x27;merge&#x27;]</code>, which is ideal for using the same parameters on resource kinds that combine Custom Resources and built-in resources.</div>
                         <div>mutually exclusive with <code>apply</code></div>
+                        <div><em>merge_type=json</em> is deprecated and will be removed in version 3.0.0. Please use <span class='module'>kubernetes.core.k8s_json_patch</span> instead.</div>
                 </td>
             </tr>
             <tr>
-                <td colspan="2">
+                <td colspan="3">
                     <div class="ansibleOptionAnchor" id="parameter-"></div>
                     <b>name</b>
                     <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
@@ -300,7 +430,7 @@ Parameters
                 </td>
             </tr>
             <tr>
-                <td colspan="2">
+                <td colspan="3">
                     <div class="ansibleOptionAnchor" id="parameter-"></div>
                     <b>namespace</b>
                     <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
@@ -318,7 +448,7 @@ Parameters
                 </td>
             </tr>
             <tr>
-                <td colspan="2">
+                <td colspan="3">
                     <div class="ansibleOptionAnchor" id="parameter-"></div>
                     <b>password</b>
                     <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
@@ -334,7 +464,7 @@ Parameters
                 </td>
             </tr>
             <tr>
-                <td colspan="2">
+                <td colspan="3">
                     <div class="ansibleOptionAnchor" id="parameter-"></div>
                     <b>persist_config</b>
                     <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
@@ -357,7 +487,7 @@ Parameters
                 </td>
             </tr>
             <tr>
-                <td colspan="2">
+                <td colspan="3">
                     <div class="ansibleOptionAnchor" id="parameter-"></div>
                     <b>proxy</b>
                     <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
@@ -373,7 +503,76 @@ Parameters
                 </td>
             </tr>
             <tr>
+                <td colspan="3">
+                    <div class="ansibleOptionAnchor" id="parameter-"></div>
+                    <b>proxy_headers</b>
+                    <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
+                    <div style="font-size: small">
+                        <span style="color: purple">dictionary</span>
+                    </div>
+                    <div style="font-style: italic; font-size: small; color: darkgreen">added in 2.0.0</div>
+                </td>
+                <td>
+                </td>
+                <td>
+                        <div>The Header used for the HTTP proxy.</div>
+                        <div>Documentation can be found here <a href='https://urllib3.readthedocs.io/en/latest/reference/urllib3.util.html?highlight=proxy_headers#urllib3.util.make_headers'>https://urllib3.readthedocs.io/en/latest/reference/urllib3.util.html?highlight=proxy_headers#urllib3.util.make_headers</a>.</div>
+                </td>
+            </tr>
+                                <tr>
+                    <td class="elbow-placeholder"></td>
                 <td colspan="2">
+                    <div class="ansibleOptionAnchor" id="parameter-"></div>
+                    <b>basic_auth</b>
+                    <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                    </div>
+                </td>
+                <td>
+                </td>
+                <td>
+                        <div>Colon-separated username:password for basic authentication header.</div>
+                        <div>Can also be specified via K8S_AUTH_PROXY_HEADERS_BASIC_AUTH environment.</div>
+                </td>
+            </tr>
+            <tr>
+                    <td class="elbow-placeholder"></td>
+                <td colspan="2">
+                    <div class="ansibleOptionAnchor" id="parameter-"></div>
+                    <b>proxy_basic_auth</b>
+                    <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                    </div>
+                </td>
+                <td>
+                </td>
+                <td>
+                        <div>Colon-separated username:password for proxy basic authentication header.</div>
+                        <div>Can also be specified via K8S_AUTH_PROXY_HEADERS_PROXY_BASIC_AUTH environment.</div>
+                </td>
+            </tr>
+            <tr>
+                    <td class="elbow-placeholder"></td>
+                <td colspan="2">
+                    <div class="ansibleOptionAnchor" id="parameter-"></div>
+                    <b>user_agent</b>
+                    <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                    </div>
+                </td>
+                <td>
+                </td>
+                <td>
+                        <div>String representing the user-agent you want, such as foo/1.0.</div>
+                        <div>Can also be specified via K8S_AUTH_PROXY_HEADERS_USER_AGENT environment.</div>
+                </td>
+            </tr>
+
+            <tr>
+                <td colspan="3">
                     <div class="ansibleOptionAnchor" id="parameter-"></div>
                     <b>resource_definition</b>
                     <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
@@ -390,7 +589,7 @@ Parameters
                 </td>
             </tr>
             <tr>
-                <td colspan="2">
+                <td colspan="3">
                     <div class="ansibleOptionAnchor" id="parameter-"></div>
                     <b>src</b>
                     <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
@@ -407,7 +606,7 @@ Parameters
                 </td>
             </tr>
             <tr>
-                <td colspan="2">
+                <td colspan="3">
                     <div class="ansibleOptionAnchor" id="parameter-"></div>
                     <b>state</b>
                     <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
@@ -419,14 +618,44 @@ Parameters
                         <ul style="margin: 0; padding: 0"><b>Choices:</b>
                                     <li>absent</li>
                                     <li><div style="color: blue"><b>present</b>&nbsp;&larr;</div></li>
+                                    <li>patched</li>
                         </ul>
                 </td>
                 <td>
                         <div>Determines if an object should be created, patched, or deleted. When set to <code>present</code>, an object will be created, if it does not already exist. If set to <code>absent</code>, an existing object will be deleted. If set to <code>present</code>, an existing object will be patched, if its attributes differ from those specified using <em>resource_definition</em> or <em>src</em>.</div>
+                        <div><code>patched</code> state is an existing resource that has a given patch applied. If the resource doesn&#x27;t exist, silently skip it (do not raise an error).</div>
                 </td>
             </tr>
             <tr>
-                <td colspan="2">
+                <td colspan="3">
+                    <div class="ansibleOptionAnchor" id="parameter-"></div>
+                    <b>template</b>
+                    <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
+                    <div style="font-size: small">
+                        <span style="color: purple">raw</span>
+                    </div>
+                    <div style="font-style: italic; font-size: small; color: darkgreen">added in 2.0.0</div>
+                </td>
+                <td>
+                </td>
+                <td>
+                        <div>Provide a valid YAML template definition file for an object when creating or updating.</div>
+                        <div>Value can be provided as string or dictionary.</div>
+                        <div>Mutually exclusive with <code>src</code> and <code>resource_definition</code>.</div>
+                        <div>Template files needs to be present on the Ansible Controller&#x27;s file system.</div>
+                        <div>Additional parameters can be specified using dictionary.</div>
+                        <div>Valid additional parameters -</div>
+                        <div><code>newline_sequence</code> (str): Specify the newline sequence to use for templating files. valid choices are &quot;\n&quot;, &quot;\r&quot;, &quot;\r\n&quot;. Default value &quot;\n&quot;.</div>
+                        <div><code>block_start_string</code> (str): The string marking the beginning of a block. Default value &quot;{%&quot;.</div>
+                        <div><code>block_end_string</code> (str): The string marking the end of a block. Default value &quot;%}&quot;.</div>
+                        <div><code>variable_start_string</code> (str): The string marking the beginning of a print statement. Default value &quot;{{&quot;.</div>
+                        <div><code>variable_end_string</code> (str): The string marking the end of a print statement. Default value &quot;}}&quot;.</div>
+                        <div><code>trim_blocks</code> (bool): Determine when newlines should be removed from blocks. When set to <code>yes</code> the first newline after a block is removed (block, not variable tag!). Default value is true.</div>
+                        <div><code>lstrip_blocks</code> (bool): Determine when leading spaces and tabs should be stripped. When set to <code>yes</code> leading spaces and tabs are stripped from the start of a line to a block. This functionality requires Jinja 2.7 or newer. Default value is false.</div>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="3">
                     <div class="ansibleOptionAnchor" id="parameter-"></div>
                     <b>username</b>
                     <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
@@ -442,7 +671,7 @@ Parameters
                 </td>
             </tr>
             <tr>
-                <td colspan="2">
+                <td colspan="3">
                     <div class="ansibleOptionAnchor" id="parameter-"></div>
                     <b>validate</b>
                     <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
@@ -458,7 +687,7 @@ Parameters
             </tr>
                                 <tr>
                     <td class="elbow-placeholder"></td>
-                <td colspan="1">
+                <td colspan="2">
                     <div class="ansibleOptionAnchor" id="parameter-"></div>
                     <b>fail_on_error</b>
                     <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
@@ -478,7 +707,7 @@ Parameters
             </tr>
             <tr>
                     <td class="elbow-placeholder"></td>
-                <td colspan="1">
+                <td colspan="2">
                     <div class="ansibleOptionAnchor" id="parameter-"></div>
                     <b>strict</b>
                     <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
@@ -498,7 +727,7 @@ Parameters
             </tr>
             <tr>
                     <td class="elbow-placeholder"></td>
-                <td colspan="1">
+                <td colspan="2">
                     <div class="ansibleOptionAnchor" id="parameter-"></div>
                     <b>version</b>
                     <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
@@ -514,7 +743,7 @@ Parameters
             </tr>
 
             <tr>
-                <td colspan="2">
+                <td colspan="3">
                     <div class="ansibleOptionAnchor" id="parameter-"></div>
                     <b>validate_certs</b>
                     <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
@@ -534,7 +763,7 @@ Parameters
                 </td>
             </tr>
             <tr>
-                <td colspan="2">
+                <td colspan="3">
                     <div class="ansibleOptionAnchor" id="parameter-"></div>
                     <b>wait</b>
                     <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
@@ -549,13 +778,14 @@ Parameters
                         </ul>
                 </td>
                 <td>
-                        <div>Whether to wait for certain resource kinds to end up in the desired state. By default the module exits once Kubernetes has received the request</div>
+                        <div>Whether to wait for certain resource kinds to end up in the desired state.</div>
+                        <div>By default the module exits once Kubernetes has received the request.</div>
                         <div>Implemented for <code>state=present</code> for <code>Deployment</code>, <code>DaemonSet</code> and <code>Pod</code>, and for <code>state=absent</code> for all resource kinds.</div>
                         <div>For resource kinds without an implementation, <code>wait</code> returns immediately unless <code>wait_condition</code> is set.</div>
                 </td>
             </tr>
             <tr>
-                <td colspan="2">
+                <td colspan="3">
                     <div class="ansibleOptionAnchor" id="parameter-"></div>
                     <b>wait_condition</b>
                     <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
@@ -566,12 +796,13 @@ Parameters
                 <td>
                 </td>
                 <td>
-                        <div>Specifies a custom condition on the status to wait for. Ignored if <code>wait</code> is not set or is set to False.</div>
+                        <div>Specifies a custom condition on the status to wait for.</div>
+                        <div>Ignored if <code>wait</code> is not set or is set to False.</div>
                 </td>
             </tr>
                                 <tr>
                     <td class="elbow-placeholder"></td>
-                <td colspan="1">
+                <td colspan="2">
                     <div class="ansibleOptionAnchor" id="parameter-"></div>
                     <b>reason</b>
                     <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
@@ -584,12 +815,13 @@ Parameters
                 <td>
                         <div>The value of the reason field in your desired condition</div>
                         <div>For example, if a <code>Deployment</code> is paused, The <code>Progressing</code> <code>type</code> will have the <code>DeploymentPaused</code> reason.</div>
-                        <div>The possible reasons in a condition are specific to each resource type in Kubernetes. See the API documentation of the status field for a given resource to see possible choices.</div>
+                        <div>The possible reasons in a condition are specific to each resource type in Kubernetes.</div>
+                        <div>See the API documentation of the status field for a given resource to see possible choices.</div>
                 </td>
             </tr>
             <tr>
                     <td class="elbow-placeholder"></td>
-                <td colspan="1">
+                <td colspan="2">
                     <div class="ansibleOptionAnchor" id="parameter-"></div>
                     <b>status</b>
                     <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
@@ -599,11 +831,10 @@ Parameters
                 </td>
                 <td>
                         <ul style="margin: 0; padding: 0"><b>Choices:</b>
-                                    <li>yes</li>
-                                    <li>no</li>
+                                    <li><div style="color: blue"><b>True</b>&nbsp;&larr;</div></li>
+                                    <li>False</li>
                                     <li>Unknown</li>
                         </ul>
-                        <b>Default:</b><br/><div style="color: blue">"True"</div>
                 </td>
                 <td>
                         <div>The value of the status field in your desired condition.</div>
@@ -612,7 +843,7 @@ Parameters
             </tr>
             <tr>
                     <td class="elbow-placeholder"></td>
-                <td colspan="1">
+                <td colspan="2">
                     <div class="ansibleOptionAnchor" id="parameter-"></div>
                     <b>type</b>
                     <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
@@ -623,14 +854,17 @@ Parameters
                 <td>
                 </td>
                 <td>
-                        <div>The type of condition to wait for. For example, the <code>Pod</code> resource will set the <code>Ready</code> condition (among others)</div>
-                        <div>Required if you are specifying a <code>wait_condition</code>. If left empty, the <code>wait_condition</code> field will be ignored.</div>
-                        <div>The possible types for a condition are specific to each resource type in Kubernetes. See the API documentation of the status field for a given resource to see possible choices.</div>
+                        <div>The type of condition to wait for.</div>
+                        <div>For example, the <code>Pod</code> resource will set the <code>Ready</code> condition (among others).</div>
+                        <div>Required if you are specifying a <code>wait_condition</code>.</div>
+                        <div>If left empty, the <code>wait_condition</code> field will be ignored.</div>
+                        <div>The possible types for a condition are specific to each resource type in Kubernetes.</div>
+                        <div>See the API documentation of the status field for a given resource to see possible choices.</div>
                 </td>
             </tr>
 
             <tr>
-                <td colspan="2">
+                <td colspan="3">
                     <div class="ansibleOptionAnchor" id="parameter-"></div>
                     <b>wait_sleep</b>
                     <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
@@ -646,7 +880,7 @@ Parameters
                 </td>
             </tr>
             <tr>
-                <td colspan="2">
+                <td colspan="3">
                     <div class="ansibleOptionAnchor" id="parameter-"></div>
                     <b>wait_timeout</b>
                     <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
@@ -658,7 +892,8 @@ Parameters
                         <b>Default:</b><br/><div style="color: blue">120</div>
                 </td>
                 <td>
-                        <div>How long in seconds to wait for the resource to end up in the desired state. Ignored if <code>wait</code> is not set.</div>
+                        <div>How long in seconds to wait for the resource to end up in the desired state.</div>
+                        <div>Ignored if <code>wait</code> is not set.</div>
                 </td>
             </tr>
     </table>
@@ -669,8 +904,6 @@ Notes
 -----
 
 .. note::
-   - If your OpenShift Python library is not 0.9.0 or newer and you are trying to remove an item from an associative array/dictionary, for example a label or an annotation, you will need to explicitly set the value of the item to be removed to `null`. Simply deleting the entry in the dictionary will not remove it from openshift or kubernetes.
-   - The OpenShift Python client wraps the K8s Python client, providing full access to all of the APIS and models available on both platforms. For API version details and additional information visit https://github.com/openshift/openshift-restclient-python
    - To avoid SSL certificate validation errors when ``validate_certs`` is *True*, the full certificate chain for the API server must be provided via ``ca_cert`` or in the kubeconfig file.
 
 
@@ -678,7 +911,7 @@ Notes
 Examples
 --------
 
-.. code-block:: yaml+jinja
+.. code-block:: yaml
 
     - name: Create a k8s namespace
       community.okd.k8s:
@@ -812,6 +1045,22 @@ Common return values are documented `here <https://docs.ansible.com/ansible/late
                     <br/>
                         <div style="font-size: smaller"><b>Sample:</b></div>
                         <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">48</div>
+                </td>
+            </tr>
+            <tr>
+                    <td class="elbow-placeholder">&nbsp;</td>
+                <td colspan="1">
+                    <div class="ansibleOptionAnchor" id="return-"></div>
+                    <b>error</b>
+                    <a class="ansibleOptionLink" href="#return-" title="Permalink to this return value"></a>
+                    <div style="font-size: small">
+                      <span style="color: purple">complex</span>
+                    </div>
+                </td>
+                <td>error</td>
+                <td>
+                            <div>error while trying to create/delete the object.</div>
+                    <br/>
                 </td>
             </tr>
             <tr>

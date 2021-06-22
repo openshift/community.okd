@@ -26,7 +26,7 @@ Requirements
 ------------
 The below requirements are needed on the host that executes this module.
 
-- python >= 2.7
+- python >= 3.6
 - urllib3
 - requests
 - requests-oauthlib
@@ -169,7 +169,7 @@ Parameters
 Examples
 --------
 
-.. code-block:: yaml+jinja
+.. code-block:: yaml
 
     - hosts: localhost
       module_defaults:

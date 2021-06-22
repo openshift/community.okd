@@ -10,7 +10,7 @@ The collection includes a variety of Ansible content to help automate the manage
 <!--start requires_ansible-->
 ## Ansible version compatibility
 
-This collection has been tested against following Ansible versions: **>=2.9**.
+This collection has been tested against following Ansible versions: **>=2.9.17**.
 
 Plugins and modules within a collection may be tested with only specific Ansible versions.
 A collection may contain metadata that identifies these versions.
@@ -27,6 +27,11 @@ Name | Description
 --- | ---
 [community.okd.oc](https://github.com/ansible-collections/community.okd/blob/main/docs/community.okd.oc_connection.rst)|Execute tasks in pods running on OpenShift.
 
+### Inventory plugins
+Name | Description
+--- | ---
+[community.okd.openshift](https://github.com/ansible-collections/community.okd/blob/main/docs/community.okd.openshift_inventory.rst)|OpenShift inventory source
+
 ### Modules
 Name | Description
 --- | ---
@@ -34,11 +39,6 @@ Name | Description
 [community.okd.openshift_auth](https://github.com/ansible-collections/community.okd/blob/main/docs/community.okd.openshift_auth_module.rst)|Authenticate to OpenShift clusters which require an explicit login step
 [community.okd.openshift_process](https://github.com/ansible-collections/community.okd/blob/main/docs/community.okd.openshift_process_module.rst)|Process an OpenShift template.openshift.io/v1 Template
 [community.okd.openshift_route](https://github.com/ansible-collections/community.okd/blob/main/docs/community.okd.openshift_route_module.rst)|Expose a Service as an OpenShift Route.
-
-### Inventory plugins
-Name | Description
---- | ---
-[community.okd.openshift](https://github.com/ansible-collections/community.okd/blob/main/docs/community.okd.openshift_inventory.rst)|OpenShift inventory source
 
 <!--end collection content-->
 
@@ -58,7 +58,7 @@ You can also include it in a `requirements.yml` file and install it via `ansible
 ---
 collections:
   - name: community.okd
-    version: 1.1.2
+    version: 2.0.0
 ```
 
 ### Installing the Kubernetes Python Library
