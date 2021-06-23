@@ -1,2 +1,0 @@
-bugfixes:
-  - update CI to work with ansible 2.11 (https://github.com/ansible-collections/community.okd/pull/80).

@@ -1,2 +1,0 @@
-bugfixes:
-  - add missing requirements.txt file needed for execution environments (https://github.com/ansible-collections/community.okd/pull/78).

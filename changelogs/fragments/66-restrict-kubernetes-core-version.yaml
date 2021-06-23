@@ -1,2 +1,0 @@
-minor_changes:
-  - restrict the version of kubernetes.core dependency (https://github.com/ansible-collections/community.okd/pull/66).

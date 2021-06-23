@@ -109,3 +109,23 @@ releases:
     fragments:
     - 81-include-requirements.yaml
     release_date: '2021-04-08'
+  2.0.0:
+    changes:
+      breaking_changes:
+      - drop python 2 support (https://github.com/openshift/community.okd/pull/93).
+      bugfixes:
+      - fixes test suite to use correct versions of python and dependencies (https://github.com/ansible-collections/community.okd/pull/89).
+      - openshift_process - fix module execution when template does not include a
+        message (https://github.com/ansible-collections/community.okd/pull/87).
+      major_changes:
+      - update to use kubernetes.core 2.0 (https://github.com/openshift/community.okd/pull/93).
+      minor_changes:
+      - Added documentation for the ``community.okd`` collection.
+      - openshift - inventory plugin supports FQCN ``redhat.openshift``.
+    fragments:
+    - 87-openshift_process-fix-template-without-message.yaml
+    - 89-clean-up-ci.yaml
+    - 93-update-to-k8s-2.yaml
+    - add_docs.yml
+    - fqcn_inventory.yml
+    release_date: '2021-06-22'

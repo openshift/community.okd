@@ -5,6 +5,31 @@ OKD Collection Release Notes
 .. contents:: Topics
 
 
+v2.0.0
+======
+
+Major Changes
+-------------
+
+- update to use kubernetes.core 2.0 (https://github.com/openshift/community.okd/pull/93).
+
+Minor Changes
+-------------
+
+- Added documentation for the ``community.okd`` collection.
+- openshift - inventory plugin supports FQCN ``redhat.openshift``.
+
+Breaking Changes / Porting Guide
+--------------------------------
+
+- drop python 2 support (https://github.com/openshift/community.okd/pull/93).
+
+Bugfixes
+--------
+
+- fixes test suite to use correct versions of python and dependencies (https://github.com/ansible-collections/community.okd/pull/89).
+- openshift_process - fix module execution when template does not include a message (https://github.com/ansible-collections/community.okd/pull/87).
+
 v1.1.2
 ======
 

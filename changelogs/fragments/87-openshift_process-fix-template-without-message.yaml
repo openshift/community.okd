@@ -1,2 +1,0 @@
-bugfixes:
-  - openshift_process - fix module execution when template does not include a message (https://github.com/ansible-collections/community.okd/pull/87).

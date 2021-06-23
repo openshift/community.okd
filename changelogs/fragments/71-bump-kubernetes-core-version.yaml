@@ -1,2 +1,0 @@
-minor_changes:
-  - increase the kubernetes.core dependency version number (https://github.com/ansible-collections/community.okd/pull/71).
