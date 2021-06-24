@@ -1,3 +1,0 @@
----
-minor_changes:
-  - increase kubernetes.core dependency version (https://github.com/openshift/community.okd/pull/97).

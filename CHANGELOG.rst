@@ -5,6 +5,14 @@ OKD Collection Release Notes
 .. contents:: Topics
 
 
+v2.0.1
+======
+
+Minor Changes
+-------------
+
+- increase kubernetes.core dependency version (https://github.com/openshift/community.okd/pull/97).
+
 v2.0.0
 ======
 
