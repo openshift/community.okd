@@ -56,6 +56,7 @@ options:
       - Specify the Route Annotations.
       - 'A set of key: value pairs.'
     type: dict
+    version_added: "2.1"
   name:
     description:
       - The desired name of the Route to be created.
