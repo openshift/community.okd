@@ -238,3 +238,36 @@
     namespace: default
     state: absent
     wait: yes
+
+# Route with labels and annotations
+- name: Create route with labels and annotations
+  community.okd.openshift_route:
+    service: hello-kubernetes
+    namespace: default
+    name: route-label-annotation
+    labels:
+      ansible: test
+    annotations:
+      haproxy.router.openshift.io/balance: roundrobin
+
+- name: Get route information
+  kubernetes.core.k8s_info:
+    api_version: route.openshift.io/v1
+    kind: Route
+    name: route-label-annotation
+    namespace: default
+  register: route
+
+- assert:
+    that:
+      - route.resources[0].metadata.annotations is defined
+      - '"haproxy.router.openshift.io/balance" in route.resources[0].metadata.annotations'
+      - route.resources[0].metadata.labels is defined
+      - '"ansible" in route.resources[0].metadata.labels'
+
+- name: Delete route
+  community.okd.openshift_route:
+    name: route-label-annotation
+    namespace: default
+    state: absent
+    wait: yes

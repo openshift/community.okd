@@ -21,7 +21,7 @@ author: "Fabian von Feilitzsch (@fabianvf)"
 description:
   - Looks up a Service and creates a new Route based on it.
   - Analogous to `oc expose` and `oc create route` for creating Routes, but does not support creating Services.
-  - For creating Services from other resources, see kubernetes.core.k8s_expose
+  - For creating Services from other resources, see kubernetes.core.k8s.
 
 extends_documentation_fragment:
   - kubernetes.core.k8s_auth_options
@@ -51,6 +51,12 @@ options:
       - Specify the labels to apply to the created Route.
       - 'A set of key: value pairs.'
     type: dict
+  annotations:
+    description:
+      - Specify the Route Annotations.
+      - 'A set of key: value pairs.'
+    type: dict
+    version_added: "2.1"
   name:
     description:
       - The desired name of the Route to be created.
@@ -174,6 +180,8 @@ EXAMPLES = r'''
     service: hello-kubernetes
     namespace: default
     insecure_policy: allow
+    annotations:
+      haproxy.router.openshift.io/balance: roundrobin
   register: route
 '''
 
@@ -372,6 +380,7 @@ class OpenShiftRoute(K8sAnsibleMixin):
             insecure_policy=dict(type='str', choices=['allow', 'redirect', 'disallow'], default='disallow'),
         ))
         spec['termination'] = dict(choices=['edge', 'passthrough', 'reencrypt', 'insecure'], default='insecure')
+        spec['annotations'] = dict(type='dict')
 
         return spec
 
@@ -401,6 +410,7 @@ class OpenShiftRoute(K8sAnsibleMixin):
         path = self.params.get('path')
         wildcard_policy = self.params.get('wildcard_policy')
         port = self.params.get('port')
+        annotations = self.params.get('annotations')
 
         if termination_type and self.params.get('tls'):
             tls_ca_cert = self.params['tls'].get('ca_certificate')
@@ -423,6 +433,9 @@ class OpenShiftRoute(K8sAnsibleMixin):
             },
             'spec': {}
         }
+
+        if annotations:
+            route['metadata']['annotations'] = annotations
 
         if state != 'absent':
             route['spec'] = self.build_route_spec(

@@ -1,0 +1,2 @@
+minor_changes:
+  - openshift_route - Add support for Route annotations (https://github.com/ansible-collections/community.okd/pull/99).
