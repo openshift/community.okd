@@ -9,12 +9,12 @@ dependencies:
 description: OKD Collection for Ansible.
 documentation: ''
 homepage: ''
-issues: https://github.com/ansible-collections/community.okd/issues
+issues: https://github.com/openshift/community.okd/issues
 license_file: LICENSE
 name: okd
 namespace: community
 readme: README.md
-repository: https://github.com/ansible-collections/community.okd
+repository: https://github.com/openshift/community.okd
 tags:
   - kubernetes
   - k8s
