@@ -46,7 +46,7 @@ f_text_sub()
     sed -i.bak "s/^version\:.*$/version: ${DOWNSTREAM_VERSION}/" "${_build_dir}/galaxy.yml"
     sed -i.bak "/STARTREMOVE/,/ENDREMOVE/d" "${_build_dir}/README.md"
 
-    find "${_build_dir}" -type f -exec sed -i.bak "s/community\.okd/redhat\.openshift/g" {} \;
+    find "${_build_dir}" -type f ! -name galaxy.yml -exec sed -i.bak "s/community\.okd/redhat\.openshift/g" {} \;
     find "${_build_dir}" -type f -name "*.bak" -delete
 }
 

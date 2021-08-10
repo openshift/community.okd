@@ -1,0 +1,3 @@
+---
+bugfixes:
+  - fix broken links in Automation Hub for redhat.openshift (https://github.com/openshift/community.okd/issues/100).
