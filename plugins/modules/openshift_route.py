@@ -309,7 +309,10 @@ duration:
 import copy
 import traceback
 
-from ansible.module_utils.basic import AnsibleModule
+try:
+    from ansible_collections.kubernetes.core.plugins.module_utils.ansiblemodule import AnsibleModule
+except ImportError:
+    from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils._text import to_native
 
 try:
@@ -357,6 +360,7 @@ class OpenShiftRoute(K8sAnsibleMixin):
         self.check_mode = self.module.check_mode
         self.warnings = []
         self.params['merge_type'] = None
+        self.client = get_api_client(self.module)
 
     @property
     def argspec(self):
@@ -385,7 +389,6 @@ class OpenShiftRoute(K8sAnsibleMixin):
         return spec
 
     def execute_module(self):
-        self.client = get_api_client(self.module)
         v1_routes = self.find_resource('Route', 'route.openshift.io/v1', fail=True)
 
         service_name = self.params.get('service')

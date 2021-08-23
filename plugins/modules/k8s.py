@@ -266,7 +266,10 @@ import operator
 import traceback
 from functools import reduce
 
-from ansible.module_utils.basic import AnsibleModule
+try:
+    from ansible_collections.kubernetes.core.plugins.module_utils.ansiblemodule import AnsibleModule
+except ImportError:
+    from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils._text import to_native
 
 try:

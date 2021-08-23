@@ -208,7 +208,10 @@ import os
 import copy
 import traceback
 
-from ansible.module_utils.basic import AnsibleModule
+try:
+    from ansible_collections.kubernetes.core.plugins.module_utils.ansiblemodule import AnsibleModule
+except ImportError:
+    from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils._text import to_native
 
 try:
@@ -253,6 +256,7 @@ class OpenShiftProcess(K8sAnsibleMixin):
 
         self.params = self.module.params
         self.check_mode = self.module.check_mode
+        self.client = get_api_client(self.module)
 
     @property
     def argspec(self):
@@ -270,8 +274,6 @@ class OpenShiftProcess(K8sAnsibleMixin):
         return spec
 
     def execute_module(self):
-        self.client = get_api_client(self.module)
-
         v1_templates = self.find_resource('templates', 'template.openshift.io/v1', fail=True)
         v1_processed_templates = self.find_resource('processedtemplates', 'template.openshift.io/v1', fail=True)
 
