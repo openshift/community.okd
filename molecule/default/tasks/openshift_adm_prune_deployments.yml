@@ -1,0 +1,103 @@
+- name: Prune deployments
+  block:
+  - set_fact:
+      dc_name: "hello"
+      prune_namespace: prune
+
+  - name: Ensure namespace
+    kubernetes.core.k8s:
+      kind: Namespace
+      name: '{{ prune_namespace }}'
+
+  - name: create deployment config
+    kubernetes.core.k8s:
+      namespace: '{{ prune_namespace }}'
+      definition:
+        kind: DeploymentConfig
+        apiVersion: apps.openshift.io/v1
+        metadata:
+          name: '{{ dc_name }}'
+        spec:
+          replicas: 1
+          selector:
+            name: '{{ dc_name }}'
+          template:
+            metadata:
+              labels:
+                name: '{{ dc_name }}'
+            spec:
+              containers:
+                - name: hello-openshift
+                  imagePullPolicy: Always
+                  image: python:3.7-alpine
+                  command: ['/bin/sh', '-c', 'ls /tmp']
+          strategy:
+            type: Rolling
+      wait: yes
+
+  - set_fact:
+      rc_name: '{{ dc_name }}-1'
+      pod_deploy: '{{ dc_name }}-1-deploy'
+
+  - name: Delete deployment Pod
+    kubernetes.core.k8s:
+      state: absent
+      kind: Pod
+      namespace: '{{ prune_namespace }}'
+      name: '{{ pod_deploy }}'
+      wait: yes
+
+  - name: Wait until the replication controller is failed
+    kubernetes.core.k8s_info:
+      kind: ReplicationController
+      namespace: '{{ prune_namespace }}'
+      name: '{{ rc_name }}'
+    register: result
+    retries: 10
+    delay: 30
+    until: 
+      - result.resources[0]['metadata']['annotations']['openshift.io/deployment.phase'] == 'Failed'
+
+  - name: prune deployments (check mode) - keep younger than 45min
+    openshift_adm_prune_deployments:
+      keep_younger_than: 45
+    check_mode: true
+    register: check
+
+  - name: assert no candidate was found
+    assert:
+      that:
+        - "check.msg == 'No candidate ReplicationController for pruning.'"
+
+  - name: prune deployments (check mode) - namespace specified
+    openshift_adm_prune_deployments:
+      namespace: '{{ prune_namespace }}'
+    check_mode: true
+    register: check
+
+  - name: assert hello-1 replication controller is candidate for prune
+    assert:
+      that:
+        - '"{{ prune_namespace }}/{{ rc_name }}" in check.replication_controllers'
+
+  - name: prune deployments - namespace not specified
+    openshift_adm_prune_deployments:
+
+  - name: check replication controller after prune
+    kubernetes.core.k8s_info:
+      kind: ReplicationController
+      namespace: '{{ prune_namespace }}'
+      name: '{{ rc_name }}'
+    register: result
+
+  - name: assert replication is neither completed nor failed
+    assert:
+      that:
+        - result.resources[0]['metadata']['annotations']['openshift.io/deployment.phase'] not in ('Failed', 'Complete')
+
+  always:
+    - name: Delete namespace
+      kubernetes.core.k8s:
+        state: absent
+        kind: Namespace
+        name: '{{ prune_namespace }}'
