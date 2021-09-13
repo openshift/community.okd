@@ -1,5 +1,7 @@
 # OKD Collection for Ansible
 
+This is a test.
+
 <!--- STARTREMOVE --->
 [![CI](https://github.com/ansible-collections/community.okd/workflows/CI/badge.svg?event=push)](https://github.com/ansible-collections/community.okd/actions) [![Codecov](https://img.shields.io/codecov/c/github/ansible-collections/community.okd)](https://codecov.io/gh/ansible-collections/community.okd)
 
