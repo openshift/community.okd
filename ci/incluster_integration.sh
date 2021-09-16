@@ -13,7 +13,11 @@ NAMESPACE=${NAMESPACE:-default}
 # would resolve to quay.io/mynamespace/molecule-test-runner
 # shellcheck disable=SC2034
 component='molecule-test-runner'
-eval IMAGE="$IMAGE_FORMAT"
+if [[ ! -z "${MOLECULE_IMAGE}" ]]; then
+  IMAGE="${MOLECULE_IMAGE}"
+else
+  IMAGE="${IMAGE_FORMAT}"
+fi
 
 PULL_POLICY=${PULL_POLICY:-IfNotPresent}
 
@@ -84,4 +88,5 @@ do
   sleep 10
 done
 
+oc logs job/molecule-integration-test
 exit 1
