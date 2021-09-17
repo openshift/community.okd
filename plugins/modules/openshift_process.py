@@ -4,9 +4,6 @@
 # Copyright (c) 2020-2021, Red Hat
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
-from __future__ import absolute_import, division, print_function
-__metaclass__ = type
-
 # STARTREMOVE (downstream)
 DOCUMENTATION = r'''
 module: openshift_process
@@ -215,16 +212,18 @@ from ansible_collections.kubernetes.core.plugins.module_utils.args_common import
 
 
 def argspec():
-    from collections import ChainMap
-    spec = ChainMap(AUTH_ARG_SPEC, WAIT_ARG_SPEC, RESOURCE_ARG_SPEC)
-    spec['state'] = dict(type='str', default='rendered', choices=['present', 'absent', 'rendered'])
-    spec['namespace'] = dict(type='str')
-    spec['namespace_target'] = dict(type='str')
-    spec['parameters'] = dict(type='dict')
-    spec['name'] = dict(type='str')
-    spec['parameter_file'] = dict(type='str')
+    argument_spec = {}
+    argument_spec.update(AUTH_ARG_SPEC)
+    argument_spec.update(WAIT_ARG_SPEC)
+    argument_spec.update(RESOURCE_ARG_SPEC)
+    argument_spec['state'] = dict(type='str', default='rendered', choices=['present', 'absent', 'rendered'])
+    argument_spec['namespace'] = dict(type='str')
+    argument_spec['namespace_target'] = dict(type='str')
+    argument_spec['parameters'] = dict(type='dict')
+    argument_spec['name'] = dict(type='str')
+    argument_spec['parameter_file'] = dict(type='str')
 
-    return spec
+    return argument_spec
 
 
 def main():

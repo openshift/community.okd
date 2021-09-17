@@ -284,7 +284,7 @@ def argspec():
     argument_spec.update(AUTH_ARG_SPEC)
     argument_spec.update(WAIT_ARG_SPEC)
     argument_spec['merge_type'] = dict(type='list', elements='str', choices=['json', 'merge', 'strategic-merge'])
-    argument_spec['validate'] = dict(type='dict', default=None, options=validate_spec)
+    argument_spec['validate'] = dict(type='dict', default=None, options=validate_spec())
     argument_spec['append_hash'] = dict(type='bool', default=False)
     argument_spec['apply'] = dict(type='bool', default=False)
     argument_spec['template'] = dict(type='raw', default=None)
@@ -297,28 +297,17 @@ def argspec():
 
 def main():
     module = AnsibleModule(argument_spec=argspec(), supports_check_mode=True)
-    try:
-        import yaml
-        from kubernetes.dynamic.exceptions import DynamicApiError, NotFoundError, ForbiddenError
-    except ImportError:
-        # Exceptions handled in common
-        pass
 
-    from ansible_collections.community.okd.plugins.module_utils.k8s import OKDRawModule, execute_module
-    from ansible_collections.kubernetes.core.plugins.module_utils.common import get_api_client
+    import yaml
+    from kubernetes.dynamic.exceptions import DynamicApiError, NotFoundError, ForbiddenError
+    import urllib
+    from ansible_collections.community.okd.plugins.module_utils.k8s import OKDRawModule
 
     okdraw_module = OKDRawModule(module)
 
     # required by kubernetes.core's remove_aliases()
     okdraw_module.argspec = argspec()
-
-    try:
-        okdraw_module.client = get_api_client(module=module)
-    # Hopefully the kubernetes client will provide its own exception class one day
-    except (urllib3.exceptions.RequestError) as e:
-        module.fail_json(msg="Couldn't connect to Kubernetes: %s" % str(e))
-
-    execute_module(module, okdraw_module)
+    okdraw_module.execute_module()
 
 
 if __name__ == '__main__':

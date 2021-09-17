@@ -4,60 +4,21 @@ import re
 import operator
 from ansible.module_utils._text import to_native
 from ansible_collections.kubernetes.core.plugins.module_utils.common import K8sAnsibleMixin
+from ansible_collections.kubernetes.core.plugins.module_utils.common import get_api_client
 from functools import reduce
+import yaml
+import urllib3
 
 
 
 try:
-    from kubernetes.dynamic.exceptions import DynamicApiError, NotFoundError
+    from kubernetes.dynamic.exceptions import DynamicApiError, NotFoundError, ForbiddenError
 except ImportError:
     pass
 
 
 TRIGGER_ANNOTATION = 'image.openshift.io/triggers'
 TRIGGER_CONTAINER = re.compile(r"(?P<path>.*)\[((?P<index>[0-9]+)|\?\(@\.name==[\"'\\]*(?P<name>[a-z0-9]([-a-z0-9]*[a-z0-9])?))")
-
-
-def execute_module(module, okdraw_module):
-    changed = False
-    results = []
-
-    flattened_definitions = []
-    for definition in okdraw_module.resource_definitions:
-        if definition is None:
-            continue
-        kind = definition.get('kind', okdraw_module.kind)
-        api_version = definition.get('apiVersion', okdraw_module.api_version)
-        if kind and kind.endswith('List'):
-            resource = okdraw_module.find_resource(kind, api_version, fail=False)
-            flattened_definitions.extend(okdraw_module.flatten_list_kind(resource, definition))
-        else:
-            resource = okdraw_module.find_resource(kind, api_version, fail=True)
-            flattened_definitions.append((resource, definition))
-
-    for (resource, definition) in flattened_definitions:
-        kind = definition.get('kind', okdraw_module.kind)
-        api_version = definition.get('apiVersion', okdraw_module.api_version)
-        definition = okdraw_module.set_defaults(resource, definition)
-        okdraw_module.warnings = []
-        if module.params['validate'] is not None:
-            okdraw_module.warnings = okdraw_module.validate(definition)
-        result = okdraw_module.perform_action(resource, definition)
-        if okdraw_module.warnings:
-            result['warnings'] = okdraw_module.warnings
-        changed = changed or result['changed']
-        results.append(result)
-
-    if len(results) == 1:
-        module.exit_json(**results[0])
-
-    module.exit_json(**{
-        'changed': changed,
-        'result': {
-            'results': results
-        }
-    })
-
 
 
 class OKDRawModule(K8sAnsibleMixin):
@@ -71,6 +32,7 @@ class OKDRawModule(K8sAnsibleMixin):
         ]
 
         self.module = module
+        self.client = get_api_client(module=module)
         self.check_mode = self.module.check_mode
         self.params = self.module.params
         self.fail_json = self.module.fail_json
