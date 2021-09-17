@@ -13,7 +13,7 @@ NAMESPACE=${NAMESPACE:-default}
 # would resolve to quay.io/mynamespace/molecule-test-runner
 # shellcheck disable=SC2034
 component='molecule-test-runner'
-if [[ ! -z "${MOLECULE_IMAGE}" ]]; then
+if [[ -n "${MOLECULE_IMAGE}" ]]; then
   IMAGE="${MOLECULE_IMAGE}"
 else
   IMAGE="${IMAGE_FORMAT}"
