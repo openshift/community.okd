@@ -51,7 +51,7 @@
     url: 'http://{{ route.result.spec.host }}'
     return_content: yes
   until: result is successful
-  retries: 10
+  retries: 20
   register: result
 
 - name: Assert the page content is as expected
@@ -87,6 +87,8 @@
   uri:
     url: 'http://{{ route.result.spec.host }}'
     return_content: yes
+  until: result is successful
+  retries: 20
   register: result
 
 - name: Assert the page content is as expected
@@ -118,7 +120,7 @@
     url: 'http://{{ route.result.spec.host }}'
     return_content: yes
   until: result is successful
-  retries: 10
+  retries: 20
   register: result
 
 - name: Assert the page content is as expected
@@ -178,7 +180,7 @@
     validate_certs: no
     return_content: yes
   until: result is successful
-  retries: 10
+  retries: 20
   register: result
 
 - name: Assert the page content is as expected
@@ -206,7 +208,7 @@
     validate_certs: no
     return_content: yes
   until: result is successful
-  retries: 10
+  retries: 20
   register: result
 
 - name: Assert the page content is as expected
@@ -221,7 +223,7 @@
     url: 'http://{{ route.result.spec.host }}'
     status_code: 503
   until: result is successful
-  retries: 10
+  retries: 20
   register: result
 
 - debug: var=result
