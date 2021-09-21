@@ -182,4 +182,4 @@ class OKDRawModule(K8sAnsibleMixin):
                                error=exc.status, status=exc.status, reason=exc.reason)
         result['changed'] = True
         result['method'] = 'create'
-        return
+        return result
