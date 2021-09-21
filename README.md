@@ -122,9 +122,9 @@ These commands will create a directory called `ansible_collections` which should
 ### Prow
 
 This repository uses the OpenShift [Prow](https://github.com/kubernetes/test-infra/blob/master/prow/README.md) instance for testing against live OpenShift clusters.
-The configuration for the CI jobs that this repository runs can be found in the [`openshift/release repository`](https://github.com/openshift/release/blob/master/ci-operator/config/ansible-collections/community.okd/ansible-collections-community.okd-main.yaml).
+The configuration for the CI jobs that this repository runs can be found in the [`openshift/release repository`](https://github.com/openshift/release/blob/master/ci-operator/config/openshift/community.okd/openshift-community.okd-main.yaml).
 
-The [Prow CI integration test job](https://github.com/openshift/release/blob/master/ci-operator/config/ansible-collections/community.okd/ansible-collections-community.okd-main.yaml#L35-L38)
+The [Prow CI integration test job](https://github.com/openshift/release/blob/master/ci-operator/config/openshift/community.okd/openshift-community.okd-main.yaml#L40-L43)
 runs the command:
 
     make test-integration-incluster
