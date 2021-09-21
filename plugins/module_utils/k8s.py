@@ -1,14 +1,14 @@
 #!/usr/bin/env python
 
+from __future__ import (absolute_import, division, print_function)
+__metaclass__ = type
+
 import re
 import operator
 from ansible.module_utils._text import to_native
 from ansible_collections.kubernetes.core.plugins.module_utils.common import K8sAnsibleMixin
 from ansible_collections.kubernetes.core.plugins.module_utils.common import get_api_client
 from functools import reduce
-import yaml
-import urllib3
-
 
 
 try:
@@ -91,6 +91,7 @@ class OKDRawModule(K8sAnsibleMixin):
                 return i
 
     def resolve_imagestream_trigger_annotation(self, existing, definition):
+        import yaml
 
         def get_from_fields(d, fields):
             try:
@@ -181,4 +182,4 @@ class OKDRawModule(K8sAnsibleMixin):
                                error=exc.status, status=exc.status, reason=exc.reason)
         result['changed'] = True
         result['method'] = 'create'
-        return result
+        return

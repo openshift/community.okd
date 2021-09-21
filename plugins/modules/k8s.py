@@ -271,7 +271,6 @@ from ansible_collections.kubernetes.core.plugins.module_utils.args_common import
     NAME_ARG_SPEC, RESOURCE_ARG_SPEC, AUTH_ARG_SPEC, WAIT_ARG_SPEC, DELETE_OPTS_ARG_SPEC)
 
 
-
 def validate_spec():
     return dict(
         fail_on_error=dict(type='bool'),
