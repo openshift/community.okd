@@ -204,7 +204,6 @@ try:
     from ansible_collections.kubernetes.core.plugins.module_utils.ansiblemodule import AnsibleModule
 except ImportError:
     from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils._text import to_native
 
 from ansible_collections.kubernetes.core.plugins.module_utils.args_common import (
     AUTH_ARG_SPEC, RESOURCE_ARG_SPEC, WAIT_ARG_SPEC

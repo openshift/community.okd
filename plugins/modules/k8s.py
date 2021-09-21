@@ -262,7 +262,10 @@ result:
 
 import traceback
 
-from ansible_collections.kubernetes.core.plugins.module_utils.ansiblemodule import AnsibleModule
+try:
+    from ansible_collections.kubernetes.core.plugins.module_utils.ansiblemodule import AnsibleModule
+except ImportError:
+    from ansible.module_utils.basic import AnsibleModule
 
 from ansible_collections.kubernetes.core.plugins.module_utils.args_common import (
     NAME_ARG_SPEC, RESOURCE_ARG_SPEC, AUTH_ARG_SPEC, WAIT_ARG_SPEC, DELETE_OPTS_ARG_SPEC)
