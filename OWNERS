@@ -1,10 +1,6 @@
+# This file just uses aliases defined in OWNERS_ALIASES.
+
 approvers:
-  - gravesm
-  - akasurde
-  - fabianvf
-  - tima
+  - community.okd-approvers
 reviewers:
-  - gravesm
-  - akasurde
-  - fabianvf
-  - tima
+  - community.okd-reviewers
