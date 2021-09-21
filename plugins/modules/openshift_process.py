@@ -227,11 +227,16 @@ def argspec():
 
 
 def main():
-    module = AnsibleModule(argument_spec=argspec(), supports_check_mode=True)
+    argument_spec = argspec()
+    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)
     from ansible_collections.community.okd.plugins.module_utils.openshift_process import (
         OpenShiftProcess)
 
-    OpenShiftProcess(module).execute_module()
+    openshift_process = OpenShiftProcess(module)
+    # remove_aliases from kubernetes.core's common requires the argspec attribute. Ideally, it should
+    # read that throught the module class, but we cannot change that.
+    openshift_process.argspec = argument_spec
+    openshift_process.execute_module()
 
 
 if __name__ == '__main__':

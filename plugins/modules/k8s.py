@@ -305,7 +305,8 @@ def main():
 
     okdraw_module = OKDRawModule(module)
 
-    # required by kubernetes.core's remove_aliases()
+    # remove_aliases from kubernetes.core's common requires the argspec attribute. Ideally, it should
+    # read that throught the module class, but we cannot change that.
     okdraw_module.argspec = argspec()
     okdraw_module.execute_module()
 
