@@ -396,6 +396,7 @@ class OKDRawModule(K8sAnsibleMixin):
         """ Iterates over keys, returns the first object from objects where the value of the key
             matches the value in desired
         """
+        # pylint: disable=use-a-generator
         for i, item in enumerate(objects):
             if item and all([desired.get(key, True) == item.get(key, False) for key in keys]):
                 return i
