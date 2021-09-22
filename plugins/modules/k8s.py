@@ -260,8 +260,6 @@ result:
 '''
 # ENDREMOVE (downstream)
 
-import traceback
-
 try:
     from ansible_collections.kubernetes.core.plugins.module_utils.ansiblemodule import AnsibleModule
 except ImportError:
@@ -269,6 +267,8 @@ except ImportError:
 
 from ansible_collections.kubernetes.core.plugins.module_utils.args_common import (
     NAME_ARG_SPEC, RESOURCE_ARG_SPEC, AUTH_ARG_SPEC, WAIT_ARG_SPEC, DELETE_OPTS_ARG_SPEC)
+
+import traceback
 
 
 def validate_spec():
@@ -300,11 +300,7 @@ def argspec():
 def main():
     module = AnsibleModule(argument_spec=argspec(), supports_check_mode=True)
 
-    import yaml
-    from kubernetes.dynamic.exceptions import DynamicApiError, NotFoundError, ForbiddenError
-    import urllib
     from ansible_collections.community.okd.plugins.module_utils.k8s import OKDRawModule
-
     okdraw_module = OKDRawModule(module)
 
     # remove_aliases from kubernetes.core's common requires the argspec attribute. Ideally, it should

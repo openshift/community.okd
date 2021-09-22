@@ -9,12 +9,10 @@ from ansible.module_utils._text import to_native
 from ansible_collections.kubernetes.core.plugins.module_utils.common import K8sAnsibleMixin
 from ansible_collections.kubernetes.core.plugins.module_utils.common import get_api_client
 from functools import reduce
+import traceback
+from kubernetes.dynamic.exceptions import DynamicApiError, NotFoundError, ForbiddenError
 
 
-try:
-    from kubernetes.dynamic.exceptions import DynamicApiError, NotFoundError, ForbiddenError
-except ImportError:
-    pass
 
 
 TRIGGER_ANNOTATION = 'image.openshift.io/triggers'
