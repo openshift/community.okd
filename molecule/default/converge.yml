@@ -97,5 +97,3 @@
               metadata:
                 annotations:
                   image.openshift.io/triggers: '{{ annotation | to_json }}'
-
-    - import_tasks: tasks/openshift_dbg.yml
