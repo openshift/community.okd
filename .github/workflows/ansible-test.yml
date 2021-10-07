@@ -25,10 +25,16 @@ jobs:
           - stable-2.9
           - stable-2.10
           - stable-2.11
+          - stable-2.12
           - devel
         python:
           - 3.7
           - 3.8
+        exclude:
+          - ansible: stable-2.12
+            python: 3.7
+          - ansible: devel
+            python: 3.7
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
@@ -60,9 +66,16 @@ jobs:
           - stable-2.9
           - stable-2.10
           - stable-2.11
+          - stable-2.12
+          - devel
         python:
           - 3.7
           - 3.8
+        exclude:
+          - ansible: stable-2.12
+            python: 3.7
+          - ansible: devel
+            python: 3.7
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
