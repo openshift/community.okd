@@ -1,0 +1,323 @@
+- set_fact:
+    test_group_delete_pod: "delete-pod-group"
+    test_group_create_pod: "create-pod-group"
+    test_group_list_pod: "list-pod-group"
+    test_ns: "impersonation"
+    test_sa: "impersonation-sa"
+    test_pod: "pod-00"
+
+- block:
+  - name: Get cluster information
+    kubernetes.core.k8s_cluster_info:
+    register: cluster_info
+    no_log: true
+
+  - set_fact:
+      cluster_host: "{{ cluster_info['connection']['host'] }}"
+
+  - name: Create Groups
+    kubernetes.core.k8s:
+      definition:
+        kind: Group
+        metadata:
+          name: '{{ item }}'
+        users: []
+    with_items:
+      - '{{ test_group_delete_pod }}'
+      - '{{ test_group_create_pod }}'
+      - '{{ test_group_list_pod }}'
+
+  - name: Ensure namespace
+    kubernetes.core.k8s:
+      kind: Namespace
+      name: "{{ test_ns }}"
+
+  - name: Create Roles
+    kubernetes.core.k8s:
+      namespace: "{{ test_ns }}"
+      definition:
+        apiVersion: rbac.authorization.k8s.io/v1
+        kind: Role
+        metadata:
+          name: '{{ item.name }}'
+        rules:
+        - apiGroups: [""]
+          resources: ["pods"]
+          verbs: '{{ item.verbs }}'
+    with_items:
+      - name: delete-pod
+        verbs: ["delete"]
+      - name: create-pod
+        verbs: ["create"]
+      - name: list-pod
+        verbs: ["list", "get"]
+
+  - name: Create RoleBinding
+    kubernetes.core.k8s:
+      namespace: "{{ test_ns }}"
+      definition:
+        kind: RoleBinding
+        apiVersion: rbac.authorization.k8s.io/v1
+        metadata:
+          name: "{{ item.role }}-binding"
+        subjects:
+        - kind: Group
+          name: "{{ item.group }}"
+        roleRef:
+          kind: Role
+          name: "{{ item.role }}"
+          apiGroup: rbac.authorization.k8s.io
+    with_items:
+      - role: delete-pod
+        group: '{{ test_group_delete_pod }}'
+      - role: create-pod
+        group: '{{ test_group_create_pod }}'
+      - role: list-pod
+        group: '{{ test_group_list_pod }}'
+
+  - name: Create Service account
+    kubernetes.core.k8s:
+      definition:
+        apiVersion: v1
+        kind: ServiceAccount
+        metadata:
+          name: "{{ test_sa }}"
+          namespace: "{{ test_ns }}"
+
+  - name: Read Service Account
+    kubernetes.core.k8s_info:
+      kind: ServiceAccount
+      namespace: "{{ test_ns }}"
+      name: "{{ test_sa }}"
+    register: result
+
+  - name: Get secret details
+    kubernetes.core.k8s_info:
+      kind: Secret
+      namespace: '{{ test_ns }}'
+      name: '{{ result.resources[0].secrets[0].name }}'
+    no_log: true
+    register: secret
+
+  - set_fact:
+      api_token: "{{ secret.resources[0].metadata.annotations['openshift.io/token-secret.value'] }}"
+    ignore_errors: true
+    register: read_token
+
+  - set_fact:
+      api_token: "{{ secret.resources[0].data.token | b64decode }}"
+    when:
+      - read_token is failed
+
+  - debug: var=api_token
+
+  - name: Create ClusterRole to impersonate User and Groups
+    kubernetes.core.k8s:
+      definition:
+        apiVersion: rbac.authorization.k8s.io/v1
+        kind: ClusterRole
+        metadata:
+          name: cluster-impersonate
+        rules:
+        - apiGroups:
+          - ""
+          resources:
+          - groups
+          - users
+          verbs:
+          - impersonate
+          resourceNames:
+          - '{{ test_group_create_pod }}'
+          - '{{ test_group_delete_pod }}'
+          - '{{ test_group_list_pod }}'
+          - test
+
+  - name: Attach ClusterRole to ServiceAccount
+    kubernetes.core.k8s:
+      definition:
+        kind: ClusterRoleBinding
+        apiVersion: rbac.authorization.k8s.io/v1
+        metadata:
+          name: 'cluster-impersonate-binding'
+        subjects:
+        - kind: ServiceAccount
+          name: "{{ test_sa }}"
+          namespace: "{{ test_ns }}"
+        roleRef:
+          kind: ClusterRole
+          name: 'cluster-impersonate'
+          apiGroup: rbac.authorization.k8s.io
+
+  - name: Create simple Pod using only one group should (before creating we need to list/get)
+    kubernetes.core.k8s:
+      api_key: "{{ api_token }}"
+      host: "{{ cluster_host }}"
+      validate_certs: no
+      namespace: '{{ test_ns }}'
+      name: '{{ test_pod }}'
+      impersonate_user: test
+      impersonate_groups:
+        - '{{ test_group_create_pod }}'
+      definition:
+        apiVersion: v1
+        kind: Pod
+        spec:
+          containers:
+          - name: busy-co
+            image: busybox
+            command:
+              - /bin/sh
+              - -c
+              - while true;do date;sleep 5; done
+    ignore_errors: true
+    register: pod_creation
+
+  - assert:
+      that:
+      - pod_creation is failed
+      - pod_creation.reason == "Forbidden"
+      - '"cannot get resource" in pod_creation.msg'
+
+  - name: Create simple Pod using with appropriate impersonate groups
+    kubernetes.core.k8s:
+      api_key: "{{ api_token }}"
+      host: "{{ cluster_host }}"
+      validate_certs: no
+      namespace: '{{ test_ns }}'
+      name: '{{ test_pod }}'
+      impersonate_user: test
+      impersonate_groups:
+        - '{{ test_group_create_pod }}'
+        - '{{ test_group_list_pod }}'
+      definition:
+        apiVersion: v1
+        kind: Pod
+        spec:
+          containers:
+          - name: busy-co
+            image: busybox
+            command:
+              - /bin/sh
+              - -c
+              - while true;do date;sleep 5; done
+
+  - name: List Pod to validate creation
+    kubernetes.core.k8s_info:
+      api_key: "{{ api_token }}"
+      host: "{{ cluster_host }}"
+      validate_certs: no
+      impersonate_user: test
+      impersonate_groups:
+        - '{{ test_group_list_pod }}'
+      namespace: '{{ test_ns }}'
+      kind: Pod
+      name: '{{ test_pod }}'
+      wait: yes
+    register: list_pod
+
+  - name: Ensure Pods are created
+    assert:
+      that:
+        - list_pod.resources | length == 1
+
+  - name: Delete Pod (missing appropriate group)
+    kubernetes.core.k8s:
+      api_key: "{{ api_token }}"
+      host: "{{ cluster_host }}"
+      validate_certs: no
+      impersonate_user: test
+      impersonate_groups:
+        - '{{ test_group_delete_pod }}'
+      namespace: '{{ test_ns }}'
+      name: '{{ test_pod }}'
+      kind: Pod
+      wait: yes
+      state: absent
+    ignore_errors: true
+    register: pod_deletion
+
+  - assert:
+      that:
+      - pod_deletion is failed
+      - pod_deletion.reason == "Forbidden"
+      - '"cannot get resource" in pod_deletion.msg'
+
+  - name: Delete Pod using appropriate groups
+    kubernetes.core.k8s:
+      api_key: "{{ api_token }}"
+      host: "{{ cluster_host }}"
+      validate_certs: no
+      impersonate_user: test
+      impersonate_groups:
+        - '{{ test_group_delete_pod }}'
+        - '{{ test_group_list_pod }}'
+      namespace: '{{ test_ns }}'
+      name: '{{ test_pod }}'
+      kind: Pod
+      wait: yes
+      state: absent
+    ignore_errors: true
+    register: pod_deletion
+
+  - name: List Pod to validate deletion
+    kubernetes.core.k8s_info:
+      api_key: "{{ api_token }}"
+      host: "{{ cluster_host }}"
+      validate_certs: no
+      impersonate_user: test
+      impersonate_groups:
+        - '{{ test_group_list_pod }}'
+      namespace: '{{ test_ns }}'
+      kind: Pod
+      name: '{{ test_pod }}'
+    register: list_pod
+
+  - name: Ensure Pods are created
+    assert:
+      that:
+        - list_pod.resources | length == 0
+
+  always:
+    - name: Ensure namespace is delete
+      kubernetes.core.k8s:
+        kind: Namespace
+        name: '{{ test_ns }}'
+        state: absent
+        wait: yes
+      ignore_errors: true
+
+    - name: Delete ServiceAccount
+      kubernetes.core.k8s:
+        kind: ServiceAccount
+        name: '{{ test_sa }}'
+        namespace: '{{ test_ns }}'
+        state: absent
+        wait: yes
+      ignore_errors: true
+
+    - name: Delete Groups
+      kubernetes.core.k8s:
+        kind: Group
+        name: '{{ item }}'
+        state: absent
+      with_items:
+        - '{{ test_group_delete_pod }}'
+        - '{{ test_group_create_pod }}'
+        - '{{ test_group_list_pod }}'
+      ignore_errors: true
+
+    - name: Delete ClusterRoles
+      kubernetes.core.k8s:
+        api_version: rbac.authorization.k8s.io/v1
+        kind: ClusterRole
+        name: cluster-impersonate
+        state: absent
+      ignore_errors: true
+
+    - name: Delete ClusterRoleBinding
+      kubernetes.core.k8s:
+        api_version: rbac.authorization.k8s.io/v1
+        kind: ClusterRoleBinding
+        name: 'cluster-impersonate-binding'
+        state: absent
+      ignore_errors: true

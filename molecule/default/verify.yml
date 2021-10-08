@@ -64,6 +64,7 @@
     - import_tasks: tasks/openshift_adm_prune_auth_clusterroles.yml
     - import_tasks: tasks/openshift_adm_prune_auth_roles.yml
     - import_tasks: tasks/openshift_adm_prune_deployments.yml
+    - import_tasks: tasks/openshift_impersonation.yml
     - import_tasks: tasks/openshift_route.yml
     - block:
         - name: Create namespace
