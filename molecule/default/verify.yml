@@ -62,6 +62,7 @@
 
     - import_tasks: tasks/openshift_auth.yml
     - import_tasks: tasks/openshift_route.yml
+    - import_tasks: tasks/openshift_taint.yml
     - block:
         - name: Create namespace
           community.okd.k8s:
