@@ -5,6 +5,20 @@ OKD Collection Release Notes
 .. contents:: Topics
 
 
+v2.1.0
+======
+
+Minor Changes
+-------------
+
+- add support for turbo mode (https://github.com/openshift/community.okd/pull/102).
+- openshift_route - Add support for Route annotations (https://github.com/ansible-collections/community.okd/pull/99).
+
+Bugfixes
+--------
+
+- fix broken links in Automation Hub for redhat.openshift (https://github.com/openshift/community.okd/issues/100).
+
 v2.0.1
 ======
 
