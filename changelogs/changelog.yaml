@@ -136,3 +136,16 @@ releases:
     fragments:
     - 97-bump-k8s-version.yaml
     release_date: '2021-06-24'
+  2.1.0:
+    changes:
+      bugfixes:
+      - fix broken links in Automation Hub for redhat.openshift (https://github.com/openshift/community.okd/issues/100).
+      minor_changes:
+      - add support for turbo mode (https://github.com/openshift/community.okd/pull/102).
+      - openshift_route - Add support for Route annotations (https://github.com/ansible-collections/community.okd/pull/99).
+    fragments:
+    - 0-copy_ignore_txt.yml
+    - 100-fix-broken-links.yml
+    - 102-support-turbo-mode.yaml
+    - 99-openshift_route-add-support-for-annotations.yml
+    release_date: '2021-10-20'
