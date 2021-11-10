@@ -22,7 +22,7 @@ __metaclass__ = type
 
 
 DOCUMENTATION = r"""
-module: openshift_adm__migrate_template_instances
+module: openshift_adm_migrate_template_instances
 short_description: Update TemplateInstances to point to the latest group-version-kinds
 version_added: "2.2.0"
 author: Alina Buzachis (@alinabuzachis)
@@ -250,6 +250,8 @@ result:
     ]
 """
 
+import logging
+logging.basicConfig(filename='/Users/alinabuzachis/dev/example.log', filemode='w', level=logging.DEBUG)
 
 import traceback
 
@@ -276,10 +278,10 @@ from ansible_collections.kubernetes.core.plugins.module_utils.common import (
 
 
 transforms = {
-    "Build": "build.openshift.io/v1.Build",
-    "BuildConfig": "build.openshift.io/v1.BuildConfig",
-    "DeploymentConfig": "apps.openshift.io/v1.DeploymentConfig",
-    "Route": "route.openshift.io/v1.Route",
+    "Build": "build.openshift.io/v1",
+    "BuildConfig": "build.openshift.io/v1",
+    "DeploymentConfig": "apps.openshift.io/v1",
+    "Route": "route.openshift.io/v1",
 }
 
 
@@ -314,30 +316,30 @@ class OpenShiftMigrateTemplateInstances(K8sAnsibleMixin):
 
         return result.to_dict()
     
-    def perform_migrations(self, resource, templateinstances):
-        changed = False
-        results = {"changed": changed, 'result': []}
+    @staticmethod
+    def perform_migrations(templateinstances):
+        ti_list = []
+        ti_to_be_migrated = []
+    
+        ti_list = templateinstances.get('kind') == 'TemplateInstanceList' and templateinstances.get('items') or [templateinstances]
 
-        for ti in templateinstances.get('items'):
-            objects = ti['status'].get('objects')
+        for ti_elem in ti_list:
+            objects = ti_elem['status'].get('objects')
             if objects:
                 for i, obj in enumerate(objects):
                     object_type = obj['ref']['kind']
                     if (object_type in transforms.keys()
                         and obj['ref']['apiVersion'] != transforms[object_type]
                     ):
-                        ti['status']['objects'][i]['ref']['apiVersion'] = transforms[object_type]
+                        ti_elem['status']['objects'][i]['ref']['apiVersion'] = transforms[object_type]
+                        ti_to_be_migrated.append(ti_elem)
 
-                        if not self.check_mode:
-                            results['result'] = self.patch_template_instance(resource, ti)
-                        results['changed'] = True
-
-        return results
-
+        return ti_to_be_migrated
 
     def execute_module(self):
         templateinstances = None
         namespace = self.params.get("namespace")
+        results = {"changed": False, 'result': []}
 
         resource = self.find_resource(
             "templateinstances", "template.openshift.io/v1", fail=True
@@ -369,7 +371,17 @@ class OpenShiftMigrateTemplateInstances(K8sAnsibleMixin):
             # Get TemplateInstances from all namespaces
             templateinstances = resource.get().to_dict()
         
-        self.module.exit_json(**self.perform_migrations(resource, templateinstances))
+            ti_to_be_migrated = self.perform_migrations(templateinstances)
+        
+            if ti_to_be_migrated:
+                if self.check_mode:
+                    self.module.exit_json(**{"changed": True, 'result': ti_to_be_migrated})
+                else:
+                    for ti_elem in ti_to_be_migrated:
+                        results['result'].append(self.patch_template_instance(resource, ti_elem))
+                    results['changed'] = True
+
+        self.module.exit_json(**results)
         
 
 def argspec():
