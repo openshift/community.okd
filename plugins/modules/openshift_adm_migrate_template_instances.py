@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 # Copyright 2021 Red Hat | Ansible
 #
 # This file is part of Ansible
@@ -32,7 +34,6 @@ description:
 extends_documentation_fragment:
     - kubernetes.core.k8s_auth_options
     - kubernetes.core.k8s_wait_options
-    - kubernetes.core.k8s_resource_options
 options:
     namespace:
         description:
@@ -56,17 +57,13 @@ EXAMPLES = r"""
 """
 
 RETURN = r"""
-changed:
-    description: If migrations have been performed.
-    type: bool
-    sample: true
 result:
     description:
         -  List with all TemplateInstances that have been migrated.
     type: list
+    returned: success
     elements: dict
-    sample:
-    [
+    sample: [
         {
             "apiVersion": "template.openshift.io/v1",
             "kind": "TemplateInstance",
@@ -250,27 +247,26 @@ result:
     ]
 """
 
-import logging
-logging.basicConfig(filename='/Users/alinabuzachis/dev/example.log', filemode='w', level=logging.DEBUG)
 
 import traceback
 
 from ansible.module_utils._text import to_native
+
 try:
     from kubernetes.dynamic.exceptions import DynamicApiError
+
     HAS_KUBERNETES_COLLECTION = True
 except ImportError as e:
     HAS_KUBERNETES_COLLECTION = False
     k8s_collection_import_exception = e
     K8S_COLLECTION_ERROR = traceback.format_exc()
 
-
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.kubernetes.core.plugins.module_utils.args_common import (
     AUTH_ARG_SPEC,
     WAIT_ARG_SPEC,
-    RESOURCE_ARG_SPEC
 )
+
 from ansible_collections.kubernetes.core.plugins.module_utils.common import (
     K8sAnsibleMixin,
     get_api_client,
@@ -303,35 +299,44 @@ class OpenShiftMigrateTemplateInstances(K8sAnsibleMixin):
         self.params = self.module.params
         self.check_mode = self.module.check_mode
         self.client = get_api_client(self.module)
-    
+
     def patch_template_instance(self, resource, templateinstance):
         result = None
-            
+
         try:
             result = resource.status.patch(templateinstance)
         except Exception as exc:
             self.module.fail_json(
-                msg="Failed to migrate TemplateInstance {0} due to: {1}".format(templateinstance['metadata']['name'], to_native(exc))
+                msg="Failed to migrate TemplateInstance {0} due to: {1}".format(
+                    templateinstance["metadata"]["name"], to_native(exc)
+                )
             )
 
         return result.to_dict()
-    
+
     @staticmethod
     def perform_migrations(templateinstances):
         ti_list = []
         ti_to_be_migrated = []
-    
-        ti_list = templateinstances.get('kind') == 'TemplateInstanceList' and templateinstances.get('items') or [templateinstances]
+
+        ti_list = (
+            templateinstances.get("kind") == "TemplateInstanceList"
+            and templateinstances.get("items")
+            or [templateinstances]
+        )
 
         for ti_elem in ti_list:
-            objects = ti_elem['status'].get('objects')
+            objects = ti_elem["status"].get("objects")
             if objects:
                 for i, obj in enumerate(objects):
-                    object_type = obj['ref']['kind']
-                    if (object_type in transforms.keys()
-                        and obj['ref']['apiVersion'] != transforms[object_type]
+                    object_type = obj["ref"]["kind"]
+                    if (
+                        object_type in transforms.keys()
+                        and obj["ref"].get("apiVersion") != transforms[object_type]
                     ):
-                        ti_elem['status']['objects'][i]['ref']['apiVersion'] = transforms[object_type]
+                        ti_elem["status"]["objects"][i]["ref"][
+                            "apiVersion"
+                        ] = transforms[object_type]
                         ti_to_be_migrated.append(ti_elem)
 
         return ti_to_be_migrated
@@ -339,12 +344,12 @@ class OpenShiftMigrateTemplateInstances(K8sAnsibleMixin):
     def execute_module(self):
         templateinstances = None
         namespace = self.params.get("namespace")
-        results = {"changed": False, 'result': []}
+        results = {"changed": False, "result": []}
 
         resource = self.find_resource(
             "templateinstances", "template.openshift.io/v1", fail=True
         )
-        
+
         if namespace:
             # Get TemplateInstances from a provided namespace
             try:
@@ -370,26 +375,29 @@ class OpenShiftMigrateTemplateInstances(K8sAnsibleMixin):
         else:
             # Get TemplateInstances from all namespaces
             templateinstances = resource.get().to_dict()
-        
+
             ti_to_be_migrated = self.perform_migrations(templateinstances)
-        
+
             if ti_to_be_migrated:
                 if self.check_mode:
-                    self.module.exit_json(**{"changed": True, 'result': ti_to_be_migrated})
+                    self.module.exit_json(
+                        **{"changed": True, "result": ti_to_be_migrated}
+                    )
                 else:
                     for ti_elem in ti_to_be_migrated:
-                        results['result'].append(self.patch_template_instance(resource, ti_elem))
-                    results['changed'] = True
+                        results["result"].append(
+                            self.patch_template_instance(resource, ti_elem)
+                        )
+                    results["changed"] = True
 
         self.module.exit_json(**results)
-        
+
 
 def argspec():
     argument_spec = {}
     argument_spec.update(AUTH_ARG_SPEC)
     argument_spec.update(WAIT_ARG_SPEC)
-    argument_spec.update(RESOURCE_ARG_SPEC)
-    argument_spec['namespace'] = dict(type='str')
+    argument_spec["namespace"] = dict(type="str")
 
     return argument_spec
 
@@ -402,5 +410,5 @@ def main():
     openshift_process.execute_module()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
