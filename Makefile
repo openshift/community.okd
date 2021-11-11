@@ -4,6 +4,7 @@
 VERSION = 2.1.0
 
 SANITY_TEST_ARGS ?= --docker --color
+UNITS_TEST_ARGS ?= --docker --color
 PYTHON_VERSION ?= `python3 -c 'import platform; print("{0}.{1}".format(platform.python_version_tuple()[0], platform.python_version_tuple()[1]))'`
 
 clean:
@@ -20,6 +21,9 @@ install: build
 sanity: install
 	cd ansible_collections/community/okd && ansible-test sanity -v --python $(PYTHON_VERSION) $(SANITY_TEST_ARGS)
 
+units: install
+	cd ansible_collections/community/okd && ansible-test units -v --python $(PYTHON_VERSION) $(UNITS_TEST_ARGS)
+
 molecule: install
 	molecule test
 
@@ -27,15 +31,22 @@ test-integration: upstream-test-integration downstream-test-integration
 
 test-sanity: upstream-test-sanity downstream-test-sanity
 
+test-units: upstream-test-units downstream-test-units
+
 test-integration-incluster:
 	./ci/incluster_integration.sh
 
 upstream-test-sanity: sanity
 
+upstream-test-units: units
+
 upstream-test-integration: molecule
 
 downstream-test-sanity:
 	./ci/downstream.sh -s
+
+downstream-test-units:
+	./ci/downstream.sh -u
 
 downstream-test-integration:
 	./ci/downstream.sh -i

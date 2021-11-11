@@ -22,6 +22,7 @@ f_show_help()
 {
     printf "Usage: downstream.sh [OPTION]\n"
     printf "\t-s\t\tCreate a temporary downstream release and perform sanity tests.\n"
+    printf "\t-u\t\tCreate a temporary downstream release and perform units tests.\n"
     printf "\t-i\t\tCreate a temporary downstream release and perform integration tests.\n"
     printf "\t-m\t\tCreate a temporary downstream release and perform molecule tests.\n"
     printf "\t-b\t\tCreate a downstream release and stage for release.\n"
@@ -226,6 +227,24 @@ f_test_integration_option()
     f_cleanup
 }
 
+# Run the test units
+f_test_units_option()
+{
+    f_log_info "${FUNCNAME[0]}"
+    f_common_steps
+    pushd "${_build_dir}" || return
+        if command -v docker &> /dev/null
+            then
+                make units
+            else
+                UNITS_TEST_ARGS="--venv --color" make units
+            fi
+        f_log_info "UNITS TEST PWD: ${PWD}"
+        make units
+    popd || return
+    f_cleanup
+}
+
 # Run the build scanerio
 f_build_option()
 {
@@ -246,7 +265,7 @@ if [[ "${#}" -eq "0" ]]; then
 fi
 
 # Handle options
-while getopts ":sirb" option
+while getopts ":siurb" option
 do
   case $option in
     s)
@@ -254,6 +273,9 @@ do
         ;;
     i)
         f_test_integration_option
+        ;;
+    u)
+        f_test_units_option
         ;;
     r)
         f_release_option
