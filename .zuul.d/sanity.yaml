@@ -1,0 +1,11 @@
+- job:
+    name: ansible-test-redhat-openshift-sanity
+    run: playbooks/downstream_sanity.yaml
+    nodeset: fedora-35-1vcpu
+
+- project:
+    name: github.com/openshift/community.okd
+    3pci-check:
+      jobs:
+        - ansible-test-redhat-openshift-sanity:
+            voting: false
