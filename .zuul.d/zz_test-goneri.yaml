@@ -1,0 +1,6 @@
+- project:
+  #    name: github.com/openshift/community.okd
+    3pci-check:
+      jobs:
+        - ansible-test-sanity-docker-milestone:
+            voting: false
