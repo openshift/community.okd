@@ -152,8 +152,8 @@ class OpenShiftAdmPruneAuth(K8sAnsibleMixin):
             retainedSubjects = [x for x in subjects if x not in ref_names]
             if len(subjects) != len(retainedSubjects):
                 candidates.append(item['metadata']['name'])
+                changed = True
                 if not self.check_mode:
-                    changed = True
                     upd_sec_ctx = item
                     upd_sec_ctx.update({key: retainedSubjects})
                     try:
