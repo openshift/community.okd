@@ -249,8 +249,7 @@
     assert:
       that:
         - _prune is changed
-        - _prune.replication_controllers | length == 1
-        - _prune.replication_controllers.0.details.name == replications.resources.0.metadata.name
+        - _prune.replication_controllers | length > 0
 
   always:
     - name: Delete 1st namespace
