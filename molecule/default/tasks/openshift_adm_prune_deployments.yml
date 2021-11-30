@@ -174,16 +174,17 @@
   - name: Wait for ReplicationController candidate for pruning
     kubernetes.core.k8s_info:
       kind: ReplicationController
-      namespace: "{{ deployment_ns }}"
+      namespace: "{{ deployment_ns_2 }}"
     register: result
     retries: 10
     delay: 30
     until: 
       - result.resources.0.metadata.annotations["openshift.io/deployment.phase"] in ("Failed", "Complete")
 
-  - name: Prune deployments from first namespace should not have effect on 2nd namespace
+  # Prune from one namespace should not have any effect on others namespaces
+  - name: Prune deployments from 2nd namespace
     community.okd.openshift_adm_prune_deployments:
-      namespace: "{{ deployment_ns }}"
+      namespace: "{{ deployment_ns_2 }}"
     check_mode: yes
     register: test_prune
 
@@ -192,9 +193,9 @@
       that:
         - test_prune is changed
         - test_prune.replication_controllers | length == 1
-        - test_prune.replication_controllers.0.metadata.name == replications.resources.0.metadata.name
-        - test_prune.replication_controllers.0.metadata.namespace == replications.resources.0.metadata.namespace
+        - "test_prune.replication_controllers.0.metadata.namespace == deployment_ns_2"
 
+  # Prune without namespace option
   - name: Prune from all namespace should update more deployments
     community.okd.openshift_adm_prune_deployments:
     check_mode: yes
@@ -206,7 +207,7 @@
         - no_namespace_prune is changed
         - no_namespace_prune.replication_controllers | length == 2
   
-  # Prune from 2nd namespace
+  # Execute Prune from 2nd namespace
   - name: Read ReplicationController before Prune operation
     kubernetes.core.k8s_info:
       kind: ReplicationController
@@ -229,7 +230,7 @@
         - _prune.replication_controllers | length == 1
         - _prune.replication_controllers.0.details.name == replications.resources.0.metadata.name
 
-  # Prune without namespace option
+  # Execute Prune without namespace option
   - name: Read ReplicationController before Prune operation
     kubernetes.core.k8s_info:
       kind: ReplicationController
