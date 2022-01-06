@@ -8,6 +8,61 @@
   vars_files:
     - vars/main.yml
   tasks:
+    - name: Get node information
+      kubernetes.core.k8s_info:
+        kind: Node
+      register: data
+
+    - debug: var=data
+
+    - name: Create LDAP Pod
+      community.okd.k8s:
+        namespace: default
+        wait: yes
+        definition:
+          kind: Pod
+          apiVersion: v1
+          metadata:
+            name: ldap-pod
+            labels:
+              app: ldap
+          spec:
+            containers:
+            - name: ldap
+              image: bitnami/openldap
+              env:
+                - name: LDAP_ADMIN_USERNAME
+                  value: "admin"
+                - name: LDAP_ADMIN_PASSWORD
+                  value: "testing123!"
+                - name: LDAP_USERS
+                  value: "ansible"
+                - name: LDAP_PASSWORDS
+                  value: "ansible123"
+                - name: LDAP_ROOT
+                  value: "dc=ansible,dc=redhat"
+              ports:
+              - containerPort: 1389
+
+    - name: Create LDAP service
+      community.okd.k8s:
+        namespace: "default"
+        definition:
+          apiVersion: v1
+          kind: Service
+          metadata:
+            name: ldap-svc
+          spec:
+            type: NodePort
+            ports:
+            - name: ldap
+              nodePort: 30950
+              port: 1389
+            selector:
+              app: ldap
+      register: svc
+
+    - debug: var=svc
     # OpenShift Resources
     - name: Create a project
       community.okd.k8s:
