@@ -63,6 +63,13 @@
       register: svc
 
     - debug: var=svc
+
+    - name: Create LDAP Entries
+      test_ldap:
+        bind_dn: "cn=admin,ou=ansible,ou=redhat"
+        bind_pw: "testing"
+        server_uri: "ldap://localhost:1390"
+        dn: "ou=people"
     # OpenShift Resources
     - name: Create a project
       community.okd.k8s:
