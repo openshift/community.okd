@@ -7,3 +7,5 @@ plugin_routing:
   action:
     k8s:
       redirect: kubernetes.core.k8s_info
+    openshift_adm_groups_sync:
+      redirect: kubernetes.core.k8s_info

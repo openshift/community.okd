@@ -14,6 +14,8 @@ RUN yum install -y \
       python3-devel \
       python3-pip \
       python3-setuptools \
+      gcc \
+      openldap-devel \
  && pip3 install --no-cache-dir --upgrade setuptools pip \
  && pip3 install --no-cache-dir \
       kubernetes \
