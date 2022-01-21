@@ -83,3 +83,6 @@
             kind: Namespace
             name: process-test
             state: absent
+
+  roles:
+    - role: openshift_adm_groups

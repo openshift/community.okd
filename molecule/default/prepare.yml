@@ -12,6 +12,7 @@
         name:
           - kubernetes>=12.0.0
           - coverage
+          - python-ldap
         virtualenv: "{{ virtualenv }}"
         virtualenv_command: "{{ virtualenv_command }}"
         virtualenv_site_packages: no
