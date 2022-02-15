@@ -267,7 +267,7 @@ class OpenShiftAuthModule(AnsibleModule):
         self.exit_json(changed=False, openshift_auth=result, k8s_auth=result)
 
     def openshift_discover(self):
-        url = urljoin(self.con_host,'.well-known/oauth-authorization-server')
+        url = urljoin(self.con_host, '.well-known/oauth-authorization-server')
         ret = requests.get(url, verify=self.con_verify_ca)
 
         if ret.status_code != 200:
