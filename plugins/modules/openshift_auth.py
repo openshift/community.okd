@@ -171,6 +171,7 @@ import traceback
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.six.moves.urllib_parse import urlparse, parse_qs, urlencode
+from urllib.parse import urljoin
 
 # 3rd party imports
 try:
@@ -266,7 +267,7 @@ class OpenShiftAuthModule(AnsibleModule):
         self.exit_json(changed=False, openshift_auth=result, k8s_auth=result)
 
     def openshift_discover(self):
-        url = '{0}/.well-known/oauth-authorization-server'.format(self.con_host)
+        url = urljoin(self.con_host,'.well-known/oauth-authorization-server')
         ret = requests.get(url, verify=self.con_verify_ca)
 
         if ret.status_code != 200:
