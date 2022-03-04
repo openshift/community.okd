@@ -155,7 +155,7 @@ CONNECTION_TRANSPORT = 'oc'
 CONNECTION_OPTIONS = {
     'oc_container': '-c',
     'oc_namespace': '-n',
-    'oc_kubeconfig': '--config',
+    'oc_kubeconfig': '--kubeconfig',
     'oc_context': '--context',
     'oc_host': '--server',
     'client_cert': '--client-certificate',
