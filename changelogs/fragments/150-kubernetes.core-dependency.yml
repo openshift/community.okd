@@ -1,0 +1,2 @@
+minor_changes:
+  - "Relax the dependency on kubernetes.core (https://github.com/openshift/community.okd/pull/150)."
