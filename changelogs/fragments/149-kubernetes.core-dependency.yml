@@ -1,0 +1,2 @@
+minor_changes:
+  - "Relax the dependency on kubernetes.core assuming that kubernetes.core sticks to semantic versioning (https://github.com/openshift/community.okd/pull/149)."
