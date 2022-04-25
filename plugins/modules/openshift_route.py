@@ -24,7 +24,7 @@ description:
   - For creating Services from other resources, see kubernetes.core.k8s.
 
 extends_documentation_fragment:
-  - kubernetes.core.k8s_auth_options
+  - community.okd.k8s_auth_options
   - kubernetes.core.k8s_wait_options
   - kubernetes.core.k8s_state_options
 

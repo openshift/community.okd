@@ -33,7 +33,7 @@ description:
 extends_documentation_fragment:
   - kubernetes.core.k8s_name_options
   - kubernetes.core.k8s_resource_options
-  - kubernetes.core.k8s_auth_options
+  - community.okd.k8s_auth_options
   - kubernetes.core.k8s_wait_options
   - kubernetes.core.k8s_delete_options
 
