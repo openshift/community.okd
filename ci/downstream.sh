@@ -168,7 +168,7 @@ f_handle_doc_fragments_workaround()
             if [ -e /usr/bin/python3.6 ]; then
                 PYTHON="/usr/bin/python3.6"
             else
-                PYTHON="python"
+                PYTHON="python3"
             fi
             "${PYTHON}" "${_start_dir}/ci/downstream_fragments.py" "redhat.openshift.${doc_fragment_mod}" "${temp_fragments_json}"
             sed -n '/STARTREMOVE/q;p' "${module_py}" > "${temp_start}"
