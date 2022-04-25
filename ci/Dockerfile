@@ -10,10 +10,10 @@ RUN yum install -y \
       glibc-langpack-en \
       git \
       make \
-      python3 \
-      python3-devel \
-      python3-pip \
-      python3-setuptools \
+      python38 \
+      python38-devel \
+      python38-pip \
+      python38-setuptools \
       gcc \
       openldap-devel \
  && pip3 install --no-cache-dir --upgrade setuptools pip \
