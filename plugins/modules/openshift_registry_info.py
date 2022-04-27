@@ -7,6 +7,7 @@
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
+# STARTREMOVE (downstream)
 DOCUMENTATION = r'''
 
 module: openshift_registry_info
@@ -79,6 +80,7 @@ check:
       returned: always
       type: str
 '''
+# ENDREMOVE (downstream)
 
 import copy
 

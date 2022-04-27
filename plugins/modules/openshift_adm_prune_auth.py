@@ -7,6 +7,7 @@
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
+# STARTREMOVE (downstream)
 DOCUMENTATION = r'''
 
 module: openshift_adm_prune_auth
@@ -96,7 +97,7 @@ group:
   description: list of Security Context Constraints deleted.
   returned: I(resource=users)
 '''
-
+# ENDREMOVE (downstream)
 
 import copy
 

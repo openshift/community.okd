@@ -7,6 +7,7 @@
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
+# STARTREMOVE (downstream)
 DOCUMENTATION = r'''
 
 module: openshift_import_image
@@ -153,6 +154,7 @@ result:
       returned: success
       type: dict
 '''
+# ENDREMOVE (downstream)
 
 import copy
 
