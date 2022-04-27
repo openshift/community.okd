@@ -39,6 +39,7 @@ Name | Description
 [community.okd.openshift_auth](https://github.com/ansible-collections/community.okd/blob/main/docs/community.okd.openshift_auth_module.rst)|Authenticate to OpenShift clusters which require an explicit login step
 [community.okd.openshift_process](https://github.com/ansible-collections/community.okd/blob/main/docs/community.okd.openshift_process_module.rst)|Process an OpenShift template.openshift.io/v1 Template
 [community.okd.openshift_route](https://github.com/ansible-collections/community.okd/blob/main/docs/community.okd.openshift_route_module.rst)|Expose a Service as an OpenShift Route.
+[community.okd.openshift_registry_info](https://github.com/ansible-collections/community.okd/blob/main/docs/community.okd.openshift_registry_info.rst)|Get information on cluster internal image registry.
 
 <!--end collection content-->
 
