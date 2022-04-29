@@ -24,5 +24,9 @@ with open("./rendereddocfragments.txt", 'w') as df_fd:
         df_fd.write('"""\n\n')
 
         df_fd.write('RETURN = r"""')
-        df_fd.write(json_docs[sys.argv[1]]['return'])
+        data = json_docs[sys.argv[1]]['return']
+        if isinstance(data, dict):
+            df_fd.write(yaml.dump(data, default_flow_style=False))
+        else:
+            df_fd.write(data)
         df_fd.write('"""\n\n')
