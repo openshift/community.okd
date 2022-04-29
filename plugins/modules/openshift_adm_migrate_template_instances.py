@@ -7,7 +7,7 @@ from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
-
+# STARTREMOVE (downstream)
 DOCUMENTATION = r"""
 module: openshift_adm_migrate_template_instances
 short_description: Update TemplateInstances to point to the latest group-version-kinds
@@ -231,7 +231,7 @@ result:
         ...
     ]
 """
-
+# ENDREMOVE (downstream)
 
 import traceback
 

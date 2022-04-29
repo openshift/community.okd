@@ -7,6 +7,7 @@
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
+# STARTREMOVE (downstream)
 DOCUMENTATION = r'''
 
 module: openshift_adm_prune_deployments
@@ -64,6 +65,7 @@ replication_controllers:
   description: list of replication controllers candidate for pruning.
   returned: always
 '''
+# ENDREMOVE (downstream)
 
 import copy
 

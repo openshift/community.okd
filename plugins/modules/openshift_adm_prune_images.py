@@ -7,6 +7,7 @@
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
+# STARTREMOVE (downstream)
 DOCUMENTATION = r'''
 
 module: openshift_adm_prune_images
@@ -275,6 +276,7 @@ deleted_images:
       ...
   ]
 '''
+# ENDREMOVE (downstream)
 
 import copy
 
