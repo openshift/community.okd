@@ -11,6 +11,7 @@
 
 DOWNSTREAM_VERSION="2.1.0"
 KEEP_DOWNSTREAM_TMPDIR="${KEEP_DOWNSTREAM_TMPDIR:-''}"
+INSTALL_DOWNSTREAM_COLLECTION_PATH="${INSTALL_DOWNSTREAM_COLLECTION_PATH:-}"
 _build_dir=""
 
 f_log_info()
@@ -68,6 +69,7 @@ f_prep()
         .yamllint
         requirements.txt
         requirements.yml
+        test-requirements.txt
     )
 
     # Directories to recursively copy downstream (relative repo root dir path)
@@ -79,15 +81,6 @@ f_prep()
         plugins
         tests
     )
-
-    # Modules with inherited doc fragments from kubernetes.core that need
-    # rendering to deal with Galaxy/AH lack of functionality.
-    _doc_fragment_modules=(
-        k8s
-        openshift_process
-        openshift_route
-    )
-
 
     # Temp build dir
     _tmp_dir=$(mktemp -d)
@@ -149,6 +142,15 @@ f_handle_doc_fragments_workaround()
     local temp_end="${_tmp_dir}/endfile.txt"
     local rendered_fragments="./rendereddocfragments.txt"
 
+    # FIXME: Check Python interpreter from environment variable to work with prow
+    PYTHON=${DOWNSTREAM_BUILD_PYTHON:-/usr/bin/python3.6}
+    f_log_info "Using Python interpreter: ${PYTHON}"
+
+    # Modules with inherited doc fragments from kubernetes.core that need
+    # rendering to deal with Galaxy/AH lack of functionality.
+    # shellcheck disable=SC2207
+    _doc_fragment_modules=($("${PYTHON}" "${_start_dir}/ci/doc_fragment_modules.py" -c "${_start_dir}"))
+
     # Build the collection, export docs, render them, stitch it all back together
     pushd "${_build_dir}" || return
         ansible-galaxy collection build
@@ -163,12 +165,6 @@ f_handle_doc_fragments_workaround()
             ANSIBLE_COLLECTIONS_PATH="${install_collections_dir}" \
             ANSIBLE_COLLECTIONS_PATHS="${ANSIBLE_COLLECTIONS_PATH}:${install_collections_dir}" \
                 ansible-doc -j "redhat.openshift.${doc_fragment_mod}" > "${temp_fragments_json}"
-            # FIXME: Check Python interpreter from environment variable to work with prow
-            if [ -e /usr/bin/python3.6 ]; then
-                PYTHON="/usr/bin/python3.6"
-            else
-                PYTHON="python"
-            fi
             "${PYTHON}" "${_start_dir}/ci/downstream_fragments.py" "redhat.openshift.${doc_fragment_mod}" "${temp_fragments_json}"
             sed -n '/STARTREMOVE/q;p' "${module_py}" > "${temp_start}"
             sed '1,/ENDREMOVE/d' "${module_py}" > "${temp_end}"
@@ -184,7 +180,14 @@ f_copy_collection_to_working_dir()
 {
     f_log_info "${FUNCNAME[0]}"
     # Copy the Collection build result into original working dir
+    f_log_info "copying built collection *.tar.gz into ./"
     cp "${_build_dir}"/*.tar.gz ./
+    # Install downstream collection into provided path
+    if [[ -n ${INSTALL_DOWNSTREAM_COLLECTION_PATH} ]]; then
+        f_log_info "Install built collection *.tar.gz into ${INSTALL_DOWNSTREAM_COLLECTION_PATH}"
+        ansible-galaxy collection install -p "${INSTALL_DOWNSTREAM_COLLECTION_PATH}" "${_build_dir}"/*.tar.gz
+    fi
+    rm -f "${_build_dir}"/*.tar.gz
 }
 
 f_common_steps()
