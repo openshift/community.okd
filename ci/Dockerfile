@@ -4,16 +4,17 @@ ENV OPERATOR=/usr/local/bin/ansible-operator \
     USER_UID=1001 \
     USER_NAME=ansible-operator\
     HOME=/opt/ansible \
-    ANSIBLE_LOCAL_TMP=/opt/ansible/tmp
+    ANSIBLE_LOCAL_TMP=/opt/ansible/tmp \
+    DOWNSTREAM_BUILD_PYTHON=python3.9
 
 RUN yum install -y \
       glibc-langpack-en \
       git \
       make \
-      python3 \
-      python3-devel \
-      python3-pip \
-      python3-setuptools \
+      python39 \
+      python39-devel \
+      python39-pip \
+      python39-setuptools \
       gcc \
       openldap-devel \
  && pip3 install --no-cache-dir --upgrade setuptools pip \

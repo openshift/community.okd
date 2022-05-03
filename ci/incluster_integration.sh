@@ -72,7 +72,7 @@ function check_failure {
   return 1
 }
 
-runtime="15 minute"
+runtime="30 minute"
 endtime=$(date -ud "$runtime" +%s)
 
 echo "Waiting for test job to complete"
