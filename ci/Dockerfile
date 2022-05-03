@@ -4,7 +4,7 @@ ENV OPERATOR=/usr/local/bin/ansible-operator \
     USER_UID=1001 \
     USER_NAME=ansible-operator\
     HOME=/opt/ansible \
-    ANSIBLE_LOCAL_TMP=/opt/ansible/tmp
+    ANSIBLE_LOCAL_TMP=/opt/ansible/tmp \
     DOWNSTREAM_BUILD_PYTHON=python3.9
 
 RUN yum install -y \
