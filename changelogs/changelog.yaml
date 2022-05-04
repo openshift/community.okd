@@ -149,3 +149,34 @@ releases:
     - 102-support-turbo-mode.yaml
     - 99-openshift_route-add-support-for-annotations.yml
     release_date: '2021-10-20'
+  2.2.0:
+    changes:
+      bugfixes:
+      - fix ocp auth failing against cluster api url with trailing slash (https://github.com/openshift/community.okd/issues/139)
+      minor_changes:
+      - add action groups to runtime.yml (https://github.com/openshift/community.okd/issues/41).
+    fragments:
+    - 152-add-action-groups.yml
+    - auth-against-api-with-trailing-slash.yaml
+    modules:
+    - description: Update TemplateInstances to point to the latest group-version-kinds
+      name: openshift_adm_migrate_template_instances
+      namespace: ''
+    - description: Removes references to the specified roles, clusterroles, users,
+        and groups
+      name: openshift_adm_prune_auth
+      namespace: ''
+    - description: Remove old completed and failed deployment configs
+      name: openshift_adm_prune_deployments
+      namespace: ''
+    - description: Remove unreferenced images
+      name: openshift_adm_prune_images
+      namespace: ''
+    - description: Import the latest image information from a tag in a container image
+        registry.
+      name: openshift_import_image
+      namespace: ''
+    - description: Display information about the integrated registry.
+      name: openshift_registry_info
+      namespace: ''
+    release_date: '2022-05-05'

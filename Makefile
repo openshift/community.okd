@@ -1,7 +1,7 @@
 .PHONY: molecule
 
 # Also needs to be updated in galaxy.yml
-VERSION = 2.1.0
+VERSION = 2.2.0
 
 SANITY_TEST_ARGS ?= --docker --color
 UNITS_TEST_ARGS ?= --docker --color
