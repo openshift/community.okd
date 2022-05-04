@@ -49,7 +49,7 @@
   - set_fact:
       api_token: "{{ _secret.resources[0]['metadata']['annotations']['openshift.io/token-secret.value'] }}"
     when: "'openshift.io/token-secret.value' in _secret.resources[0]['metadata']['annotations']"
-  
+
   - set_fact:
       api_token: "{{ _secret.resources[0]['data']['token'] | b64decode }}"
     when: "'token' in _secret.resources[0]['data']"
@@ -65,8 +65,7 @@
 
   - assert:
       that:
-        - error is failed
-        # - '"nodes is forbidden: User" in error.msg'
+        - '"nodes is forbidden: User" in error.msg'
 
   - name: list Pod for all namespace should failed
     kubernetes.core.k8s_info:
@@ -79,8 +78,7 @@
 
   - assert:
       that:
-        - error is failed
-        # - '"pods is forbidden: User" in error.msg'
+        - '"pods is forbidden: User" in error.msg'
 
   - name: list Pod for test namespace should failed
     kubernetes.core.k8s_info:
@@ -94,8 +92,7 @@
 
   - assert:
       that:
-        - error is failed
-        # - '"pods is forbidden: User" in error.msg'
+        - '"pods is forbidden: User" in error.msg'
 
   - set_fact:
       test_labels:
@@ -158,8 +155,7 @@
 
   - assert:
       that:
-        - error is failed
-        # - '"pods is forbidden: User" in error.msg'
+        - '"pods is forbidden: User" in error.msg'
 
   - name: list Pod for test namespace should succeed
     kubernetes.core.k8s_info:
@@ -247,8 +243,7 @@
 
   - assert:
       that:
-        - error is failed
-        # - '"pods is forbidden: User" in error.msg'
+        - '"pods is forbidden: User" in error.msg'
 
   - name: list Pod for test namespace should failed
     kubernetes.core.k8s_info:
@@ -263,8 +258,7 @@
 
   - assert:
       that:
-        - error is failed
-        # - '"pods is forbidden: User" in error.msg'
+        - '"pods is forbidden: User" in error.msg'
 
   - name: list Node using ServiceAccount
     kubernetes.core.k8s_info:
@@ -281,7 +275,7 @@
       label_selectors:
         - phase=dev
 
-  - name: list Node using ServiceAccount
+  - name: list Node using ServiceAccount should fail
     kubernetes.core.k8s_info:
       api_key: "{{ api_token }}"
       host: "{{ cluster_host }}"
@@ -293,8 +287,7 @@
 
   - assert:
       that:
-        - error is failed
-        # - '"nodes is forbidden: User" in error.msg'
+        - '"nodes is forbidden: User" in error.msg'
 
   always:
     - name: Ensure namespace is deleted
