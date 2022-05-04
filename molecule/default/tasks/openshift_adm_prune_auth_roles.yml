@@ -90,7 +90,7 @@
   
   - assert:
       that:
-        - '"pods is forbidden: User" in error.module_stderr'
+        - '"pods is forbidden: User" in error.msg'
 
   - name: Create a role to manage Pod from namespace "{{ test_ns }}"
     kubernetes.core.k8s:
