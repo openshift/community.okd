@@ -90,8 +90,7 @@
   
   - assert:
       that:
-        - error is failed
-        # - '"pods is forbidden: User" in error.module_stderr'
+        - '"pods is forbidden: User" in error.msg'
 
   - name: Create a role to manage Pod from namespace "{{ test_ns }}"
     kubernetes.core.k8s:
@@ -209,8 +208,7 @@
   - name: assert pod deletion failed due to forbidden user
     assert:
       that:
-        - result is failed
-        # - '"forbidden: User" in error.module_stderr'
+        - '"forbidden: User" in error.msg'
 
   - name: List Pod
     kubernetes.core.k8s_info:
@@ -290,8 +288,7 @@
   - name: assert user is not authorize to create pod anymore
     assert:
       that:
-        - result is failed
-        # - '"forbidden: User" in error.module_stderr'
+        - '"forbidden: User" in error.msg'
 
   - name: List Pod
     kubernetes.core.k8s_info:
@@ -332,8 +329,7 @@
   - name: assert user is not authorize to list pod anymore
     assert:
       that:
-        - result is failed
-        # - '"forbidden: User" in error.module_stderr'
+        - '"forbidden: User" in error.msg'
 
   always:
     - name: Ensure namespace is deleted
