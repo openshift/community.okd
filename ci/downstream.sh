@@ -186,7 +186,6 @@ f_copy_collection_to_working_dir()
     cp "${_build_dir}"/*.tar.gz ./
     # Install downstream collection into provided path
     if [[ -n ${INSTALL_DOWNSTREAM_COLLECTION_PATH} ]]; then
-        rm -fr "${INSTALL_DOWNSTREAM_COLLECTION_PATH:?}/*"
         f_log_info "Install built collection *.tar.gz into ${INSTALL_DOWNSTREAM_COLLECTION_PATH}"
         ansible-galaxy collection install -p "${INSTALL_DOWNSTREAM_COLLECTION_PATH}" "${_build_dir}"/*.tar.gz
     fi
