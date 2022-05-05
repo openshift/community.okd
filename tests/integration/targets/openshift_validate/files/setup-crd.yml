@@ -1,0 +1,37 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: plugins.ansibleopenshift.com
+spec:
+  group: ansibleopenshift.com
+  names:
+    kind: Plugin
+    plural: plugins
+    listKind: PluginList
+    singular: plugin
+  scope: Namespaced
+  versions:
+  - name: v1
+    served: true
+    storage: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          spec:
+            type: object
+            properties:
+              name:
+                type: string
+                description: The name of the plugin
+              type:
+                type: string
+                description: The type of plugin
+    additionalPrinterColumns:
+      - name: Name
+        jsonPath: .spec.name
+        type: string
+      - name: Type
+        jsonPath: .spec.type
+        type: string

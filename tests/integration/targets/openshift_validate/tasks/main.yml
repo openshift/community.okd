@@ -1,0 +1,30 @@
+---
+- block:
+  - name: Install virtualenv python library
+    pip:
+      name: virtualenv
+
+  - pip:
+      name:
+        - kubernetes>=12.0.0
+        - coverage
+        - kubernetes-validate==1.12.0
+      virtualenv: "{{ virtualenv }}"
+      virtualenv_command: "{{ virtualenv_command }}"
+
+  - import_tasks: tasks/validate_installed.yml
+
+  - pip:
+      name: kubernetes-validate
+      state: absent
+      virtualenv: "{{ virtualenv }}"
+      virtualenv_command: "{{ virtualenv_command }}"
+
+  - import_tasks: tasks/validate_not_installed.yml
+
+  always:
+    - name: Delete virtualenv directory
+      file:
+        state: absent
+        path: "{{ virtualenv }}"
+      ignore_errors: true

@@ -1,0 +1,5 @@
+---
+ldap_admin_user: "admin"
+ldap_admin_password: "testing123!"
+ldap_root: "dc=ansible,dc=redhat"
+ldap_svc_namespace: "openldap"

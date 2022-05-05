@@ -1,0 +1,9 @@
+---
+- import_tasks: tasks/openshift_adm_prune_auth_roles.yml
+  vars:
+    test_ns: "auth-role-ns"
+    test_sa: "auth-role-sa"
+- import_tasks: tasks/openshift_adm_prune_auth_clusterroles.yml
+  vars:
+    test_ns: "auth-clusterrole-ns"
+    test_sa: "auth-clusterrole-sa"

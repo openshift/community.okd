@@ -1,0 +1,8 @@
+---
+apiVersion: ansibleopenshift.com/v1
+kind: Plugin
+metadata:
+  name: test
+spec:
+  type: module
+  name: k8s

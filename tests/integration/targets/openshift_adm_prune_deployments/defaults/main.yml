@@ -1,0 +1,4 @@
+---
+dc_name: "hello"
+deployment_ns: "prune-deployments"
+deployment_ns_2: "prune-deployments-2"

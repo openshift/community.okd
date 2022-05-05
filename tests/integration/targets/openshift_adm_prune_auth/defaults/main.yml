@@ -1,0 +1,25 @@
+---
+pod_name: "pod-prune"
+role_definition:
+  - name: pod-list
+    labels:
+      action: list
+    verbs:
+      - list
+    role_binding:
+      api_version: rbac.authorization.k8s.io/v1
+  - name: pod-create
+    labels:
+      action: create
+    verbs:
+      - create
+      - get
+    role_binding:
+      api_version: authorization.openshift.io/v1
+  - name: pod-delete
+    labels:
+      action: delete
+    verbs:
+      - delete
+    role_binding:
+      api_version: rbac.authorization.k8s.io/v1

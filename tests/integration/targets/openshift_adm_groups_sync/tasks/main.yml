@@ -1,0 +1,24 @@
+---
+- name: Configure LDAP Server
+  import_tasks: tasks/configure_ldapserver.yml
+
+- block:
+    - debug: var=ldap_credentials
+    - include_tasks: "tasks/rfc2307.yml"
+    - include_tasks: "tasks/activeDirectory.yml"
+    - include_tasks: "tasks/augmentedActiveDirectory.yml"
+
+  vars:
+    ldap_server_uri: "{{ ldap_credentials.url }}"
+    ldap_bind_dn: "{{ ldap_credentials.bind_dn }}"
+    ldap_bind_pw: "{{ ldap_credentials.bind_pw }}"
+  when:
+    - ping_ldap is defined
+    - ping_ldap.found | default(False) | bool
+
+- name: Delete openldap namespace
+  community.okd.k8s:
+    kind: Namespace
+    name: "{{ ldap_svc_namespace }}"
+    state: absent
+  ignore_errors: true

@@ -1,0 +1,98 @@
+---
+- block:
+    - name: 'Configure htpasswd secret (username: test, password: testing123)'
+      community.okd.k8s:
+        definition:
+          apiVersion: v1
+          kind: Secret
+          metadata:
+            name: "{{ htpass_secret }}"
+            namespace: openshift-config
+          stringData:
+            htpasswd: "test:$2y$05$zgjczyp96jCIp//CGmnWiefhd7G3l54IdsZoV4IwA1UWtd04L0lE2"
+
+    - name: Configure htpasswd identity provider
+      community.okd.k8s:
+        definition:
+          apiVersion: config.openshift.io/v1
+          kind: OAuth
+          metadata:
+            name: cluster
+          spec:
+            identityProviders:
+            - name: htpasswd_provider
+              mappingMethod: claim
+              type: HTPasswd
+              htpasswd:
+                fileData:
+                  name: "{{ htpass_secret }}"
+
+    - name: Create ClusterRoleBinding for test user
+      community.okd.k8s:
+        definition:
+          apiVersion: rbac.authorization.k8s.io/v1
+          kind: ClusterRoleBinding
+          metadata:
+            name: test-cluster-reader
+          roleRef:
+            apiGroup: rbac.authorization.k8s.io
+            kind: ClusterRole
+            name: cluster-reader
+          subjects:
+            - apiGroup: rbac.authorization.k8s.io
+              kind: User
+              name: test
+
+    - name: Retrieve cluster info
+      kubernetes.core.k8s_cluster_info:
+      register: k8s_cluster
+
+    - name: set openshift host value
+      set_fact:
+        openshift_host: "{{ k8s_cluster.connection.host }}"
+
+    - name: Log in (obtain access token)
+      community.okd.openshift_auth:
+        username: test
+        password: testing123
+        host: '{{ openshift_host }}'
+        verify_ssl: false
+      register: openshift_auth_results
+
+    - name: Get the test User
+      kubernetes.core.k8s_info:
+        api_key: "{{ openshift_auth_results.openshift_auth.api_key }}"
+        host: '{{ openshift_host }}'
+        verify_ssl: false
+        kind: User
+        api_version: user.openshift.io/v1
+        name: test
+      register: user_result
+
+    - name: assert that the user was found
+      assert:
+        that: (user_result.resources | length) == 1
+
+  always:
+    - name: If login succeeded, try to log out (revoke access token)
+      when: openshift_auth_results.openshift_auth.api_key is defined
+      community.okd.openshift_auth:
+        state: absent
+        api_key: "{{ openshift_auth_results.openshift_auth.api_key }}"
+        host: '{{ openshift_host }}'
+        verify_ssl: false
+
+    - name: Get the test user
+      kubernetes.core.k8s_info:
+        api_key: "{{ openshift_auth_results.openshift_auth.api_key }}"
+        host: '{{ openshift_host }}'
+        verify_ssl: false
+        kind: User
+        name: test
+        api_version: user.openshift.io/v1
+      register: failed_user_result
+      ignore_errors: true
+    # TODO(fabianvf) determine why token is not being rejected, maybe add more info to return
+    # - name: assert that the user was not found
+    #   assert:
+    #     that: (failed_user_result.resources | length) == 0

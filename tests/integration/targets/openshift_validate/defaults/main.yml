@@ -1,0 +1,4 @@
+---
+test_namespace: "validate"
+virtualenv: "~/openshift-validate"
+virtualenv_command: "{{ ansible_playbook_python }} -m virtualenv"

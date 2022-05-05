@@ -1,0 +1,4 @@
+openshift_registry_info
+openshift_import_image
+openshift_adm_prune_images
+k8s

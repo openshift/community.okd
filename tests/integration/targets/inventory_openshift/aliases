@@ -1,0 +1,4 @@
+context/target
+k8s
+inventory/openshift
+connection/oc

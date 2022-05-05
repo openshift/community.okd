@@ -1,0 +1,120 @@
+---
+- kubernetes.core.k8s_info:
+    kind: Node
+  register: result
+
+- block:
+    - set_fact:
+        nodeip: "{{ result.resources.0.status.addresses | selectattr('type', 'equalto', 'InternalIP') | first }}"
+
+    - name: Ensure namespace
+      community.okd.k8s:
+        kind: Namespace
+        name: '{{ ldap_svc_namespace }}'
+
+    - name: Create Open LDAP Deployment
+      community.okd.k8s:
+        namespace: '{{ ldap_svc_namespace }}'
+        wait: yes
+        definition:
+          apiVersion: apps/v1
+          kind: Deployment
+          metadata:
+            name: ldap
+            labels:
+              app.kubernetes.io/name: openldap
+          spec:
+            selector:
+              matchLabels:
+                app.kubernetes.io/name: openldap
+            replicas: 1
+            template:
+              metadata:
+                labels:
+                  app.kubernetes.io/name: openldap
+              spec:
+                containers:
+                  - name: openldap
+                    image: bitnami/openldap:latest
+                    imagePullPolicy: "IfNotPresent"
+                    env:
+                      - name: LDAP_ADMIN_USERNAME
+                        value: "{{ ldap_admin_user }}"
+                      - name: LDAP_ADMIN_PASSWORD
+                        value: "{{ ldap_admin_password }}"
+                      - name: LDAP_USERS
+                        value: "ansible"
+                      - name: LDAP_PASSWORDS
+                        value: "ansible123"
+                      - name: LDAP_ROOT
+                        value: "{{ ldap_root }}"
+                    ports:
+                      - name: tcp-ldap
+                        containerPort: 1389
+
+    - name: Create Service for Open ldap
+      community.okd.k8s:
+        namespace: '{{ ldap_svc_namespace }}'
+        wait: yes
+        definition:
+          apiVersion: v1
+          kind: Service
+          metadata:
+            name: ldap-ex
+            labels:
+              app.kubernetes.io/name: openldap
+          spec:
+            type: ClusterIP
+            ports:
+              - name: tcp-ldap
+                port: 1389
+                targetPort: tcp-ldap
+            selector:
+              app.kubernetes.io/name: openldap
+
+    - name: Expose node port for the application
+      community.okd.k8s:
+        namespace: "{{ ldap_svc_namespace }}"
+        wait: yes
+        definition:
+          apiVersion: v1
+          kind: Service
+          metadata:
+            labels:
+              app.kubernetes.io/name: openldap
+            name: ldap-ex-nodeport
+          spec:
+            externalTrafficPolicy: Cluster
+            internalTrafficPolicy: Cluster
+            ports:
+            - nodePort: 32557
+              port: 1389
+              protocol: TCP
+              targetPort: 1389
+            selector:
+              app.kubernetes.io/name: openldap
+            type: NodePort
+          status:
+            loadBalancer: {}
+
+    - name: Set LDAP Common facts
+      set_fact:
+        ldap_credentials:
+          url: "ldap://{{ nodeip.address }}:32557"
+          bind_dn: "cn={{ ldap_admin_user }},{{ ldap_root }}"
+          bind_pw: "{{ ldap_admin_password }}"
+
+    - name: Test existing user from LDAP server
+      openshift_ldap_entry_info:
+        bind_dn: "{{ ldap_credentials.bind_dn }}"
+        bind_pw: "{{ ldap_credentials.bind_pw }}"
+        dn: "ou=users,{{ ldap_root }}"
+        server_uri: "{{ ldap_credentials.url }}"
+      ignore_errors: true
+      register: ping_ldap
+      retries: 30
+      delay: 10
+      until: ping_ldap.found
+
+  when:
+    - result.resources | length == 1

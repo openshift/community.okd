@@ -1,0 +1,5 @@
+---
+plugin: community.okd.openshift
+connections:
+  - namespaces:
+    - inventory

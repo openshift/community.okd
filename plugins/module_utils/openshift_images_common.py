@@ -11,7 +11,7 @@ from ansible.module_utils.six import iteritems
 
 
 def get_image_blobs(image):
-    blobs = [layer["image"] for layer in image["dockerImageLayers"]]
+    blobs = [layer.get("image") or layer.get("name") for layer in image["dockerImageLayers"]]
     docker_image_metadata = image.get("dockerImageMetadata")
     if not docker_image_metadata:
         return blobs, "failed to read metadata for image %s" % image["metadata"]["name"]
@@ -53,7 +53,7 @@ class OpenShiftAnalyzeImageStream(object):
         if error:
             return error
 
-        if len(result['hostname']) == 0 or len(result['namespace']) == 0:
+        if not result['hostname'] or not result['namespace']:
             # image reference does not match hostname/namespace/name pattern - skipping
             return None
 
