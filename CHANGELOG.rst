@@ -5,6 +5,29 @@ OKD Collection Release Notes
 .. contents:: Topics
 
 
+v2.2.0
+======
+
+Minor Changes
+-------------
+
+- add action groups to runtime.yml (https://github.com/openshift/community.okd/issues/41).
+
+Bugfixes
+--------
+
+- fix ocp auth failing against cluster api url with trailing slash (https://github.com/openshift/community.okd/issues/139)
+
+New Modules
+-----------
+
+- openshift_adm_migrate_template_instances - Update TemplateInstances to point to the latest group-version-kinds
+- openshift_adm_prune_auth - Removes references to the specified roles, clusterroles, users, and groups
+- openshift_adm_prune_deployments - Remove old completed and failed deployment configs
+- openshift_adm_prune_images - Remove unreferenced images
+- openshift_import_image - Import the latest image information from a tag in a container image registry.
+- openshift_registry_info - Display information about the integrated registry.
+
 v2.1.0
 ======
 

@@ -1,14 +1,14 @@
-.. _community.okd.openshift_process_module:
+.. _community.okd.openshift_adm_migrate_template_instances_module:
 
 
-*******************************
-community.okd.openshift_process
-*******************************
+******************************************************
+community.okd.openshift_adm_migrate_template_instances
+******************************************************
 
-**Process an OpenShift template.openshift.io/v1 Template**
+**Update TemplateInstances to point to the latest group-version-kinds**
 
 
-Version added: 0.3.0
+Version added: 2.2.0
 
 .. contents::
    :local:
@@ -17,10 +17,8 @@ Version added: 0.3.0
 
 Synopsis
 --------
-- Processes a specified OpenShift template with the provided template.
-- Templates can be provided inline, from a file, or specified by name and namespace in the cluster.
-- Analogous to `oc process`.
-- For CRUD operations on Template resources themselves, see the community.okd.k8s module.
+- Update TemplateInstances to point to the latest group-version-kinds.
+- Analogous to ``oc adm migrate template-instances``.
 
 
 
@@ -30,7 +28,6 @@ The below requirements are needed on the host that executes this module.
 
 - python >= 3.6
 - kubernetes >= 12.0.0
-- PyYAML >= 3.11
 
 
 Parameters
@@ -156,24 +153,6 @@ Parameters
             <tr>
                 <td colspan="2">
                     <div class="ansibleOptionAnchor" id="parameter-"></div>
-                    <b>name</b>
-                    <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
-                    <div style="font-size: small">
-                        <span style="color: purple">string</span>
-                    </div>
-                </td>
-                <td>
-                </td>
-                <td>
-                        <div>The name of the Template to process.</div>
-                        <div>The Template must be present in the cluster.</div>
-                        <div>When provided, <em>namespace</em> is required.</div>
-                        <div>Mutually exclusive with <em>resource_definition</em> or <em>src</em></div>
-                </td>
-            </tr>
-            <tr>
-                <td colspan="2">
-                    <div class="ansibleOptionAnchor" id="parameter-"></div>
                     <b>namespace</b>
                     <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
                     <div style="font-size: small">
@@ -184,54 +163,7 @@ Parameters
                 </td>
                 <td>
                         <div>The namespace that the template can be found in.</div>
-                </td>
-            </tr>
-            <tr>
-                <td colspan="2">
-                    <div class="ansibleOptionAnchor" id="parameter-"></div>
-                    <b>namespace_target</b>
-                    <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
-                    <div style="font-size: small">
-                        <span style="color: purple">-</span>
-                    </div>
-                </td>
-                <td>
-                </td>
-                <td>
-                        <div>The namespace that resources should be created, updated, or deleted in.</div>
-                        <div>Only used when <em>state</em> is present or absent.</div>
-                </td>
-            </tr>
-            <tr>
-                <td colspan="2">
-                    <div class="ansibleOptionAnchor" id="parameter-"></div>
-                    <b>parameter_file</b>
-                    <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
-                    <div style="font-size: small">
-                        <span style="color: purple">string</span>
-                    </div>
-                </td>
-                <td>
-                </td>
-                <td>
-                        <div>A path to a file containing template parameter values to override/set values in the Template.</div>
-                        <div>Corresponds to the `--param-file` argument to oc process.</div>
-                </td>
-            </tr>
-            <tr>
-                <td colspan="2">
-                    <div class="ansibleOptionAnchor" id="parameter-"></div>
-                    <b>parameters</b>
-                    <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
-                    <div style="font-size: small">
-                        <span style="color: purple">dictionary</span>
-                    </div>
-                </td>
-                <td>
-                </td>
-                <td>
-                        <div>A set of key: value pairs that will be used to set/override values in the Template.</div>
-                        <div>Corresponds to the `--param` argument to oc process.</div>
+                        <div>If no namespace if specified, migrate objects in all namespaces.</div>
                 </td>
             </tr>
             <tr>
@@ -358,63 +290,6 @@ Parameters
                 </td>
             </tr>
 
-            <tr>
-                <td colspan="2">
-                    <div class="ansibleOptionAnchor" id="parameter-"></div>
-                    <b>resource_definition</b>
-                    <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
-                    <div style="font-size: small">
-                        <span style="color: purple">-</span>
-                    </div>
-                </td>
-                <td>
-                </td>
-                <td>
-                        <div>Provide a valid YAML definition (either as a string, list, or dict) for an object when creating or updating.</div>
-                        <div>NOTE: <em>kind</em>, <em>api_version</em>, <em>name</em>, and <em>namespace</em> will be overwritten by corresponding values found in the provided <em>resource_definition</em>.</div>
-                        <div style="font-size: small; color: darkgreen"><br/>aliases: definition, inline</div>
-                </td>
-            </tr>
-            <tr>
-                <td colspan="2">
-                    <div class="ansibleOptionAnchor" id="parameter-"></div>
-                    <b>src</b>
-                    <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
-                    <div style="font-size: small">
-                        <span style="color: purple">path</span>
-                    </div>
-                </td>
-                <td>
-                </td>
-                <td>
-                        <div>Provide a path to a file containing a valid YAML definition of an object or objects to be created or updated. Mutually exclusive with <em>resource_definition</em>. NOTE: <em>kind</em>, <em>api_version</em>, <em>name</em>, and <em>namespace</em> will be overwritten by corresponding values found in the configuration read in from the <em>src</em> file.</div>
-                        <div>Reads from the local file system. To read from the Ansible controller&#x27;s file system, including vaulted files, use the file lookup plugin or template lookup plugin, combined with the from_yaml filter, and pass the result to <em>resource_definition</em>. See Examples below.</div>
-                        <div>Mutually exclusive with <em>template</em> in case of <span class='module'>kubernetes.core.k8s</span> module.</div>
-                </td>
-            </tr>
-            <tr>
-                <td colspan="2">
-                    <div class="ansibleOptionAnchor" id="parameter-"></div>
-                    <b>state</b>
-                    <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
-                    <div style="font-size: small">
-                        <span style="color: purple">string</span>
-                    </div>
-                </td>
-                <td>
-                        <ul style="margin: 0; padding: 0"><b>Choices:</b>
-                                    <li>absent</li>
-                                    <li>present</li>
-                                    <li><div style="color: blue"><b>rendered</b>&nbsp;&larr;</div></li>
-                        </ul>
-                </td>
-                <td>
-                        <div>Determines what to do with the rendered Template.</div>
-                        <div>The state <em>rendered</em> will render the Template based on the provided parameters, and return the rendered objects in the <em>resources</em> field. These can then be referenced in future tasks.</div>
-                        <div>The state <em>present</em> will cause the resources in the rendered Template to be created if they do not already exist, and patched if they do.</div>
-                        <div>The state <em>absent</em> will delete the resources in the rendered Template.</div>
-                </td>
-            </tr>
             <tr>
                 <td colspan="2">
                     <div class="ansibleOptionAnchor" id="parameter-"></div>
@@ -602,47 +477,14 @@ Examples
 
 .. code-block:: yaml
 
-    - name: Process a template in the cluster
-      community.okd.openshift_process:
-        name: nginx-example
-        namespace: openshift # only needed if using a template already on the server
-        parameters:
-          NAMESPACE: openshift
-          NAME: test123
-        state: rendered
-      register: result
+    - name: Migrate TemplateInstances in namespace=test
+        community.okd.openshift_adm_migrate_template_instances:
+          namespace: test
+        register: _result
 
-    - name: Create the rendered resources using apply
-      community.okd.k8s:
-        namespace: default
-        definition: '{{ item }}'
-        wait: yes
-        apply: yes
-      loop: '{{ result.resources }}'
-
-    - name: Process a template with parameters from an env file and create the resources
-      community.okd.openshift_process:
-        name: nginx-example
-        namespace: openshift
-        namespace_target: default
-        parameter_file: 'files/nginx.env'
-        state: present
-        wait: yes
-
-    - name: Process a local template and create the resources
-      community.okd.openshift_process:
-        src: files/example-template.yaml
-        parameter_file: files/example.env
-        namespace_target: default
-        state: present
-
-    - name: Process a local template, delete the resources, and wait for them to terminate
-      community.okd.openshift_process:
-        src: files/example-template.yaml
-        parameter_file: files/example.env
-        namespace_target: default
-        state: absent
-        wait: yes
+      - name: Migrate TemplateInstances in all namespaces
+        community.okd.openshift_adm_migrate_template_instances:
+        register: _result
 
 
 
@@ -654,342 +496,28 @@ Common return values are documented `here <https://docs.ansible.com/ansible/late
 
     <table border=0 cellpadding=0 class="documentation-table">
         <tr>
-            <th colspan="3">Key</th>
+            <th colspan="1">Key</th>
             <th>Returned</th>
             <th width="100%">Description</th>
         </tr>
             <tr>
-                <td colspan="3">
-                    <div class="ansibleOptionAnchor" id="return-"></div>
-                    <b>resources</b>
-                    <a class="ansibleOptionLink" href="#return-" title="Permalink to this return value"></a>
-                    <div style="font-size: small">
-                      <span style="color: purple">complex</span>
-                    </div>
-                </td>
-                <td>on success when state is rendered</td>
-                <td>
-                            <div>The rendered resources defined in the Template</div>
-                    <br/>
-                </td>
-            </tr>
-                                <tr>
-                    <td class="elbow-placeholder">&nbsp;</td>
-                <td colspan="2">
-                    <div class="ansibleOptionAnchor" id="return-"></div>
-                    <b>apiVersion</b>
-                    <a class="ansibleOptionLink" href="#return-" title="Permalink to this return value"></a>
-                    <div style="font-size: small">
-                      <span style="color: purple">string</span>
-                    </div>
-                </td>
-                <td>success</td>
-                <td>
-                            <div>The versioned schema of this representation of an object.</div>
-                    <br/>
-                </td>
-            </tr>
-            <tr>
-                    <td class="elbow-placeholder">&nbsp;</td>
-                <td colspan="2">
-                    <div class="ansibleOptionAnchor" id="return-"></div>
-                    <b>kind</b>
-                    <a class="ansibleOptionLink" href="#return-" title="Permalink to this return value"></a>
-                    <div style="font-size: small">
-                      <span style="color: purple">string</span>
-                    </div>
-                </td>
-                <td>success</td>
-                <td>
-                            <div>Represents the REST resource this object represents.</div>
-                    <br/>
-                </td>
-            </tr>
-            <tr>
-                    <td class="elbow-placeholder">&nbsp;</td>
-                <td colspan="2">
-                    <div class="ansibleOptionAnchor" id="return-"></div>
-                    <b>metadata</b>
-                    <a class="ansibleOptionLink" href="#return-" title="Permalink to this return value"></a>
-                    <div style="font-size: small">
-                      <span style="color: purple">complex</span>
-                    </div>
-                </td>
-                <td>success</td>
-                <td>
-                            <div>Standard object metadata. Includes name, namespace, annotations, labels, etc.</div>
-                    <br/>
-                </td>
-            </tr>
-                                <tr>
-                    <td class="elbow-placeholder">&nbsp;</td>
-                    <td class="elbow-placeholder">&nbsp;</td>
                 <td colspan="1">
-                    <div class="ansibleOptionAnchor" id="return-"></div>
-                    <b>name</b>
-                    <a class="ansibleOptionLink" href="#return-" title="Permalink to this return value"></a>
-                    <div style="font-size: small">
-                      <span style="color: purple">string</span>
-                    </div>
-                </td>
-                <td></td>
-                <td>
-                            <div>The name of the resource</div>
-                    <br/>
-                </td>
-            </tr>
-            <tr>
-                    <td class="elbow-placeholder">&nbsp;</td>
-                    <td class="elbow-placeholder">&nbsp;</td>
-                <td colspan="1">
-                    <div class="ansibleOptionAnchor" id="return-"></div>
-                    <b>namespace</b>
-                    <a class="ansibleOptionLink" href="#return-" title="Permalink to this return value"></a>
-                    <div style="font-size: small">
-                      <span style="color: purple">string</span>
-                    </div>
-                </td>
-                <td></td>
-                <td>
-                            <div>The namespace of the resource</div>
-                    <br/>
-                </td>
-            </tr>
-
-            <tr>
-                    <td class="elbow-placeholder">&nbsp;</td>
-                <td colspan="2">
-                    <div class="ansibleOptionAnchor" id="return-"></div>
-                    <b>spec</b>
-                    <a class="ansibleOptionLink" href="#return-" title="Permalink to this return value"></a>
-                    <div style="font-size: small">
-                      <span style="color: purple">dictionary</span>
-                    </div>
-                </td>
-                <td>success</td>
-                <td>
-                            <div>Specific attributes of the object. Will vary based on the <em>api_version</em> and <em>kind</em>.</div>
-                    <br/>
-                </td>
-            </tr>
-            <tr>
-                    <td class="elbow-placeholder">&nbsp;</td>
-                <td colspan="2">
-                    <div class="ansibleOptionAnchor" id="return-"></div>
-                    <b>status</b>
-                    <a class="ansibleOptionLink" href="#return-" title="Permalink to this return value"></a>
-                    <div style="font-size: small">
-                      <span style="color: purple">dictionary</span>
-                    </div>
-                </td>
-                <td>success</td>
-                <td>
-                            <div>Current status details for the object.</div>
-                    <br/>
-                </td>
-            </tr>
-                                <tr>
-                    <td class="elbow-placeholder">&nbsp;</td>
-                    <td class="elbow-placeholder">&nbsp;</td>
-                <td colspan="1">
-                    <div class="ansibleOptionAnchor" id="return-"></div>
-                    <b>conditions</b>
-                    <a class="ansibleOptionLink" href="#return-" title="Permalink to this return value"></a>
-                    <div style="font-size: small">
-                      <span style="color: purple">complex</span>
-                    </div>
-                </td>
-                <td></td>
-                <td>
-                            <div>Array of status conditions for the object. Not guaranteed to be present</div>
-                    <br/>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td colspan="3">
                     <div class="ansibleOptionAnchor" id="return-"></div>
                     <b>result</b>
                     <a class="ansibleOptionLink" href="#return-" title="Permalink to this return value"></a>
                     <div style="font-size: small">
-                      <span style="color: purple">complex</span>
-                    </div>
-                </td>
-                <td>on success when state is present or absent</td>
-                <td>
-                            <div>The created, patched, or otherwise present object. Will be empty in the case of a deletion.</div>
-                    <br/>
-                </td>
-            </tr>
-                                <tr>
-                    <td class="elbow-placeholder">&nbsp;</td>
-                <td colspan="2">
-                    <div class="ansibleOptionAnchor" id="return-"></div>
-                    <b>apiVersion</b>
-                    <a class="ansibleOptionLink" href="#return-" title="Permalink to this return value"></a>
-                    <div style="font-size: small">
-                      <span style="color: purple">string</span>
+                      <span style="color: purple">list</span>
+                       / <span style="color: purple">elements=dictionary</span>
                     </div>
                 </td>
                 <td>success</td>
                 <td>
-                            <div>The versioned schema of this representation of an object.</div>
-                    <br/>
-                </td>
-            </tr>
-            <tr>
-                    <td class="elbow-placeholder">&nbsp;</td>
-                <td colspan="2">
-                    <div class="ansibleOptionAnchor" id="return-"></div>
-                    <b>duration</b>
-                    <a class="ansibleOptionLink" href="#return-" title="Permalink to this return value"></a>
-                    <div style="font-size: small">
-                      <span style="color: purple">integer</span>
-                    </div>
-                </td>
-                <td>when <code>wait</code> is true</td>
-                <td>
-                            <div>elapsed time of task in seconds</div>
+                            <div>List with all TemplateInstances that have been migrated.</div>
                     <br/>
                         <div style="font-size: smaller"><b>Sample:</b></div>
-                        <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">48</div>
+                        <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;apiVersion&#x27;: &#x27;template.openshift.io/v1&#x27;, &#x27;kind&#x27;: &#x27;TemplateInstance&#x27;, &#x27;metadata&#x27;: {&#x27;creationTimestamp&#x27;: &#x27;2021-11-10T11:12:09Z&#x27;, &#x27;finalizers&#x27;: [&#x27;template.openshift.io/finalizer&#x27;], &#x27;managedFields&#x27;: [{&#x27;apiVersion&#x27;: &#x27;template.openshift.io/v1&#x27;, &#x27;fieldsType&#x27;: &#x27;FieldsV1&#x27;, &#x27;fieldsV1&#x27;: {&#x27;f:spec&#x27;: {&#x27;f:template&#x27;: {&#x27;f:metadata&#x27;: {&#x27;f:name&#x27;: {}}, &#x27;f:objects&#x27;: {}, &#x27;f:parameters&#x27;: {}}}}, &#x27;manager&#x27;: &#x27;kubectl-create&#x27;, &#x27;operation&#x27;: &#x27;Update&#x27;, &#x27;time&#x27;: &#x27;2021-11-10T11:12:09Z&#x27;}, {&#x27;apiVersion&#x27;: &#x27;template.openshift.io/v1&#x27;, &#x27;fieldsType&#x27;: &#x27;FieldsV1&#x27;, &#x27;fieldsV1&#x27;: {&#x27;f:metadata&#x27;: {&#x27;f:finalizers&#x27;: {&#x27;.&#x27;: {}, &#x27;v:&quot;template.openshift.io/finalizer&quot;&#x27;: {}}}, &#x27;f:status&#x27;: {&#x27;f:conditions&#x27;: {}}}, &#x27;manager&#x27;: &#x27;openshift-controller-manager&#x27;, &#x27;operation&#x27;: &#x27;Update&#x27;, &#x27;time&#x27;: &#x27;2021-11-10T11:12:09Z&#x27;}, {&#x27;apiVersion&#x27;: &#x27;template.openshift.io/v1&#x27;, &#x27;fieldsType&#x27;: &#x27;FieldsV1&#x27;, &#x27;fieldsV1&#x27;: {&#x27;f:status&#x27;: {&#x27;f:objects&#x27;: {}}}, &#x27;manager&#x27;: &#x27;OpenAPI-Generator&#x27;, &#x27;operation&#x27;: &#x27;Update&#x27;, &#x27;time&#x27;: &#x27;2021-11-10T11:12:33Z&#x27;}], &#x27;name&#x27;: &#x27;demo&#x27;, &#x27;namespace&#x27;: &#x27;test&#x27;, &#x27;resourceVersion&#x27;: &#x27;545370&#x27;, &#x27;uid&#x27;: &#x27;09b795d7-7f07-4d94-bf0f-2150ee66f88d&#x27;}, &#x27;spec&#x27;: {&#x27;requester&#x27;: {&#x27;groups&#x27;: [&#x27;system:masters&#x27;, &#x27;system:authenticated&#x27;], &#x27;username&#x27;: &#x27;system:admin&#x27;}, &#x27;template&#x27;: {&#x27;metadata&#x27;: {&#x27;creationTimestamp&#x27;: None, &#x27;name&#x27;: &#x27;template&#x27;}, &#x27;objects&#x27;: [{&#x27;apiVersion&#x27;: &#x27;v1&#x27;, &#x27;kind&#x27;: &#x27;Secret&#x27;, &#x27;metadata&#x27;: {&#x27;labels&#x27;: {&#x27;foo&#x27;: &#x27;bar&#x27;}, &#x27;name&#x27;: &#x27;secret&#x27;}}, {&#x27;apiVersion&#x27;: &#x27;apps/v1&#x27;, &#x27;kind&#x27;: &#x27;Deployment&#x27;, &#x27;metadata&#x27;: {&#x27;name&#x27;: &#x27;deployment&#x27;}, &#x27;spec&#x27;: {&#x27;replicas&#x27;: 0, &#x27;selector&#x27;: {&#x27;matchLabels&#x27;: {&#x27;key&#x27;: &#x27;value&#x27;}}, &#x27;template&#x27;: {&#x27;metadata&#x27;: {&#x27;labels&#x27;: {&#x27;key&#x27;: &#x27;value&#x27;}}, &#x27;spec&#x27;: {&#x27;containers&#x27;: [{&#x27;image&#x27;: &#x27;k8s.gcr.io/e2e-test-images/agnhost:2.32&#x27;, &#x27;name&#x27;: &#x27;hello-openshift&#x27;}]}}}}, {&#x27;apiVersion&#x27;: &#x27;v1&#x27;, &#x27;kind&#x27;: &#x27;Route&#x27;, &#x27;metadata&#x27;: {&#x27;name&#x27;: &#x27;route&#x27;}, &#x27;spec&#x27;: {&#x27;to&#x27;: {&#x27;name&#x27;: &#x27;foo&#x27;}}}], &#x27;parameters&#x27;: [{&#x27;name&#x27;: &#x27;NAME&#x27;, &#x27;value&#x27;: &#x27;${NAME}&#x27;}]}}, &#x27;status&#x27;: {&#x27;conditions&#x27;: [{&#x27;lastTransitionTime&#x27;: &#x27;2021-11-10T11:12:09Z&#x27;, &#x27;message&#x27;: &#x27;&#x27;, &#x27;reason&#x27;: &#x27;Created&#x27;, &#x27;status&#x27;: &#x27;True&#x27;, &#x27;type&#x27;: &#x27;Ready&#x27;}], &#x27;objects&#x27;: [{&#x27;ref&#x27;: {&#x27;apiVersion&#x27;: &#x27;v1&#x27;, &#x27;kind&#x27;: &#x27;Secret&#x27;, &#x27;name&#x27;: &#x27;secret&#x27;, &#x27;namespace&#x27;: &#x27;test&#x27;, &#x27;uid&#x27;: &#x27;33fad364-6d47-4f9c-9e51-92cba5602a57&#x27;}}, {&#x27;ref&#x27;: {&#x27;apiVersion&#x27;: &#x27;apps/v1&#x27;, &#x27;kind&#x27;: &#x27;Deployment&#x27;, &#x27;name&#x27;: &#x27;deployment&#x27;, &#x27;namespace&#x27;: &#x27;test&#x27;, &#x27;uid&#x27;: &#x27;3b527f88-42a1-4811-9e2f-baad4e4d8807&#x27;}}, {&#x27;ref&#x27;: {&#x27;apiVersion&#x27;: &#x27;route.openshift.io/v1.Route&#x27;, &#x27;kind&#x27;: &#x27;Route&#x27;, &#x27;name&#x27;: &#x27;route&#x27;, &#x27;namespace&#x27;: &#x27;test&#x27;, &#x27;uid&#x27;: &#x27;5b5411de-8769-4e27-ba52-6781630e4008&#x27;}}]}}, &#x27;...&#x27;]</div>
                 </td>
             </tr>
-            <tr>
-                    <td class="elbow-placeholder">&nbsp;</td>
-                <td colspan="2">
-                    <div class="ansibleOptionAnchor" id="return-"></div>
-                    <b>items</b>
-                    <a class="ansibleOptionLink" href="#return-" title="Permalink to this return value"></a>
-                    <div style="font-size: small">
-                      <span style="color: purple">list</span>
-                    </div>
-                </td>
-                <td>when resource_definition or src contains list of objects</td>
-                <td>
-                            <div>Returned only when multiple yaml documents are passed to src or resource_definition</div>
-                    <br/>
-                </td>
-            </tr>
-            <tr>
-                    <td class="elbow-placeholder">&nbsp;</td>
-                <td colspan="2">
-                    <div class="ansibleOptionAnchor" id="return-"></div>
-                    <b>kind</b>
-                    <a class="ansibleOptionLink" href="#return-" title="Permalink to this return value"></a>
-                    <div style="font-size: small">
-                      <span style="color: purple">string</span>
-                    </div>
-                </td>
-                <td>success</td>
-                <td>
-                            <div>Represents the REST resource this object represents.</div>
-                    <br/>
-                </td>
-            </tr>
-            <tr>
-                    <td class="elbow-placeholder">&nbsp;</td>
-                <td colspan="2">
-                    <div class="ansibleOptionAnchor" id="return-"></div>
-                    <b>metadata</b>
-                    <a class="ansibleOptionLink" href="#return-" title="Permalink to this return value"></a>
-                    <div style="font-size: small">
-                      <span style="color: purple">complex</span>
-                    </div>
-                </td>
-                <td>success</td>
-                <td>
-                            <div>Standard object metadata. Includes name, namespace, annotations, labels, etc.</div>
-                    <br/>
-                </td>
-            </tr>
-                                <tr>
-                    <td class="elbow-placeholder">&nbsp;</td>
-                    <td class="elbow-placeholder">&nbsp;</td>
-                <td colspan="1">
-                    <div class="ansibleOptionAnchor" id="return-"></div>
-                    <b>name</b>
-                    <a class="ansibleOptionLink" href="#return-" title="Permalink to this return value"></a>
-                    <div style="font-size: small">
-                      <span style="color: purple">string</span>
-                    </div>
-                </td>
-                <td></td>
-                <td>
-                            <div>The name of the resource</div>
-                    <br/>
-                </td>
-            </tr>
-            <tr>
-                    <td class="elbow-placeholder">&nbsp;</td>
-                    <td class="elbow-placeholder">&nbsp;</td>
-                <td colspan="1">
-                    <div class="ansibleOptionAnchor" id="return-"></div>
-                    <b>namespace</b>
-                    <a class="ansibleOptionLink" href="#return-" title="Permalink to this return value"></a>
-                    <div style="font-size: small">
-                      <span style="color: purple">string</span>
-                    </div>
-                </td>
-                <td></td>
-                <td>
-                            <div>The namespace of the resource</div>
-                    <br/>
-                </td>
-            </tr>
-
-            <tr>
-                    <td class="elbow-placeholder">&nbsp;</td>
-                <td colspan="2">
-                    <div class="ansibleOptionAnchor" id="return-"></div>
-                    <b>spec</b>
-                    <a class="ansibleOptionLink" href="#return-" title="Permalink to this return value"></a>
-                    <div style="font-size: small">
-                      <span style="color: purple">dictionary</span>
-                    </div>
-                </td>
-                <td>success</td>
-                <td>
-                            <div>Specific attributes of the object. Will vary based on the <em>api_version</em> and <em>kind</em>.</div>
-                    <br/>
-                </td>
-            </tr>
-            <tr>
-                    <td class="elbow-placeholder">&nbsp;</td>
-                <td colspan="2">
-                    <div class="ansibleOptionAnchor" id="return-"></div>
-                    <b>status</b>
-                    <a class="ansibleOptionLink" href="#return-" title="Permalink to this return value"></a>
-                    <div style="font-size: small">
-                      <span style="color: purple">complex</span>
-                    </div>
-                </td>
-                <td>success</td>
-                <td>
-                            <div>Current status details for the object.</div>
-                    <br/>
-                </td>
-            </tr>
-                                <tr>
-                    <td class="elbow-placeholder">&nbsp;</td>
-                    <td class="elbow-placeholder">&nbsp;</td>
-                <td colspan="1">
-                    <div class="ansibleOptionAnchor" id="return-"></div>
-                    <b>conditions</b>
-                    <a class="ansibleOptionLink" href="#return-" title="Permalink to this return value"></a>
-                    <div style="font-size: small">
-                      <span style="color: purple">complex</span>
-                    </div>
-                </td>
-                <td></td>
-                <td>
-                            <div>Array of status conditions for the object. Not guaranteed to be present</div>
-                    <br/>
-                </td>
-            </tr>
-
-
     </table>
     <br/><br/>
 
@@ -1001,4 +529,4 @@ Status
 Authors
 ~~~~~~~
 
-- Fabian von Feilitzsch (@fabianvf)
+- Alina Buzachis (@alinabuzachis)

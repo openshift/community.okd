@@ -1,3 +1,0 @@
----
-minor_changes:
-  - add action groups to runtime.yml (https://github.com/openshift/community.okd/issues/41).

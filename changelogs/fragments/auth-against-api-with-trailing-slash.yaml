@@ -1,2 +1,0 @@
-bugfixes:
-  - fix ocp auth failing against cluster api url with trailing slash (https://github.com/openshift/community.okd/issues/139)
