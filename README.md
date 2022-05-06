@@ -155,6 +155,7 @@ Releases are automatically built and pushed to Ansible Galaxy for any new tag. B
     b. This README's `requirements.yml` example
     c. The `DOWNSTREAM_VERSION` in `ci/downstream.sh`
     d. The `VERSION` in `Makefile`
+    e. The version in `requirements.yml`
   1. Update the CHANGELOG:
     1. Make sure you have [`antsibull-changelog`](https://pypi.org/project/antsibull-changelog/) installed.
     1. Make sure there are fragments for all known changes in `changelogs/fragments`.
