@@ -56,6 +56,7 @@
   # ignore_errors: true
   # register: ping_ldap
 
+- include_tasks: "tasks/python-ldap-not-installed.yml"
 - include_tasks: "tasks/rfc2307.yml"
 - include_tasks: "tasks/activeDirectory.yml"
 - include_tasks: "tasks/augmentedActiveDirectory.yml"

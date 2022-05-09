@@ -267,6 +267,15 @@ class OpenshiftGroupsSync(K8sAnsibleMixin):
     def __init__(self, module):
 
         self.module = module
+        self.params = self.module.params
+        self.check_mode = self.module.check_mode
+        self.__k8s_group_api = None
+        self.__ldap_connection = None
+        self.host = None
+        self.port = None
+        self.netlocation = None
+        self.scheme = None
+        self.config = self.params.get("sync_config")
 
         if not HAS_KUBERNETES_COLLECTION:
             self.module.fail_json(
@@ -282,17 +291,7 @@ class OpenshiftGroupsSync(K8sAnsibleMixin):
 
         super(OpenshiftGroupsSync, self).__init__(self.module)
 
-        self.params = self.module.params
-        self.check_mode = self.module.check_mode
         self.client = get_api_client(self.module)
-
-        self.__k8s_group_api = None
-        self.__ldap_connection = None
-        self.host = None
-        self.port = None
-        self.netlocation = None
-        self.scheme = None
-        self.config = self.params.get("sync_config")
 
     @property
     def k8s_group_api(self):
