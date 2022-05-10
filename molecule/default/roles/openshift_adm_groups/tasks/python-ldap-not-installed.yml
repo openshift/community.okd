@@ -8,15 +8,12 @@
         test_dir: "{{ test_dir.path }}"
 
     - set_fact:
-        virtualenv: "{{ test_dir }}/virtualenv"
-
-    - set_fact:
-        virtualenv_interpreter: "{{ virtualenv }}/bin/python"
+        venv: "{{ test_dir }}/virtualenv"
 
     - pip:
         name:
           - kubernetes
-        virtualenv: "{{ virtualenv }}"
+        virtualenv: "{{ venv }}"
         virtualenv_command: "{{ virtualenv_command }}"
         virtualenv_site_packages: false
 
@@ -29,6 +26,8 @@
         config: "{{ configs.simple }}"
       register: result
       ignore_errors: true
+      vars:
+        ansible_python_interpreter: "{{ venv }}/bin/python"
 
     - name: Check that module failed gracefully
       assert:
