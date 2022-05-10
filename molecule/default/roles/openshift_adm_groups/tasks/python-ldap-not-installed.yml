@@ -9,7 +9,6 @@
 
     - set_fact:
         virtualenv: "{{ test_dir }}/virtualenv"
-        virtualenv_command: "virtualenv --python {{ ansible_python_interpreter }}"
 
     - set_fact:
         virtualenv_interpreter: "{{ virtualenv }}/bin/python"
