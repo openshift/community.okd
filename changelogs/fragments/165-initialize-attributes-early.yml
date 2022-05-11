@@ -1,0 +1,2 @@
+bugfixes:
+  - openshift_adm_groups_sync - initialize OpenshiftGroupSync attributes early to avoid Attribute error (https://github.com/openshift/community.okd/issues/155).
