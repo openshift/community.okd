@@ -22,9 +22,9 @@ __metaclass__ = type
 
 DOCUMENTATION = '''
     author:
-        - xuxinkun
+        - xuxinkun (@xuxinkun)
 
-    connection: oc
+    name: oc
 
     short_description: Execute tasks in pods running on OpenShift.
 

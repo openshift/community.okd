@@ -7,9 +7,8 @@ __metaclass__ = type
 
 DOCUMENTATION = '''
     name: openshift
-    plugin_type: inventory
     author:
-      - Chris Houseknecht <@chouseknecht>
+      - Chris Houseknecht (@chouseknecht)
 
     short_description: OpenShift inventory source
 
