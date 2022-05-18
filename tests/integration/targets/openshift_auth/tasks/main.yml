@@ -58,6 +58,9 @@
         host: '{{ openshift_host }}'
         verify_ssl: false
       register: openshift_auth_results
+      retries: 10
+      delay: 10
+      until: openshift_auth_results is successful
 
     - name: Get the test User
       kubernetes.core.k8s_info:
