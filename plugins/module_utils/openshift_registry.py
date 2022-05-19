@@ -4,6 +4,7 @@ from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
 
 import traceback
+import os
 from urllib.parse import urlparse
 
 from ansible.module_utils._text import to_native
@@ -24,13 +25,51 @@ from ansible_collections.community.okd.plugins.module_utils.openshift_docker_ima
 )
 
 try:
-    from requests import request
+    import requests
     from requests.auth import HTTPBasicAuth
     HAS_REQUESTS_MODULE = True
 except ImportError as e:
     HAS_REQUESTS_MODULE = False
     requests_import_exception = e
     REQUESTS_MODULE_ERROR = traceback.format_exc()
+
+
+def ping_docker_registry(url):
+    if not HAS_REQUESTS_MODULE:
+        return dict(
+            reached=False,
+            msg="This module requires the python 'requests' package. Try `pip install requests`.",
+            error=requests_import_exception
+        )
+
+    try:
+
+        host = urlparse(url)
+        registry = url
+        if len(host.scheme) == 0:
+            registry = "https://" + url
+
+        registry = os.path.join(registry, "v2") + "/"
+        resp = requests.get(registry, verify=False)
+        registry_version = resp.headers.get("docker-distribution-api-version")
+        code = resp.status_code
+        if not registry_version and not (code not in (401, 403) or (code >= 200 and code < 300)):
+            return dict(
+                reached=False,
+                msg="Registry responded to v2 Docker endpoint, but has no header for Docker Distribution",
+                error=resp.reason,
+                status_code=resp.status_code
+            )
+
+        return dict(
+            reached=True
+        )
+
+    except Exception as err:
+        return dict(
+            reached=False,
+            msg="registry could not be contacted at %s: %s" % (url, err)
+        )
 
 
 class OpenShiftRegistry(K8sAnsibleMixin):
@@ -112,59 +151,6 @@ class OpenShiftRegistry(K8sAnsibleMixin):
                     msg="Registry does not have a public hostname."
                 )
             else:
-                headers = {
-                    'Content-Type': 'application/json'
-                }
-                params = {
-                    'method': 'GET',
-                    'verify': False
-                }
-                if self.client.configuration.api_key:
-                    headers.update(self.client.configuration.api_key)
-                elif self.client.configuration.username and self.client.configuration.password:
-                    if not HAS_REQUESTS_MODULE:
-                        result["check"] = dict(
-                            reached=False,
-                            msg="The requests python package is missing, try `pip install requests`",
-                            error=requests_import_exception
-                        )
-                        self.exit_json(**result)
-                    params.update(
-                        dict(auth=HTTPBasicAuth(self.client.configuration.username, self.client.configuration.password))
-                    )
-
-                # verify ssl
-                host = urlparse(public_registry)
-                if len(host.scheme) == 0:
-                    registry_url = "https://" + public_registry
-
-                if registry_url.startswith("https://") and self.client.configuration.ssl_ca_cert:
-                    params.update(
-                        dict(verify=self.client.configuration.ssl_ca_cert)
-                    )
-                params.update(
-                    dict(headers=headers)
-                )
-                last_bad_status, last_bad_reason = None, None
-                for path in ("/", "/healthz"):
-                    params.update(
-                        dict(url=registry_url + path)
-                    )
-                    response = request(**params)
-                    if response.status_code == 200:
-                        result["check"] = dict(
-                            reached=True,
-                            msg="The local client can contact the integrated registry."
-                        )
-                        self.exit_json(**result)
-                    last_bad_reason = response.reason
-                    last_bad_status = response.status_code
-
-                result["check"] = dict(
-                    reached=False,
-                    msg="Unable to contact the integrated registry using local client. Status=%d, Reason=%s" % (
-                        last_bad_status, last_bad_reason
-                    )
-                )
+                result["check"] = ping_docker_registry(public_registry)
 
         self.exit_json(**result)

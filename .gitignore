@@ -16,6 +16,7 @@ changelogs/.plugin-cache.yaml
 # Temporary test files.
 tests/output
 tests/integration/cloud-config-*
+tests/integration/inventory
 
 # Ignore the ansible_collections that the Makefile generates.
 ansible_collections
