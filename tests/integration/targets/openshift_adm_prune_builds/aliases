@@ -1,0 +1,3 @@
+openshift_build
+openshift_adm_prune_builds
+k8s
