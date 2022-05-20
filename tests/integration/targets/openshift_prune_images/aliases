@@ -2,3 +2,4 @@ openshift_registry_info
 openshift_import_image
 openshift_adm_prune_images
 k8s
+disable # unable to configure private registry with openshift sno on zuul
