@@ -65,7 +65,6 @@
     - import_tasks: tasks/openshift_adm_prune_auth_roles.yml
     - import_tasks: tasks/openshift_adm_prune_deployments.yml
     - import_tasks: tasks/openshift_builds.yml
-    - import_tasks: tasks/openshift_adm_prune_builds.yml
     - import_tasks: tasks/openshift_route.yml
     - import_tasks: tasks/openshift_import_images.yml
     - import_tasks: tasks/openshift_prune_images.yml

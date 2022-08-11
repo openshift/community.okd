@@ -7,6 +7,7 @@
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
+# STARTREMOVE (downstream)
 DOCUMENTATION = r'''
 
 module: openshift_build
@@ -168,7 +169,6 @@ EXAMPLES = r'''
     state: cancelled
 '''
 
-
 RETURN = r'''
 builds:
   description:
@@ -197,7 +197,7 @@ builds:
       returned: success
       type: dict
 '''
-
+# ENDREMOVE (downstream)
 
 import copy
 

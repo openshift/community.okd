@@ -1,5 +1,0 @@
----
-build_ns: "ansible-builds"
-build_config: "ansible-start-build"
-is_name: "ansible-ruby"
-prune_build: "ansible-prune-build"
