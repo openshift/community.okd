@@ -105,21 +105,23 @@ class OpenShiftBuilds(K8sAnsibleMixin):
         for pred in predicates:
             candidates = list(filter(pred, candidates))
 
-        changed = False
+        if self.check_mode:
+            changed = len(candidates) > 0
+            self.exit_json(changed=changed, builds=candidates)
 
-        if not self.check_mode:
-            for build in candidates:
-                changed = True
-                try:
-                    name = build["metadata"]["name"]
-                    namespace = build["metadata"]["namespace"]
-                    resource.delete(name=name, namespace=namespace, body={})
-                except DynamicApiError as exc:
-                    msg = "Failed to delete Build %s/%s due to: %s" % (namespace, name, exc.body)
-                    self.fail_json(msg=msg, status=exc.status, reason=exc.reason)
-                except Exception as e:
-                    msg = "Failed to delete Build %s/%s due to: %s" % (namespace, name, to_native(e))
-                    self.fail_json(msg=msg, error=to_native(e), exception=e)
+        changed = False
+        for build in candidates:
+            changed = True
+            try:
+                name = build["metadata"]["name"]
+                namespace = build["metadata"]["namespace"]
+                resource.delete(name=name, namespace=namespace, body={})
+            except DynamicApiError as exc:
+                msg = "Failed to delete Build %s/%s due to: %s" % (namespace, name, exc.body)
+                self.fail_json(msg=msg, status=exc.status, reason=exc.reason)
+            except Exception as e:
+                msg = "Failed to delete Build %s/%s due to: %s" % (namespace, name, to_native(e))
+                self.fail_json(msg=msg, error=to_native(e), exception=e)
         self.exit_json(changed=changed, builds=candidates)
 
     def clone_build(self, name, namespace, request):
@@ -295,14 +297,9 @@ class OpenShiftBuilds(K8sAnsibleMixin):
         api_version = 'build.openshift.io/v1'
 
         namespace = self.params.get("namespace")
-        phases = []
-        possible_phases = ('new', 'pending', 'running')
-
-        for v in self.params.get("build_phases"):
-            if v.lower() not in possible_phases:
-                self.fail_json(msg="Invalid build_phase value '%s', must be one of 'new', 'pending', or 'running'." % v)
-            phases.append(v.lower())
-        phases = phases or possible_phases
+        phases = ["new", "pending", "running"]
+        if len(self.params.get("build_phases")):
+            phases = [p.lower() for p in self.params.get("build_phases")]
 
         names = []
         if self.params.get("build_name"):

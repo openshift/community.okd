@@ -122,10 +122,13 @@ options:
   build_phases:
     description:
     - List of state for build to cancel.
-    - "Possible values are: I(New), I(Pending), I(Running)"
     - Ignored when C(state=started).
     type: list
     elements: str
+    choices:
+      - New
+      - Pending
+      - Running
 
 requirements:
   - python >= 3.6
@@ -135,36 +138,36 @@ requirements:
 EXAMPLES = r'''
 # Starts build from build config default/hello-world
 - name: Starts build from build config
-  community.okd.openshift_start_build:
+  community.okd.openshift_build:
     namespace: default
     build_config_name: hello-world
 
 # Starts build from a previous build "default/hello-world-1"
 - name: Starts build from a previous build
-  community.okd.openshift_start_build:
+  community.okd.openshift_build:
     namespace: default
     build_name: hello-world-1
 
 # Cancel the build with the given name
 - name: Cancel build from default namespace
-  community.okd.openshift_cancel_build:
+  community.okd.openshift_build:
     namespace: "default"
     build_name: ruby-build-1
     state: cancelled
 
 # Cancel the named build and create a new one with the same parameters
 - name: Cancel build from default namespace and create a new one
-  community.okd.openshift_cancel_build:
+  community.okd.openshift_build:
     namespace: "default"
     build_name: ruby-build-1
     state: restarted
 
 # Cancel all builds created from 'ruby-build' build configuration that are in 'new' state
 - name: Cancel build from default namespace and create a new one
-  community.okd.openshift_cancel_build:
+  community.okd.openshift_build:
     namespace: "default"
     build_config_name: ruby-build
-    build_phase:
+    build_phases:
       - New
     state: cancelled
 '''
@@ -228,7 +231,7 @@ def argument_spec():
             wait=dict(type='bool', default=False),
             wait_sleep=dict(type='int', default=5),
             wait_timeout=dict(type='int', default=120),
-            build_phases=dict(type='list', elements='str', default=[]),
+            build_phases=dict(type='list', elements='str', default=[], choices=["New", "Pending", "Running"]),
         )
     )
     return args
