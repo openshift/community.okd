@@ -107,20 +107,19 @@ class OpenShiftBuilds(K8sAnsibleMixin):
 
         changed = False
 
-        for build in candidates:
-            changed = True
-            if self.check_mode:
-                continue
-            try:
-                name = build["metadata"]["name"]
-                namespace = build["metadata"]["namespace"]
-                resource.delete(name=name, namespace=namespace, body={})
-            except DynamicApiError as exc:
-                msg = "Failed to delete Build %s/%s due to: %s" % (namespace, name, exc.body)
-                self.fail_json(msg=msg, status=exc.status, reason=exc.reason)
-            except Exception as e:
-                msg = "Failed to delete Build %s/%s due to: %s" % (namespace, name, to_native(e))
-                self.fail_json(msg=msg, error=to_native(e), exception=e)
+        if not self.check_mode:
+            for build in candidates:
+                changed = True
+                try:
+                    name = build["metadata"]["name"]
+                    namespace = build["metadata"]["namespace"]
+                    resource.delete(name=name, namespace=namespace, body={})
+                except DynamicApiError as exc:
+                    msg = "Failed to delete Build %s/%s due to: %s" % (namespace, name, exc.body)
+                    self.fail_json(msg=msg, status=exc.status, reason=exc.reason)
+                except Exception as e:
+                    msg = "Failed to delete Build %s/%s due to: %s" % (namespace, name, to_native(e))
+                    self.fail_json(msg=msg, error=to_native(e), exception=e)
         self.exit_json(changed=changed, builds=candidates)
 
     def clone_build(self, name, namespace, request):

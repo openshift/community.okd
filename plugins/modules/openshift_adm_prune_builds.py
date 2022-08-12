@@ -14,7 +14,7 @@ module: openshift_adm_prune_builds
 
 short_description: Prune old completed and failed builds
 
-version_added: "2.2.0"
+version_added: "2.3.0"
 
 author:
   - Aubin Bikouo (@abikouo)

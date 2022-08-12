@@ -14,7 +14,7 @@ module: openshift_build
 
 short_description: Start a new build or Cancel running, pending, or new builds.
 
-version_added: "2.2.0"
+version_added: "2.3.0"
 
 author:
   - Aubin Bikouo (@abikouo)
@@ -43,12 +43,12 @@ options:
   build_name:
     description:
     - Specify the name of a build which should be re-run.
-    - Mutually exclusive with parameter C(build_config_name).
+    - Mutually exclusive with parameter I(build_config_name).
     type: str
   build_config_name:
     description:
     - Specify the name of a build config from which a new build will be run.
-    - Mutually exclusive with parameter C(build_name).
+    - Mutually exclusive with parameter I(build_name).
     type: str
   namespace:
     description:
@@ -63,12 +63,12 @@ options:
     suboptions:
       name:
         description:
-          - docker build argument name
+          - docker build argument name.
         type: str
         required: true
       value:
         description:
-          - docker build argument value
+          - docker build argument value.
         type: str
         required: true
   commit:
@@ -84,12 +84,12 @@ options:
     suboptions:
       name:
         description:
-          - environment variable name.
+          - Environment variable name.
         type: str
         required: true
       value:
         description:
-          - environment variable value
+          - Environment variable value.
         type: str
         required: true
   incremental:
@@ -102,28 +102,28 @@ options:
     type: bool
   wait:
     description:
-    - When C(state) is set to I(started), specify whether to wait for a build to complete
+    - When C(state=started), specify whether to wait for a build to complete
       and exit with a non-zero return code if the build fails.
-    - When C(state) is set to I(cancelled), specify whether to wait for a build phase to be Cancelled.
+    - When I(state=cancelled), specify whether to wait for a build phase to be Cancelled.
     default: False
     type: bool
   wait_sleep:
     description:
     - Number of seconds to sleep between checks.
-    - Ignored if C(wait) is not set.
+    - Ignored if C(wait=false).
     default: 5
     type: int
   wait_timeout:
     description:
     - How long in seconds to wait for a build to complete.
-    - Ignored if C(wait) is not set.
+    - Ignored if C(wait=false).
     default: 120
     type: int
   build_phases:
     description:
     - List of state for build to cancel.
     - "Possible values are: I(New), I(Pending), I(Running)"
-    - Ignored when C(state) is set to I(started).
+    - Ignored when C(state=started).
     type: list
     elements: str
 
