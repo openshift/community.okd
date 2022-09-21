@@ -26,6 +26,7 @@ from ansible_collections.community.okd.plugins.module_utils.openshift_ldap impor
 try:
     import ldap
     HAS_PYTHON_LDAP = True
+    PYTHON_LDAP_ERROR = None
 except ImportError as e:
     HAS_PYTHON_LDAP = False
     PYTHON_LDAP_ERROR = e
@@ -36,6 +37,8 @@ try:
         get_api_client,
     )
     HAS_KUBERNETES_COLLECTION = True
+    k8s_collection_import_exception = None
+    K8S_COLLECTION_ERROR = None
 except ImportError as e:
     HAS_KUBERNETES_COLLECTION = False
     k8s_collection_import_exception = e
@@ -225,12 +228,11 @@ class OpenshiftLDAPGroups(object):
             name = definition["metadata"]["name"]
             existing = self.get_group_info(name=name)
             if not self.module.check_mode:
+                method = "patch" if existing else "create"
                 try:
                     if existing:
-                        method = 'patch'
                         definition = self.k8s_group_api.patch(definition).to_dict()
                     else:
-                        method = 'create'
                         definition = self.k8s_group_api.create(definition).to_dict()
                 except DynamicApiError as exc:
                     self.module.fail_json(msg="Failed to %s Group '%s' due to: %s" % (method, name, exc.body))

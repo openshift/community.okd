@@ -14,6 +14,8 @@ try:
         get_api_client,
     )
     HAS_KUBERNETES_COLLECTION = True
+    k8s_collection_import_exception = None
+    K8S_COLLECTION_ERROR = None
 except ImportError as e:
     HAS_KUBERNETES_COLLECTION = False
     k8s_collection_import_exception = e
@@ -27,6 +29,7 @@ try:
     from requests import request
     from requests.auth import HTTPBasicAuth
     HAS_REQUESTS_MODULE = True
+    requests_import_exception = None
 except ImportError as e:
     HAS_REQUESTS_MODULE = False
     requests_import_exception = e
