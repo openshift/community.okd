@@ -321,6 +321,8 @@ try:
         AUTH_ARG_SPEC, WAIT_ARG_SPEC, COMMON_ARG_SPEC
     )
     HAS_KUBERNETES_COLLECTION = True
+    k8s_collection_import_exception = None
+    K8S_COLLECTION_ERROR = None
 except ImportError as e:
     HAS_KUBERNETES_COLLECTION = False
     k8s_collection_import_exception = e
@@ -542,7 +544,7 @@ class OpenShiftRoute(K8sAnsibleMixin):
 
 
 def wait_predicate(route):
-    if not(route.status and route.status.ingress):
+    if not (route.status and route.status.ingress):
         return False
     for ingress in route.status.ingress:
         match = [x for x in ingress.conditions if x.type == 'Admitted']

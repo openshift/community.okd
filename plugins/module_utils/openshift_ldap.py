@@ -56,7 +56,7 @@ def validate_ldap_sync_config(config):
             schemas.append(schema)
 
     if len(schemas) == 0:
-        return "No schema-specific config was provided, should be one of %s" % schema_list
+        return "No schema-specific config was provided, should be one of %s" % ", ".join(schema_list)
     if len(schemas) > 1:
         return "Exactly one schema-specific config is required; found (%d) %s" % (len(schemas), ','.join(schemas))
 

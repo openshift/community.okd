@@ -16,6 +16,8 @@ from ansible.module_utils._text import to_native
 try:
     from kubernetes.dynamic.exceptions import DynamicApiError, NotFoundError
     HAS_KUBERNETES_COLLECTION = True
+    k8s_collection_import_exception = None
+    K8S_COLLECTION_ERROR = None
 except ImportError as e:
     HAS_KUBERNETES_COLLECTION = False
     k8s_collection_import_exception = e
