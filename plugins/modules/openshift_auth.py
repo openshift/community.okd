@@ -173,6 +173,9 @@ from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.six.moves.urllib_parse import urlparse, parse_qs, urlencode
 from urllib.parse import urljoin
 
+from base64 import urlsafe_b64encode
+import hashlib
+
 # 3rd party imports
 try:
     import requests
@@ -209,6 +212,20 @@ K8S_AUTH_ARG_SPEC = {
     },
     'api_key': {'no_log': True},
 }
+
+
+def get_oauthaccesstoken_objectname_from_token(token_name):
+
+    """
+      openshift convert the access token to an OAuthAccessToken resource name using the algorithm
+      https://github.com/openshift/console/blob/9f352ba49f82ad693a72d0d35709961428b43b93/pkg/server/server.go#L609-L613
+    """
+
+    sha256Prefix = "sha256~"
+    content = token_name.strip(sha256Prefix)
+
+    b64encoded = urlsafe_b64encode(hashlib.sha256(content.encode()).digest()).rstrip(b'=')
+    return sha256Prefix + b64encoded.decode("utf-8")
 
 
 class OpenShiftAuthModule(AnsibleModule):
@@ -250,6 +267,8 @@ class OpenShiftAuthModule(AnsibleModule):
         # Get needed info to access authorization APIs
         self.openshift_discover()
 
+        changed = False
+        result = dict()
         if state == 'present':
             new_api_key = self.openshift_login()
             result = dict(
@@ -260,11 +279,10 @@ class OpenShiftAuthModule(AnsibleModule):
                 username=self.auth_username,
             )
         else:
-            self.openshift_logout()
-            result = dict()
+            changed = self.openshift_logout()
 
         # return k8s_auth as well for backwards compatibility
-        self.exit_json(changed=False, openshift_auth=result, k8s_auth=result)
+        self.exit_json(changed=changed, openshift_auth=result, k8s_auth=result)
 
     def openshift_discover(self):
         url = urljoin(self.con_host, '.well-known/oauth-authorization-server')
@@ -328,19 +346,29 @@ class OpenShiftAuthModule(AnsibleModule):
         return ret.json()['access_token']
 
     def openshift_logout(self):
-        url = '{0}/apis/oauth.openshift.io/v1/oauthaccesstokens/{1}'.format(self.con_host, self.auth_api_key)
+
+        name = get_oauthaccesstoken_objectname_from_token(self.auth_api_key)
         headers = {
             'Accept': 'application/json',
             'Content-Type': 'application/json',
-            'Authorization': 'Bearer {0}'.format(self.auth_api_key)
-        }
-        json = {
-            "apiVersion": "oauth.openshift.io/v1",
-            "kind": "DeleteOptions"
+            'Authorization': "Bearer {0}".format(self.auth_api_key)
         }
 
-        requests.delete(url, headers=headers, json=json, verify=self.con_verify_ca)
-        # Ignore errors, the token will time out eventually anyway
+        url = "{0}/apis/oauth.openshift.io/v1/useroauthaccesstokens/{1}".format(self.con_host, name)
+        json = {
+            "apiVersion": "oauth.openshift.io/v1",
+            "kind": "DeleteOptions",
+            "gracePeriodSeconds": 0
+        }
+
+        ret = requests.delete(url, json=json, verify=self.con_verify_ca, headers=headers)
+        if ret.status_code != 200:
+            self.fail_json(
+                msg="Couldn't delete user oauth access token '{0}' due to: {1}".format(name, ret.json().get("message")),
+                status_code=ret.status_code
+            )
+
+        return True
 
     def fail(self, msg=None):
         self.fail_json(msg=msg)
