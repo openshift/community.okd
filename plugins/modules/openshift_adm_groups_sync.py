@@ -60,6 +60,7 @@ options:
     - The elements specified in this list will override the ones specified in C(allow_groups).
     type: list
     elements: str
+    default: []
   allow_groups:
     description:
     - Allowed groups, could be openshift group name or LDAP group dn value.
@@ -67,6 +68,7 @@ options:
       like I(cn=developers,ou=groups,ou=rfc2307,dc=ansible,dc=redhat).
     type: list
     elements: str
+    default: []
 
 requirements:
   - python >= 3.6
