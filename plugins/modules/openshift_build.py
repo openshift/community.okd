@@ -129,6 +129,7 @@ options:
       - New
       - Pending
       - Running
+    default: []
 
 requirements:
   - python >= 3.6
