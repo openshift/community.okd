@@ -19,6 +19,14 @@ A collection may contain metadata that identifies these versions.
 PEP440 is the schema used to describe the versions of Ansible.
 <!--end requires_ansible-->
 
+## Python Support
+
+* Collection supports 3.6+
+
+## Kubernetes Version Support
+
+This collection supports Kubernetes versions >=1.19.
+
 ## Included content
 
 Click on the name of a plugin or module to view that content's documentation:

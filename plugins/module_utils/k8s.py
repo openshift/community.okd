@@ -7,40 +7,35 @@ import re
 import operator
 from functools import reduce
 import traceback
-from ansible_collections.kubernetes.core.plugins.module_utils.k8s.client import get_api_client
-from ansible_collections.kubernetes.core.plugins.module_utils.k8s.service import K8sService
-from ansible_collections.kubernetes.core.plugins.module_utils.k8s.core import AnsibleK8SModule
-from ansible_collections.kubernetes.core.plugins.module_utils.k8s.resource import create_definitions
-from ansible_collections.kubernetes.core.plugins.module_utils.k8s.exceptions import CoreException
-from ansible_collections.kubernetes.core.plugins.module_utils.k8s.runner import (
-    validate,
-    perform_action,
-)
+from ansible_collections.community.okd.plugins.module_utils.openshift_common import AnsibleOpenshiftModule
+
+try:
+    from ansible_collections.kubernetes.core.plugins.module_utils.k8s.runner import (
+        validate,
+        perform_action,
+    )
+    from ansible_collections.kubernetes.core.plugins.module_utils.k8s.resource import create_definitions
+    from ansible_collections.kubernetes.core.plugins.module_utils.k8s.exceptions import CoreException
+except ImportError:
+    pass
+
 from ansible.module_utils._text import to_native
 
 try:
     from kubernetes.dynamic.exceptions import DynamicApiError, NotFoundError, ForbiddenError
-    HAS_KUBERNETES_COLLECTION = True
 except ImportError as e:
-    HAS_KUBERNETES_COLLECTION = False
-    k8s_collection_import_exception = e
-    K8S_COLLECTION_ERROR = traceback.format_exc()
+    pass
 
 
 TRIGGER_ANNOTATION = 'image.openshift.io/triggers'
 TRIGGER_CONTAINER = re.compile(r"(?P<path>.*)\[((?P<index>[0-9]+)|\?\(@\.name==[\"'\\]*(?P<name>[a-z0-9]([-a-z0-9]*[a-z0-9])?))")
 
 
-class OKDRawModule(AnsibleK8SModule):
+class OKDRawModule(AnsibleOpenshiftModule):
 
     def __init__(self, **kwargs):
 
         super(OKDRawModule, self).__init__(**kwargs)
-
-        self.client = get_api_client(module=self)
-        self.fail = self.fail_json
-
-        self.svc = K8sService(self.client, self._module)
 
     @property
     def module(self):

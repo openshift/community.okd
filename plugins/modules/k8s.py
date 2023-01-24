@@ -260,8 +260,6 @@ result:
 '''
 # ENDREMOVE (downstream)
 
-from ansible_collections.kubernetes.core.plugins.module_utils.k8s.exceptions import CoreException
-
 from ansible_collections.kubernetes.core.plugins.module_utils.args_common import (
     NAME_ARG_SPEC, RESOURCE_ARG_SPEC, AUTH_ARG_SPEC, WAIT_ARG_SPEC, DELETE_OPTS_ARG_SPEC
 )
@@ -303,10 +301,7 @@ def main():
 
     from ansible_collections.community.okd.plugins.module_utils.k8s import OKDRawModule
     module = OKDRawModule(argument_spec=argspec(), supports_check_mode=True, mutually_exclusive=mutually_exclusive)
-    try:
-        module.execute_module()
-    except CoreException as e:
-        module.fail_from_exception(e)
+    module.run_module()
 
 
 if __name__ == '__main__':

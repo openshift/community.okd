@@ -151,3 +151,6 @@ plugins/modules/openshift_adm_prune_builds.py import-3.5!skip
 plugins/modules/openshift_adm_prune_builds.py compile-2.6!skip
 plugins/modules/openshift_adm_prune_builds.py compile-2.7!skip
 plugins/modules/openshift_adm_prune_builds.py compile-3.5!skip
+plugins/module_utils/openshift_common.py import-2.6!skip
+plugins/module_utils/openshift_common.py import-2.7!skip
+plugins/module_utils/openshift_common.py import-3.5!skip
