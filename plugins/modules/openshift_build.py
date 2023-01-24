@@ -205,9 +205,7 @@ builds:
 
 import copy
 
-from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.kubernetes.core.plugins.module_utils.args_common import AUTH_ARG_SPEC
-from ansible.module_utils._text import to_native
 
 
 def argument_spec():
@@ -242,7 +240,10 @@ def main():
     mutually_exclusive = [
         ('build_name', 'build_config_name'),
     ]
-    module = AnsibleModule(
+    from ansible_collections.community.okd.plugins.module_utils.openshift_builds import (
+        OpenShiftBuilds
+    )
+    module = OpenShiftBuilds(
         argument_spec=argument_spec(),
         mutually_exclusive=mutually_exclusive,
         required_one_of=[
@@ -252,20 +253,7 @@ def main():
             ]
         ],
     )
-
-    try:
-        from ansible_collections.community.okd.plugins.module_utils.openshift_builds import (
-            OpenShiftBuilds)
-
-        build = OpenShiftBuilds(module)
-        build.argspec = argument_spec
-        build.execute_module()
-    except Exception as e:
-        module.fail_json(
-            msg="An error occurred while running openshift_start_build module.",
-            error=to_native(e),
-            exception=e,
-        )
+    module.run_module()
 
 
 if __name__ == '__main__':

@@ -260,13 +260,11 @@ result:
 '''
 # ENDREMOVE (downstream)
 
-try:
-    from ansible_collections.kubernetes.core.plugins.module_utils.ansiblemodule import AnsibleModule
-except ImportError:
-    from ansible.module_utils.basic import AnsibleModule
+from ansible_collections.kubernetes.core.plugins.module_utils.k8s.exceptions import CoreException
 
 from ansible_collections.kubernetes.core.plugins.module_utils.args_common import (
-    NAME_ARG_SPEC, RESOURCE_ARG_SPEC, AUTH_ARG_SPEC, WAIT_ARG_SPEC, DELETE_OPTS_ARG_SPEC)
+    NAME_ARG_SPEC, RESOURCE_ARG_SPEC, AUTH_ARG_SPEC, WAIT_ARG_SPEC, DELETE_OPTS_ARG_SPEC
+)
 
 
 def validate_spec():
@@ -303,15 +301,12 @@ def main():
         ('template', 'src'),
     ]
 
-    module = AnsibleModule(argument_spec=argspec(), supports_check_mode=True, mutually_exclusive=mutually_exclusive)
-
     from ansible_collections.community.okd.plugins.module_utils.k8s import OKDRawModule
-    okdraw_module = OKDRawModule(module)
-
-    # remove_aliases from kubernetes.core's common requires the argspec attribute. Ideally, it should
-    # read that throught the module class, but we cannot change that.
-    okdraw_module.argspec = argspec()
-    okdraw_module.execute_module()
+    module = OKDRawModule(argument_spec=argspec(), supports_check_mode=True, mutually_exclusive=mutually_exclusive)
+    try:
+        module.execute_module()
+    except CoreException as e:
+        module.fail_from_exception(e)
 
 
 if __name__ == '__main__':

@@ -309,25 +309,17 @@ duration:
 import copy
 import traceback
 
-try:
-    from ansible_collections.kubernetes.core.plugins.module_utils.ansiblemodule import AnsibleModule
-except ImportError:
-    from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils._text import to_native
 
+from ansible_collections.community.okd.plugins.module_utils.openshift_common import AnsibleOpenshiftModule
+
 try:
-    from ansible_collections.kubernetes.core.plugins.module_utils.common import K8sAnsibleMixin, get_api_client
+    from ansible_collections.kubernetes.core.plugins.module_utils.k8s.runner import perform_action
     from ansible_collections.kubernetes.core.plugins.module_utils.args_common import (
         AUTH_ARG_SPEC, WAIT_ARG_SPEC, COMMON_ARG_SPEC
     )
-    HAS_KUBERNETES_COLLECTION = True
-    k8s_collection_import_exception = None
-    K8S_COLLECTION_ERROR = None
 except ImportError as e:
-    HAS_KUBERNETES_COLLECTION = False
-    k8s_collection_import_exception = e
-    K8S_COLLECTION_ERROR = traceback.format_exc()
-    K8sAnsibleMixin = object
+    pass
     AUTH_ARG_SPEC = WAIT_ARG_SPEC = COMMON_ARG_SPEC = {}
 
 try:
@@ -336,33 +328,18 @@ except ImportError:
     pass
 
 
-class OpenShiftRoute(K8sAnsibleMixin):
+class OpenShiftRoute(AnsibleOpenshiftModule):
 
     def __init__(self):
-        self.module = AnsibleModule(
+        super(OpenShiftRoute, self).__init__(
             argument_spec=self.argspec,
             supports_check_mode=True,
         )
-        self.fail_json = self.module.fail_json
 
-        if not HAS_KUBERNETES_COLLECTION:
-            self.module.fail_json(
-                msg="The kubernetes.core collection must be installed",
-                exception=K8S_COLLECTION_ERROR,
-                error=to_native(k8s_collection_import_exception)
-            )
-
-        super(OpenShiftRoute, self).__init__(self.module)
-
-        self.params = self.module.params
-        # TODO: should probably make it so that at least some of these aren't required for perform_action to work
-        # Or at least explicitly pass them in
         self.append_hash = False
         self.apply = False
-        self.check_mode = self.module.check_mode
         self.warnings = []
         self.params['merge_type'] = None
-        self.client = get_api_client(self.module)
 
     @property
     def argspec(self):
@@ -457,13 +434,13 @@ class OpenShiftRoute(K8sAnsibleMixin):
                 tls_dest_ca_cert=tls_dest_ca_cert,
             )
 
-        result = self.perform_action(v1_routes, route)
+        result = perform_action(self.svc, v1_routes, route)
         timeout = self.params.get('wait_timeout')
         sleep = self.params.get('wait_sleep')
         if custom_wait:
             success, result['result'], result['duration'] = self._wait_for(v1_routes, route_name, namespace, wait_predicate, sleep, timeout, state)
 
-        self.module.exit_json(**result)
+        self.exit_json(**result)
 
     def build_route_spec(self, service_name, namespace, port=None, wildcard_policy=None, hostname=None, path=None, termination_type=None,
                          tls_insecure_policy=None, tls_ca_cert=None, tls_cert=None, tls_key=None, tls_dest_ca_cert=None):
@@ -472,14 +449,14 @@ class OpenShiftRoute(K8sAnsibleMixin):
             target_service = v1_services.get(name=service_name, namespace=namespace)
         except NotFoundError:
             if not port:
-                self.module.fail_json(msg="You need to provide the 'port' argument when exposing a non-existent service")
+                self.fail_json(msg="You need to provide the 'port' argument when exposing a non-existent service")
             target_service = None
         except DynamicApiError as exc:
-            self.module.fail_json(msg='Failed to retrieve service to be exposed: {0}'.format(exc.body),
-                                  error=exc.status, status=exc.status, reason=exc.reason)
+            self.fail_json(msg='Failed to retrieve service to be exposed: {0}'.format(exc.body),
+                           error=exc.status, status=exc.status, reason=exc.reason)
         except Exception as exc:
-            self.module.fail_json(msg='Failed to retrieve service to be exposed: {0}'.format(to_native(exc)),
-                                  error='', status='', reason='')
+            self.fail_json(msg='Failed to retrieve service to be exposed: {0}'.format(to_native(exc)),
+                           error='', status='', reason='')
 
         route_spec = {
             'tls': {},
@@ -501,27 +478,27 @@ class OpenShiftRoute(K8sAnsibleMixin):
                     route_spec['tls']['insecureEdgeTerminationPolicy'] = tls_insecure_policy.capitalize()
                 elif termination_type == 'passthrough':
                     if tls_insecure_policy != 'redirect':
-                        self.module.fail_json("'redirect' is the only supported insecureEdgeTerminationPolicy for passthrough routes")
+                        self.fail_json("'redirect' is the only supported insecureEdgeTerminationPolicy for passthrough routes")
                     route_spec['tls']['insecureEdgeTerminationPolicy'] = tls_insecure_policy.capitalize()
                 elif termination_type == 'reencrypt':
-                    self.module.fail_json("'tls.insecure_policy' is not supported with reencrypt routes")
+                    self.fail_json("'tls.insecure_policy' is not supported with reencrypt routes")
             else:
                 route_spec['tls']['insecureEdgeTerminationPolicy'] = None
             if tls_ca_cert:
                 if termination_type == 'passthrough':
-                    self.module.fail_json("'tls.ca_certificate' is not supported with passthrough routes")
+                    self.fail_json("'tls.ca_certificate' is not supported with passthrough routes")
                 route_spec['tls']['caCertificate'] = tls_ca_cert
             if tls_cert:
                 if termination_type == 'passthrough':
-                    self.module.fail_json("'tls.certificate' is not supported with passthrough routes")
+                    self.fail_json("'tls.certificate' is not supported with passthrough routes")
                 route_spec['tls']['certificate'] = tls_cert
             if tls_key:
                 if termination_type == 'passthrough':
-                    self.module.fail_json("'tls.key' is not supported with passthrough routes")
+                    self.fail_json("'tls.key' is not supported with passthrough routes")
                 route_spec['tls']['key'] = tls_key
             if tls_dest_ca_cert:
                 if termination_type != 'reencrypt':
-                    self.module.fail_json("'destination_certificate' is only valid for reencrypt routes")
+                    self.fail_json("'destination_certificate' is only valid for reencrypt routes")
                 route_spec['tls']['destinationCACertificate'] = tls_dest_ca_cert
         else:
             route_spec['tls'] = None
@@ -557,7 +534,7 @@ def wait_predicate(route):
 
 
 def main():
-    OpenShiftRoute().execute_module()
+    OpenShiftRoute().run_module()
 
 
 if __name__ == '__main__':

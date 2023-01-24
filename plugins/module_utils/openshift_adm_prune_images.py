@@ -11,18 +11,7 @@ from ansible.module_utils._text import to_native
 from ansible.module_utils.parsing.convert_bool import boolean
 from ansible.module_utils.six import iteritems
 
-try:
-    from ansible_collections.kubernetes.core.plugins.module_utils.common import (
-        K8sAnsibleMixin,
-        get_api_client,
-    )
-    HAS_KUBERNETES_COLLECTION = True
-    k8s_collection_import_exception = None
-    K8S_COLLECTION_ERROR = None
-except ImportError as e:
-    HAS_KUBERNETES_COLLECTION = False
-    k8s_collection_import_exception = e
-    K8S_COLLECTION_ERROR = traceback.format_exc()
+from ansible_collections.community.okd.plugins.module_utils.openshift_common import AnsibleOpenshiftModule
 
 from ansible_collections.community.okd.plugins.module_utils.openshift_images_common import (
     OpenShiftAnalyzeImageStream,
@@ -102,36 +91,9 @@ def determine_host_registry(module, images, image_streams):
     return result['hostname']
 
 
-class OpenShiftAdmPruneImages(K8sAnsibleMixin):
-    def __init__(self, module):
-        self.module = module
-        self.fail_json = self.module.fail_json
-        self.exit_json = self.module.exit_json
-
-        if not HAS_KUBERNETES_COLLECTION:
-            self.fail_json(
-                msg="The kubernetes.core collection must be installed",
-                exception=K8S_COLLECTION_ERROR,
-                error=to_native(k8s_collection_import_exception),
-            )
-
-        super(OpenShiftAdmPruneImages, self).__init__(self.module)
-
-        self.params = self.module.params
-        self.check_mode = self.module.check_mode
-        try:
-            self.client = get_api_client(self.module)
-        except DynamicApiError as e:
-            self.fail_json(
-                msg="Failed to get kubernetes client.",
-                reason=e.reason,
-                status=e.status,
-            )
-        except Exception as e:
-            self.fail_json(
-                msg="Failed to get kubernetes client.",
-                error=to_native(e)
-            )
+class OpenShiftAdmPruneImages(AnsibleOpenshiftModule):
+    def __init__(self, **kwargs):
+        super(OpenShiftAdmPruneImages, self).__init__(**kwargs)
 
         self.max_creation_timestamp = self.get_max_creation_timestamp()
         self._rest_client = None

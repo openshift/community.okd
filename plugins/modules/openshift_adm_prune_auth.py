@@ -101,7 +101,6 @@ group:
 
 import copy
 
-from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.kubernetes.core.plugins.module_utils.args_common import AUTH_ARG_SPEC
 
 
@@ -119,16 +118,14 @@ def argument_spec():
 
 
 def main():
-    module = AnsibleModule(argument_spec=argument_spec(),
-                           mutually_exclusive=[("name", "label_selectors")],
-                           supports_check_mode=True)
 
     from ansible_collections.community.okd.plugins.module_utils.openshift_adm_prune_auth import (
         OpenShiftAdmPruneAuth)
 
-    adm_prune_auth = OpenShiftAdmPruneAuth(module)
-    adm_prune_auth.argspec = argument_spec
-    adm_prune_auth.execute_module()
+    module = OpenShiftAdmPruneAuth(argument_spec=argument_spec(),
+                                   mutually_exclusive=[("name", "label_selectors")],
+                                   supports_check_mode=True)
+    module.run_module()
 
 
 if __name__ == '__main__':

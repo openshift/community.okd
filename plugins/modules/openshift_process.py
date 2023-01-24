@@ -203,11 +203,6 @@ resources:
 '''
 # ENDREMOVE (downstream)
 
-try:
-    from ansible_collections.kubernetes.core.plugins.module_utils.ansiblemodule import AnsibleModule
-except ImportError:
-    from ansible.module_utils.basic import AnsibleModule
-
 from ansible_collections.kubernetes.core.plugins.module_utils.args_common import (
     AUTH_ARG_SPEC, RESOURCE_ARG_SPEC, WAIT_ARG_SPEC
 )
@@ -229,17 +224,12 @@ def argspec():
 
 
 def main():
-    argument_spec = argspec()
-    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)
 
     from ansible_collections.community.okd.plugins.module_utils.openshift_process import (
         OpenShiftProcess)
 
-    openshift_process = OpenShiftProcess(module)
-    # remove_aliases from kubernetes.core's common requires the argspec attribute. Ideally, it should
-    # read that throught the module class, but we cannot change that.
-    openshift_process.argspec = argument_spec
-    openshift_process.execute_module()
+    module = OpenShiftProcess(argument_spec=argspec(), supports_check_mode=True)
+    module.run_module()
 
 
 if __name__ == '__main__':

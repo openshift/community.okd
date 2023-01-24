@@ -10,18 +10,7 @@ from ansible.module_utils._text import to_native
 from ansible.module_utils.parsing.convert_bool import boolean
 from ansible.module_utils.six import string_types
 
-try:
-    from ansible_collections.kubernetes.core.plugins.module_utils.common import (
-        K8sAnsibleMixin,
-        get_api_client,
-    )
-    HAS_KUBERNETES_COLLECTION = True
-    k8s_collection_import_exception = None
-    K8S_COLLECTION_ERROR = None
-except ImportError as e:
-    HAS_KUBERNETES_COLLECTION = False
-    k8s_collection_import_exception = e
-    K8S_COLLECTION_ERROR = traceback.format_exc()
+from ansible_collections.community.okd.plugins.module_utils.openshift_common import AnsibleOpenshiftModule
 
 try:
     from kubernetes.dynamic.exceptions import DynamicApiError
@@ -86,24 +75,9 @@ def follow_imagestream_tag_reference(stream, tag):
         multiple = True
 
 
-class OpenShiftImportImage(K8sAnsibleMixin):
-    def __init__(self, module):
-        self.module = module
-        self.fail_json = self.module.fail_json
-        self.exit_json = self.module.exit_json
-
-        if not HAS_KUBERNETES_COLLECTION:
-            self.fail_json(
-                msg="The kubernetes.core collection must be installed",
-                exception=K8S_COLLECTION_ERROR,
-                error=to_native(k8s_collection_import_exception),
-            )
-
-        super(OpenShiftImportImage, self).__init__(self.module)
-
-        self.params = self.module.params
-        self.check_mode = self.module.check_mode
-        self.client = get_api_client(self.module)
+class OpenShiftImportImage(AnsibleOpenshiftModule):
+    def __init__(self, **kwargs):
+        super(OpenShiftImportImage, self).__init__(**kwargs)
 
         self._rest_client = None
         self.registryhost = self.params.get('registry_url')
