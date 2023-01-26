@@ -307,7 +307,6 @@ duration:
 # ENDREMOVE (downstream)
 
 import copy
-import traceback
 
 from ansible.module_utils._text import to_native
 
@@ -315,6 +314,7 @@ from ansible_collections.community.okd.plugins.module_utils.openshift_common imp
 
 try:
     from ansible_collections.kubernetes.core.plugins.module_utils.k8s.runner import perform_action
+    from ansible_collections.kubernetes.core.plugins.module_utils.k8s.waiter import Waiter
     from ansible_collections.kubernetes.core.plugins.module_utils.args_common import (
         AUTH_ARG_SPEC, WAIT_ARG_SPEC, COMMON_ARG_SPEC
     )
@@ -368,7 +368,6 @@ class OpenShiftRoute(AnsibleOpenshiftModule):
         return spec
 
     def execute_module(self):
-        v1_routes = self.find_resource('Route', 'route.openshift.io/v1', fail=True)
 
         service_name = self.params.get('service')
         namespace = self.params['namespace']
@@ -434,11 +433,13 @@ class OpenShiftRoute(AnsibleOpenshiftModule):
                 tls_dest_ca_cert=tls_dest_ca_cert,
             )
 
-        result = perform_action(self.svc, v1_routes, route)
+        result = perform_action(self.svc, route, self.params)
         timeout = self.params.get('wait_timeout')
         sleep = self.params.get('wait_sleep')
         if custom_wait:
-            success, result['result'], result['duration'] = self._wait_for(v1_routes, route_name, namespace, wait_predicate, sleep, timeout, state)
+            v1_routes = self.find_resource('Route', 'route.openshift.io/v1', fail=True)
+            waiter = Waiter(self.client, v1_routes, wait_predicate)
+            success, result['result'], result['duration'] = waiter.wait(timeout=timeout, sleep=sleep, name=route_name, namespace=namespace)
 
         self.exit_json(**result)
 

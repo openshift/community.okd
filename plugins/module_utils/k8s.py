@@ -6,7 +6,6 @@ __metaclass__ = type
 import re
 import operator
 from functools import reduce
-import traceback
 from ansible_collections.community.okd.plugins.module_utils.openshift_common import AnsibleOpenshiftModule
 
 try:
@@ -58,19 +57,23 @@ class OKDRawModule(AnsibleOpenshiftModule):
             if self.params.get("state") != 'absent':
                 existing = None
                 if definition.get("kind") in ['Project', 'ProjectRequest']:
-                    name = definition["metadata"]["name"]
-                    namespace = definition["metadata"]["namespace"]
+                    name = definition.get("metadata", {}).get("name")
+                    namespace = definition.get("metadata", {}).get("namespace")
                     try:
-                        resource = self.svc.find_resource(kind=definition.get("kind"))
+                        resource = self.svc.find_resource(kind=definition.get("kind"), api_version=definition.get("apiVersion", "v1"))
                         existing = resource.get(name=name, namespace=namespace).to_dict()
                     except (NotFoundError, ForbiddenError):
-                        return self.create_project_request(definition)
+                        result = self.create_project_request(definition)
+                        changed |= result["changed"]
+                        results.append(result)
+                        continue
                     except DynamicApiError as exc:
                         self.fail_json(msg='Failed to retrieve requested object: {0}'.format(exc.body),
                                        error=exc.status, status=exc.status, reason=exc.reason)
 
                 if definition.get("kind") not in ['Project', 'ProjectRequest']:
                     try:
+                        resource = self.svc.find_resource(kind=definition.get("kind"), api_version=definition.get("apiVersion", "v1"))
                         existing = resource.get(name=name, namespace=namespace).to_dict()
                     except Exception:
                         existing = None
@@ -83,10 +86,10 @@ class OKDRawModule(AnsibleOpenshiftModule):
                         definition = self.resolve_imagestream_trigger_annotation(existing, definition)
 
             if self.params.get("validate") is not None:
-                warnings = validate(self.client, self.module, definition)
+                warnings = self.validate(definition)
 
             try:
-                result = perform_action(self.svc, definition, self.params)
+                result = self.perform_action(definition, self.params)
             except Exception as e:
                 try:
                     error = e.result

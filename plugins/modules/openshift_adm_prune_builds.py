@@ -114,9 +114,9 @@ def argument_spec():
 
 def main():
 
-    from ansible_collections.community.okd.plugins.module_utils.openshift_builds import OpenShiftBuilds
+    from ansible_collections.community.okd.plugins.module_utils.openshift_builds import OpenShiftPruneBuilds
 
-    module = OpenShiftBuilds(argument_spec=argument_spec(), supports_check_mode=True)
+    module = OpenShiftPruneBuilds(argument_spec=argument_spec(), supports_check_mode=True)
     module.run_module()
 
 

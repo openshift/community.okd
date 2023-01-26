@@ -222,7 +222,6 @@
         name: "{{ prune_ns }}"
         kind: Namespace
         state: absent
-        wait: yes
       ignore_errors: true
 
   when:

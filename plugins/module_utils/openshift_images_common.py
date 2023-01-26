@@ -11,7 +11,7 @@ from ansible.module_utils.six import iteritems
 
 
 def get_image_blobs(image):
-    blobs = [layer["image"] for layer in image["dockerImageLayers"]]
+    blobs = [layer["image"] for layer in image["dockerImageLayers"] if "image" in layer]
     docker_image_metadata = image.get("dockerImageMetadata")
     if not docker_image_metadata:
         return blobs, "failed to read metadata for image %s" % image["metadata"]["name"]
@@ -53,7 +53,7 @@ class OpenShiftAnalyzeImageStream(object):
         if error:
             return error
 
-        if len(result['hostname']) == 0 or len(result['namespace']) == 0:
+        if not result['hostname'] or not result['namespace']:
             # image reference does not match hostname/namespace/name pattern - skipping
             return None
 
@@ -161,41 +161,35 @@ class OpenShiftAnalyzeImageStream(object):
             return name, tag, None
 
         from_strategy = _determine_source_strategy()
-        if not from_strategy:
-            # Build strategy not found
-            return
-
-        if from_strategy.get('kind') == "DockerImage":
-            docker_image_ref = from_strategy.get('name').strip()
-            if len(docker_image_ref) > 0:
-                err = self.analyze_reference_image(docker_image_ref, referrer)
-
-        elif from_strategy.get('kind') == "ImageStreamImage":
-            name, tag, error = _parse_image_stream_image_name(from_strategy.get('name'))
-            if error:
-                if not self.ignore_invalid_refs:
-                    return error
-            else:
-                namespace = from_strategy.get('namespace') or namespace
-                self.used_images.append({
-                    'namespace': namespace,
-                    'name': name,
-                    'tag': tag
-                })
-        elif from_strategy.get('kind') == "ImageStreamTag":
-            name, tag, error = _parse_image_stream_tag_name(from_strategy.get('name'))
-            if error:
-                if not self.ignore_invalid_refs:
-                    return error
-            else:
-                namespace = from_strategy.get('namespace') or namespace
-                self.used_tags.append({
-                    'namespace': namespace,
-                    'name': name,
-                    'tag': tag
-                })
-
-        return None
+        if from_strategy:
+            if from_strategy.get('kind') == "DockerImage":
+                docker_image_ref = from_strategy.get('name').strip()
+                if len(docker_image_ref) > 0:
+                    err = self.analyze_reference_image(docker_image_ref, referrer)
+            elif from_strategy.get('kind') == "ImageStreamImage":
+                name, tag, error = _parse_image_stream_image_name(from_strategy.get('name'))
+                if error:
+                    if not self.ignore_invalid_refs:
+                        return error
+                else:
+                    namespace = from_strategy.get('namespace') or namespace
+                    self.used_images.append({
+                        'namespace': namespace,
+                        'name': name,
+                        'tag': tag
+                    })
+            elif from_strategy.get('kind') == "ImageStreamTag":
+                name, tag, error = _parse_image_stream_tag_name(from_strategy.get('name'))
+                if error:
+                    if not self.ignore_invalid_refs:
+                        return error
+                else:
+                    namespace = from_strategy.get('namespace') or namespace
+                    self.used_tags.append({
+                        'namespace': namespace,
+                        'name': name,
+                        'tag': tag
+                    })
 
     def analyze_refs_from_build_strategy(self, resources):
         # Json Path is always spec.strategy
@@ -212,7 +206,7 @@ class OpenShiftAnalyzeImageStream(object):
                 error = self.analyze_refs_from_strategy(obj['spec']['strategy'],
                                                         obj['metadata']['namespace'],
                                                         referrer)
-                if not error:
+                if error is not None:
                     return "%s/%s/%s: %s" % (referrer["kind"], referrer["namespace"], referrer["name"], error)
 
     def analyze_image_stream(self, resources):

@@ -201,7 +201,7 @@ class OpenShiftAdmPruneImages(AnsibleOpenshiftModule):
         result = definition
         if not self.check_mode:
             try:
-                result = self.client.request(
+                result = self.request(
                     "PUT",
                     "/apis/{api_version}/namespaces/{namespace}/imagestreams/{name}/status".format(
                         api_version=api_version,

@@ -5,9 +5,6 @@
   gather_facts: no
 
   tasks:
-    - name: install kubernetes.core stable-2.4
-      command: 'ansible-galaxy collection install git+https://github.com/ansible-collections/kubernetes.core.git,stable-2.4'
-
     - pip:
         name: virtualenv
 

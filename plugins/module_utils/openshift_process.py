@@ -12,7 +12,7 @@ from ansible.module_utils._text import to_native
 from ansible_collections.community.okd.plugins.module_utils.openshift_common import AnsibleOpenshiftModule
 
 try:
-    from kubernetes.dynamic.exceptions import DynamicApiError, NotFoundError
+    from kubernetes.dynamic.exceptions import DynamicApiError
 except ImportError:
     pass
 
@@ -49,7 +49,7 @@ class OpenShiftProcess(AnsibleOpenshiftModule):
         template = None
 
         if src or definition:
-            self.set_resource_definitions(self.module)
+            self.set_resource_definitions()
             if len(self.resource_definitions) < 1:
                 self.fail_json(
                     "Unable to load a Template resource from src or resource_definition"
@@ -74,7 +74,7 @@ class OpenShiftProcess(AnsibleOpenshiftModule):
                     reason=exc.reason,
                 )
             except Exception as exc:
-                self.module.fail_json(
+                self.fail_json(
                     msg="Failed to retrieve Template with name '{0}' in namespace '{1}': {2}".format(
                         name, namespace, to_native(exc)
                     ),
@@ -107,7 +107,7 @@ class OpenShiftProcess(AnsibleOpenshiftModule):
                 reason=exc.reason,
             )
         except Exception as exc:
-            self.module.fail_json(
+            self.fail_json(
                 msg="Server failed to render the Template: {0}".format(to_native(exc)),
                 error="",
                 status="",
@@ -119,16 +119,41 @@ class OpenShiftProcess(AnsibleOpenshiftModule):
         result["resources"] = response["objects"]
 
         if state != "rendered":
-            self.resource_definitions = response["objects"]
-            self.kind = self.api_version = self.name = None
-            self.namespace = self.params.get("namespace_target")
-            self.append_hash = False
-            self.apply = False
-            self.params["validate"] = None
-            self.params["merge_type"] = None
-            super(OpenShiftProcess, self).execute_module()
+            self.create_resources(response["objects"])
 
-        self.module.exit_json(**result)
+        self.exit_json(**result)
+
+    def create_resources(self, definitions):
+
+        params = {"namespace": self.params.get("namespace_target")}
+
+        self.params["apply"] = False
+        self.params["validate"] = None
+
+        changed = False
+        results = []
+
+        flattened_definitions = []
+        for definition in definitions:
+            if definition is None:
+                continue
+            kind = definition.get("kind")
+            if kind and kind.endswith("List"):
+                flattened_definitions.extend(
+                    self.flatten_list_kind(definition, params)
+                )
+            else:
+                flattened_definitions.append(self.merge_params(definition, params))
+
+        for definition in flattened_definitions:
+            result = self.perform_action(definition, self.params)
+            changed = changed or result["changed"]
+            results.append(result)
+
+        if len(results) == 1:
+            self.exit_json(**results[0])
+
+        self.exit_json(**{"changed": changed, "result": {"results": results}})
 
     def update_template_param(self, template, k, v):
         for i, param in enumerate(template["parameters"]):

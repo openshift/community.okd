@@ -12,6 +12,15 @@ try:
     from ansible_collections.kubernetes.core.plugins.module_utils.k8s.client import get_api_client
     from ansible_collections.kubernetes.core.plugins.module_utils.k8s.core import AnsibleK8SModule
     from ansible_collections.kubernetes.core.plugins.module_utils.k8s.service import K8sService
+    from ansible_collections.kubernetes.core.plugins.module_utils.k8s.runner import (
+        perform_action,
+        validate,
+    )
+    from ansible_collections.kubernetes.core.plugins.module_utils.k8s.resource import (
+        create_definitions,
+        merge_params,
+        flatten_list_kind,
+    )
     from ansible_collections.kubernetes.core.plugins.module_utils.k8s.exceptions import CoreException
     HAS_KUBERNETES_COLLECTION = True
     k8s_collection_import_exception = None
@@ -48,6 +57,26 @@ class AnsibleOpenshiftModule(AnsibleK8SModule):
     @abstractmethod
     def execute_module(self):
         pass
+
+    def request(self, *args, **kwargs):
+        return self.client.client.request(*args, **kwargs)
+
+    def set_resource_definitions(self):
+        self.resource_definitions = create_definitions(self.params)
+
+    def perform_action(self, definition, params):
+        return perform_action(self.svc, definition, params)
+
+    def validate(self, definition):
+        validate(self.client, self, definition)
+
+    @staticmethod
+    def merge_params(definition, params):
+        return merge_params(definition, params)
+
+    @staticmethod
+    def flatten_list_kind(definition, params):
+        return flatten_list_kind(definition, params)
 
     def run_module(self):
 
