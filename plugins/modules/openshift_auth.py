@@ -79,7 +79,7 @@ requirements:
 EXAMPLES = r'''
 - hosts: localhost
   module_defaults:
-    group/k8s:
+    group/community.okd.okd:
       host: https://k8s.example.com/
       ca_cert: ca.pem
   tasks:
