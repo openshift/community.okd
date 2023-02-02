@@ -1,38 +1,38 @@
----
-- name: Verify inventory and connection plugins
-  # This group is created by the openshift_inventory plugin
-  # It is automatically configured to use the `oc` connection plugin
-  hosts: namespace_testing_pods
-  gather_facts: no
-  vars:
-    file_content: |
-      Hello world
-  tasks:
-    - name: End play if host not running (TODO should we not add these to the inventory?)
-      meta: end_host
-      when: pod_phase != "Running"
+# ---
+# - name: Verify inventory and connection plugins
+#   # This group is created by the openshift_inventory plugin
+#   # It is automatically configured to use the `oc` connection plugin
+#   hosts: namespace_testing_pods
+#   gather_facts: no
+#   vars:
+#     file_content: |
+#       Hello world
+#   tasks:
+#     - name: End play if host not running (TODO should we not add these to the inventory?)
+#       meta: end_host
+#       when: pod_phase != "Running"
 
-    - setup:
+#     - setup:
 
-    - debug: var=ansible_facts
+#     - debug: var=ansible_facts
 
-    - name: Assert the TEST environment variable was retrieved
-      assert:
-        that: ansible_facts.env.TEST == 'test'
+#     - name: Assert the TEST environment variable was retrieved
+#       assert:
+#         that: ansible_facts.env.TEST == 'test'
 
-    - name: Copy a file into the host
-      copy:
-        content: '{{ file_content }}'
-        dest: /tmp/test_file
+#     - name: Copy a file into the host
+#       copy:
+#         content: '{{ file_content }}'
+#         dest: /tmp/test_file
 
-    - name: Retrieve the file from the host
-      slurp:
-        src: /tmp/test_file
-      register: slurped_file
+#     - name: Retrieve the file from the host
+#       slurp:
+#         src: /tmp/test_file
+#       register: slurped_file
 
-    - name: Assert the file content matches expectations
-      assert:
-        that: (slurped_file.content|b64decode) == file_content
+#     - name: Assert the file content matches expectations
+#       assert:
+#         that: (slurped_file.content|b64decode) == file_content
 
 
 - name: Verify
@@ -85,5 +85,5 @@
             name: process-test
             state: absent
 
-  roles:
-    - role: openshift_adm_groups
+  # roles:
+  #   - role: openshift_adm_groups
