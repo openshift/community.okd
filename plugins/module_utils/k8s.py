@@ -9,10 +9,6 @@ from functools import reduce
 from ansible_collections.community.okd.plugins.module_utils.openshift_common import AnsibleOpenshiftModule
 
 try:
-    from ansible_collections.kubernetes.core.plugins.module_utils.k8s.runner import (
-        validate,
-        perform_action,
-    )
     from ansible_collections.kubernetes.core.plugins.module_utils.k8s.resource import create_definitions
     from ansible_collections.kubernetes.core.plugins.module_utils.k8s.exceptions import CoreException
 except ImportError:
