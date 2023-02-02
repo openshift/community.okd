@@ -11,7 +11,10 @@ from ansible.module_utils._text import to_native
 try:
     from ansible_collections.kubernetes.core.plugins.module_utils.k8s.client import get_api_client
     from ansible_collections.kubernetes.core.plugins.module_utils.k8s.core import AnsibleK8SModule
-    from ansible_collections.kubernetes.core.plugins.module_utils.k8s.service import K8sService
+    from ansible_collections.kubernetes.core.plugins.module_utils.k8s.service import (
+        K8sService,
+        diff_objects,
+    )
     from ansible_collections.kubernetes.core.plugins.module_utils.k8s.runner import (
         perform_action,
         validate,
@@ -77,6 +80,10 @@ class AnsibleOpenshiftModule(AnsibleK8SModule):
     @staticmethod
     def flatten_list_kind(definition, params):
         return flatten_list_kind(definition, params)
+
+    @staticmethod
+    def diff_objects(existing, new):
+        return diff_objects(existing, new)
 
     def run_module(self):
 
