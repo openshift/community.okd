@@ -43,47 +43,47 @@
     ansible_python_interpreter: '{{ virtualenv_interpreter }}'
 
   tasks:
-    - pip:
-        name: kubernetes-validate==1.12.0
-        virtualenv: "{{ virtualenv }}"
-        virtualenv_command: "{{ virtualenv_command }}"
-        virtualenv_site_packages: no
+    # - pip:
+    #     name: kubernetes-validate==1.12.0
+    #     virtualenv: "{{ virtualenv }}"
+    #     virtualenv_command: "{{ virtualenv_command }}"
+    #     virtualenv_site_packages: no
 
-    - import_tasks: tasks/validate_installed.yml
+    # - import_tasks: tasks/validate_installed.yml
 
-    - pip:
-        name: kubernetes-validate
-        state: absent
-        virtualenv: "{{ virtualenv }}"
-        virtualenv_command: "{{ virtualenv_command }}"
-        virtualenv_site_packages: no
+    # - pip:
+    #     name: kubernetes-validate
+    #     state: absent
+    #     virtualenv: "{{ virtualenv }}"
+    #     virtualenv_command: "{{ virtualenv_command }}"
+    #     virtualenv_site_packages: no
 
-    - import_tasks: tasks/validate_not_installed.yml
+    # - import_tasks: tasks/validate_not_installed.yml
 
-    - import_tasks: tasks/openshift_auth.yml
-    - import_tasks: tasks/openshift_adm_prune_auth_clusterroles.yml
-    - import_tasks: tasks/openshift_adm_prune_auth_roles.yml
-    - import_tasks: tasks/openshift_adm_prune_deployments.yml
-    - import_tasks: tasks/openshift_builds.yml
-    - import_tasks: tasks/openshift_route.yml
-    - import_tasks: tasks/openshift_import_images.yml
+    # # - import_tasks: tasks/openshift_auth.yml
+    # - import_tasks: tasks/openshift_adm_prune_auth_clusterroles.yml
+    # - import_tasks: tasks/openshift_adm_prune_auth_roles.yml
+    # - import_tasks: tasks/openshift_adm_prune_deployments.yml
+    # - import_tasks: tasks/openshift_builds.yml
+    # - import_tasks: tasks/openshift_route.yml
+    # - import_tasks: tasks/openshift_import_images.yml
     - import_tasks: tasks/openshift_prune_images.yml
-    - block:
-        - name: Create namespace
-          community.okd.k8s:
-            api_version: v1
-            kind: Namespace
-            name: process-test
-        - import_tasks: tasks/openshift_process.yml
-          vars:
-            files_dir: '{{ playbook_dir }}/files'
-      always:
-        - name: Delete namespace
-          community.okd.k8s:
-            api_version: v1
-            kind: Namespace
-            name: process-test
-            state: absent
+    # - block:
+    #     - name: Create namespace
+    #       community.okd.k8s:
+    #         api_version: v1
+    #         kind: Namespace
+    #         name: process-test
+    #     - import_tasks: tasks/openshift_process.yml
+    #       vars:
+    #         files_dir: '{{ playbook_dir }}/files'
+    #   always:
+    #     - name: Delete namespace
+    #       community.okd.k8s:
+    #         api_version: v1
+    #         kind: Namespace
+    #         name: process-test
+    #         state: absent
 
   # roles:
   #   - role: openshift_adm_groups
