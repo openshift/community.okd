@@ -52,9 +52,9 @@ class OKDRawModule(AnsibleOpenshiftModule):
 
             if self.params.get("state") != 'absent':
                 existing = None
+                name = definition.get("metadata", {}).get("name")
+                namespace = definition.get("metadata", {}).get("namespace")
                 if definition.get("kind") in ['Project', 'ProjectRequest']:
-                    name = definition.get("metadata", {}).get("name")
-                    namespace = definition.get("metadata", {}).get("namespace")
                     try:
                         resource = self.svc.find_resource(kind=definition.get("kind"), api_version=definition.get("apiVersion", "v1"))
                         existing = resource.get(name=name, namespace=namespace).to_dict()
