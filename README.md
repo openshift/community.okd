@@ -12,8 +12,8 @@ The collection includes a variety of Ansible content to help automate the manage
 
 This collection has been tested against following Ansible versions: **>=2.9.17**.
 
-For collections that support Ansible 2.9, please ensure you update your `network_os` to use the 
-fully qualified collection name (for example, `cisco.ios.ios`). 
+For collections that support Ansible 2.9, please ensure you update your `network_os` to use the
+fully qualified collection name (for example, `cisco.ios.ios`).
 Plugins and modules within a collection may be tested with only specific Ansible versions.
 A collection may contain metadata that identifies these versions.
 PEP440 is the schema used to describe the versions of Ansible.
@@ -49,9 +49,11 @@ Name | Description
 [community.okd.openshift_adm_groups_sync](https://github.com/openshift/community.okd/blob/main/docs/community.okd.openshift_adm_groups_sync_module.rst)|Sync OpenShift Groups with records from an external provider.
 [community.okd.openshift_adm_migrate_template_instances](https://github.com/openshift/community.okd/blob/main/docs/community.okd.openshift_adm_migrate_template_instances_module.rst)|Update TemplateInstances to point to the latest group-version-kinds
 [community.okd.openshift_adm_prune_auth](https://github.com/openshift/community.okd/blob/main/docs/community.okd.openshift_adm_prune_auth_module.rst)|Removes references to the specified roles, clusterroles, users, and groups
+[community.okd.openshift_adm_prune_builds](https://github.com/openshift/community.okd/blob/main/docs/community.okd.openshift_adm_prune_builds_module.rst)|Prune old completed and failed builds
 [community.okd.openshift_adm_prune_deployments](https://github.com/openshift/community.okd/blob/main/docs/community.okd.openshift_adm_prune_deployments_module.rst)|Remove old completed and failed deployment configs
 [community.okd.openshift_adm_prune_images](https://github.com/openshift/community.okd/blob/main/docs/community.okd.openshift_adm_prune_images_module.rst)|Remove unreferenced images
 [community.okd.openshift_auth](https://github.com/openshift/community.okd/blob/main/docs/community.okd.openshift_auth_module.rst)|Authenticate to OpenShift clusters which require an explicit login step
+[community.okd.openshift_build](https://github.com/openshift/community.okd/blob/main/docs/community.okd.openshift_build_module.rst)|Start a new build or Cancel running, pending, or new builds.
 [community.okd.openshift_import_image](https://github.com/openshift/community.okd/blob/main/docs/community.okd.openshift_import_image_module.rst)|Import the latest image information from a tag in a container image registry.
 [community.okd.openshift_process](https://github.com/openshift/community.okd/blob/main/docs/community.okd.openshift_process_module.rst)|Process an OpenShift template.openshift.io/v1 Template
 [community.okd.openshift_registry_info](https://github.com/openshift/community.okd/blob/main/docs/community.okd.openshift_registry_info_module.rst)|Display information about the integrated registry.
@@ -75,7 +77,7 @@ You can also include it in a `requirements.yml` file and install it via `ansible
 ---
 collections:
   - name: community.okd
-    version: 2.2.0
+    version: 2.3.0
 ```
 
 ### Installing the Kubernetes Python Library
