@@ -5,6 +5,21 @@ OKD Collection Release Notes
 .. contents:: Topics
 
 
+v2.3.0
+======
+
+Bugfixes
+--------
+
+- openshift_adm_groups_sync - initialize OpenshiftGroupSync attributes early to avoid Attribute error (https://github.com/openshift/community.okd/issues/155).
+- openshift_auth - Review the way the discard process is working, add openshift algorithm to convert token to resource object name (https://github.com/openshift/community.okd/issues/176).
+
+New Modules
+-----------
+
+- openshift_adm_prune_builds - Prune old completed and failed builds
+- openshift_build - Start a new build or Cancel running, pending, or new builds.
+
 v2.2.0
 ======
 

@@ -1,2 +1,0 @@
-bugfixes:
-  - openshift_auth - Review the way the discard process is working, add openshift algorithm to convert token to resource object name (https://github.com/openshift/community.okd/issues/176).
