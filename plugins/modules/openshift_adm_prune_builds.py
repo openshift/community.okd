@@ -97,9 +97,7 @@ builds:
 
 import copy
 
-from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.kubernetes.core.plugins.module_utils.args_common import AUTH_ARG_SPEC
-from ansible.module_utils._text import to_native
 
 
 def argument_spec():
@@ -115,21 +113,11 @@ def argument_spec():
 
 
 def main():
-    module = AnsibleModule(argument_spec=argument_spec(), supports_check_mode=True)
 
-    try:
-        from ansible_collections.community.okd.plugins.module_utils.openshift_builds import (
-            OpenShiftBuilds)
+    from ansible_collections.community.okd.plugins.module_utils.openshift_builds import OpenShiftPruneBuilds
 
-        build = OpenShiftBuilds(module)
-        build.argspec = argument_spec
-        build.prune()
-    except Exception as e:
-        module.fail_json(
-            msg="An error occurred while running openshift_adm_prune_builds",
-            error=to_native(e),
-            exception=e,
-        )
+    module = OpenShiftPruneBuilds(argument_spec=argument_spec(), supports_check_mode=True)
+    module.run_module()
 
 
 if __name__ == '__main__':

@@ -69,7 +69,6 @@ replication_controllers:
 
 import copy
 
-from ansible.module_utils.basic import AnsibleModule
 try:
     from ansible_collections.kubernetes.core.plugins.module_utils.args_common import AUTH_ARG_SPEC
 except ImportError as e:
@@ -89,13 +88,12 @@ def argument_spec():
 
 
 def main():
-    module = AnsibleModule(argument_spec=argument_spec(), supports_check_mode=True)
 
     from ansible_collections.community.okd.plugins.module_utils.openshift_adm_prune_deployments import (
         OpenShiftAdmPruneDeployment)
 
-    adm_prune_deployments = OpenShiftAdmPruneDeployment(module)
-    adm_prune_deployments.execute()
+    module = OpenShiftAdmPruneDeployment(argument_spec=argument_spec(), supports_check_mode=True)
+    module.run_module()
 
 
 if __name__ == '__main__':

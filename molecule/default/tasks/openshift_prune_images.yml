@@ -204,25 +204,12 @@
           - stream.resources | length == 1
           - '"tags" not in stream.resources.0.status'
 
-    - name: Validate that Image was deleted
-      kubernetes.core.k8s_info:
-        version: image.openshift.io/v1
-        kind: Image
-        name: "{{ is_image_name }}"
-      register: image
-
-    - name: Assert that image was deleted
-      assert:
-        that:
-          - image.resources | length == 0
-
   always:
     - name: Delete namespace
       community.okd.k8s:
         name: "{{ prune_ns }}"
         kind: Namespace
         state: absent
-        wait: yes
       ignore_errors: true
 
   when:

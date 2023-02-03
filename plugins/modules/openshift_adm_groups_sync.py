@@ -194,7 +194,6 @@ builds:
 import copy
 import traceback
 
-from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.kubernetes.core.plugins.module_utils.args_common import AUTH_ARG_SPEC
 
 
@@ -213,17 +212,12 @@ def argument_spec():
 
 
 def main():
-    module = AnsibleModule(argument_spec=argument_spec(), supports_check_mode=True)
-
     from ansible_collections.community.okd.plugins.module_utils.openshift_groups import (
         OpenshiftGroupsSync
     )
 
-    try:
-        openshift_groups = OpenshiftGroupsSync(module)
-        openshift_groups.execute_module()
-    except Exception as e:
-        module.fail_json(msg=str(e), exception=traceback.format_exc())
+    module = OpenshiftGroupsSync(argument_spec=argument_spec(), supports_check_mode=True)
+    module.run_module()
 
 
 if __name__ == '__main__':

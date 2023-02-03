@@ -6,47 +6,20 @@ __metaclass__ = type
 import os
 import traceback
 
-from ansible_collections.kubernetes.core.plugins.module_utils.common import (
-    K8sAnsibleMixin,
-    get_api_client,
-)
 from ansible.module_utils._text import to_native
 
 
-try:
-    from kubernetes.dynamic.exceptions import DynamicApiError, NotFoundError
-    HAS_KUBERNETES_COLLECTION = True
-    k8s_collection_import_exception = None
-    K8S_COLLECTION_ERROR = None
-except ImportError as e:
-    HAS_KUBERNETES_COLLECTION = False
-    k8s_collection_import_exception = e
-    K8S_COLLECTION_ERROR = traceback.format_exc()
+from ansible_collections.community.okd.plugins.module_utils.openshift_common import AnsibleOpenshiftModule
 
 try:
-    from kubernetes.dynamic.exceptions import DynamicApiError, NotFoundError
+    from kubernetes.dynamic.exceptions import DynamicApiError
 except ImportError:
     pass
 
 
-class OpenShiftProcess(K8sAnsibleMixin):
-    def __init__(self, module):
-        self.module = module
-        self.fail_json = self.module.fail_json
-        self.exit_json = self.module.exit_json
-
-        if not HAS_KUBERNETES_COLLECTION:
-            self.module.fail_json(
-                msg="The kubernetes.core collection must be installed",
-                exception=K8S_COLLECTION_ERROR,
-                error=to_native(k8s_collection_import_exception),
-            )
-
-        super(OpenShiftProcess, self).__init__(self.module)
-
-        self.params = self.module.params
-        self.check_mode = self.module.check_mode
-        self.client = get_api_client(self.module)
+class OpenShiftProcess(AnsibleOpenshiftModule):
+    def __init__(self, **kwargs):
+        super(OpenShiftProcess, self).__init__(**kwargs)
 
     def execute_module(self):
         v1_templates = self.find_resource(
@@ -76,7 +49,7 @@ class OpenShiftProcess(K8sAnsibleMixin):
         template = None
 
         if src or definition:
-            self.set_resource_definitions(self.module)
+            self.set_resource_definitions()
             if len(self.resource_definitions) < 1:
                 self.fail_json(
                     "Unable to load a Template resource from src or resource_definition"
@@ -101,7 +74,7 @@ class OpenShiftProcess(K8sAnsibleMixin):
                     reason=exc.reason,
                 )
             except Exception as exc:
-                self.module.fail_json(
+                self.fail_json(
                     msg="Failed to retrieve Template with name '{0}' in namespace '{1}': {2}".format(
                         name, namespace, to_native(exc)
                     ),
@@ -134,7 +107,7 @@ class OpenShiftProcess(K8sAnsibleMixin):
                 reason=exc.reason,
             )
         except Exception as exc:
-            self.module.fail_json(
+            self.fail_json(
                 msg="Server failed to render the Template: {0}".format(to_native(exc)),
                 error="",
                 status="",
@@ -146,16 +119,41 @@ class OpenShiftProcess(K8sAnsibleMixin):
         result["resources"] = response["objects"]
 
         if state != "rendered":
-            self.resource_definitions = response["objects"]
-            self.kind = self.api_version = self.name = None
-            self.namespace = self.params.get("namespace_target")
-            self.append_hash = False
-            self.apply = False
-            self.params["validate"] = None
-            self.params["merge_type"] = None
-            super(OpenShiftProcess, self).execute_module()
+            self.create_resources(response["objects"])
 
-        self.module.exit_json(**result)
+        self.exit_json(**result)
+
+    def create_resources(self, definitions):
+
+        params = {"namespace": self.params.get("namespace_target")}
+
+        self.params["apply"] = False
+        self.params["validate"] = None
+
+        changed = False
+        results = []
+
+        flattened_definitions = []
+        for definition in definitions:
+            if definition is None:
+                continue
+            kind = definition.get("kind")
+            if kind and kind.endswith("List"):
+                flattened_definitions.extend(
+                    self.flatten_list_kind(definition, params)
+                )
+            else:
+                flattened_definitions.append(self.merge_params(definition, params))
+
+        for definition in flattened_definitions:
+            result = self.perform_action(definition, self.params)
+            changed = changed or result["changed"]
+            results.append(result)
+
+        if len(results) == 1:
+            self.exit_json(**results[0])
+
+        self.exit_json(**{"changed": changed, "result": {"results": results}})
 
     def update_template_param(self, template, k, v):
         for i, param in enumerate(template["parameters"]):

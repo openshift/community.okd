@@ -233,32 +233,19 @@ result:
 """
 # ENDREMOVE (downstream)
 
-import traceback
-
 from ansible.module_utils._text import to_native
+
+from ansible_collections.community.okd.plugins.module_utils.openshift_common import AnsibleOpenshiftModule
 
 try:
     from kubernetes.dynamic.exceptions import DynamicApiError
+except ImportError:
+    pass
 
-    HAS_KUBERNETES_COLLECTION = True
-    k8s_collection_import_exception = None
-    K8S_COLLECTION_ERROR = None
-except ImportError as e:
-    HAS_KUBERNETES_COLLECTION = False
-    k8s_collection_import_exception = e
-    K8S_COLLECTION_ERROR = traceback.format_exc()
-
-from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.kubernetes.core.plugins.module_utils.args_common import (
     AUTH_ARG_SPEC,
     WAIT_ARG_SPEC,
 )
-
-from ansible_collections.kubernetes.core.plugins.module_utils.common import (
-    K8sAnsibleMixin,
-    get_api_client,
-)
-
 
 transforms = {
     "Build": "build.openshift.io/v1",
@@ -268,24 +255,9 @@ transforms = {
 }
 
 
-class OpenShiftMigrateTemplateInstances(K8sAnsibleMixin):
-    def __init__(self, module):
-        self.module = module
-        self.fail_json = self.module.fail_json
-        self.exit_json = self.module.exit_json
-
-        if not HAS_KUBERNETES_COLLECTION:
-            self.module.fail_json(
-                msg="The kubernetes.core collection must be installed",
-                exception=K8S_COLLECTION_ERROR,
-                error=to_native(k8s_collection_import_exception),
-            )
-
-        super(OpenShiftMigrateTemplateInstances, self).__init__(self.module)
-
-        self.params = self.module.params
-        self.check_mode = self.module.check_mode
-        self.client = get_api_client(self.module)
+class OpenShiftMigrateTemplateInstances(AnsibleOpenshiftModule):
+    def __init__(self, **kwargs):
+        super(OpenShiftMigrateTemplateInstances, self).__init__(**kwargs)
 
     def patch_template_instance(self, resource, templateinstance):
         result = None
@@ -293,7 +265,7 @@ class OpenShiftMigrateTemplateInstances(K8sAnsibleMixin):
         try:
             result = resource.status.patch(templateinstance)
         except Exception as exc:
-            self.module.fail_json(
+            self.fail_json(
                 msg="Failed to migrate TemplateInstance {0} due to: {1}".format(
                     templateinstance["metadata"]["name"], to_native(exc)
                 )
@@ -351,7 +323,7 @@ class OpenShiftMigrateTemplateInstances(K8sAnsibleMixin):
                     reason=exc.reason,
                 )
             except Exception as exc:
-                self.module.fail_json(
+                self.fail_json(
                     msg="Failed to retrieve TemplateInstances in namespace '{0}': {1}".format(
                         namespace, to_native(exc)
                     ),
@@ -367,7 +339,7 @@ class OpenShiftMigrateTemplateInstances(K8sAnsibleMixin):
 
             if ti_to_be_migrated:
                 if self.check_mode:
-                    self.module.exit_json(
+                    self.exit_json(
                         **{"changed": True, "result": ti_to_be_migrated}
                     )
                 else:
@@ -377,7 +349,7 @@ class OpenShiftMigrateTemplateInstances(K8sAnsibleMixin):
                         )
                     results["changed"] = True
 
-        self.module.exit_json(**results)
+        self.exit_json(**results)
 
 
 def argspec():
@@ -391,10 +363,8 @@ def argspec():
 
 def main():
     argument_spec = argspec()
-    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)
-    openshift_process = OpenShiftMigrateTemplateInstances(module)
-    openshift_process.argspec = argument_spec
-    openshift_process.execute_module()
+    module = OpenShiftMigrateTemplateInstances(argument_spec=argument_spec, supports_check_mode=True)
+    module.run_module()
 
 
 if __name__ == "__main__":

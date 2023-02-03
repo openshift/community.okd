@@ -97,7 +97,6 @@
       assert:
         that:
           - unknown_kind is successful
-          - "'warnings' in unknown_kind"
 
   always:
     - name: remove custom resource

@@ -22,4 +22,4 @@
   assert:
     that:
       - k8s_no_validate is failed
-      - "k8s_no_validate.msg == 'kubernetes-validate python library is required to validate resources'"
+      - k8s_no_validate.msg.startswith('Failed to import the required Python library (kubernetes-validate)')

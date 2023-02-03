@@ -112,8 +112,13 @@ connections:
     context: 'awx/192-168-64-4:8443/developer'
 '''
 
-from ansible_collections.kubernetes.core.plugins.inventory.k8s import K8sInventoryException, InventoryModule as K8sInventoryModule, format_dynamic_api_exc
-from ansible_collections.kubernetes.core.plugins.module_utils.common import get_api_client
+try:
+    from ansible_collections.kubernetes.core.plugins.inventory.k8s import K8sInventoryException, InventoryModule as K8sInventoryModule, format_dynamic_api_exc
+    from ansible_collections.kubernetes.core.plugins.module_utils.k8s.client import get_api_client
+    HAS_KUBERNETES_COLLECTION = True
+except ImportError as e:
+    HAS_KUBERNETES_COLLECTION = False
+
 
 try:
     from kubernetes.dynamic.exceptions import DynamicApiError
@@ -127,7 +132,13 @@ class InventoryModule(K8sInventoryModule):
     connection_plugin = 'community.okd.oc'
     transport = 'oc'
 
+    def check_kubernetes_collection(self):
+
+        if not HAS_KUBERNETES_COLLECTION:
+            K8sInventoryException("The kubernetes.core collection must be installed")
+
     def fetch_objects(self, connections):
+        self.check_kubernetes_collection()
         super(InventoryModule, self).fetch_objects(connections)
 
         if connections:
@@ -151,6 +162,7 @@ class InventoryModule(K8sInventoryModule):
                 self.get_routes_for_namespace(client, name, namespace)
 
     def get_routes_for_namespace(self, client, name, namespace):
+        self.check_kubernetes_collection()
         v1_route = client.resources.get(api_version='route.openshift.io/v1', kind='Route')
         try:
             obj = v1_route.get(namespace=namespace)

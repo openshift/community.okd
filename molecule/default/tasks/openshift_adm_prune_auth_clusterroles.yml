@@ -295,7 +295,6 @@
         state: absent
         kind: Namespace
         name: "{{ test_ns }}"
-        wait: yes
       ignore_errors: true
 
     - name: Delete ClusterRoleBinding

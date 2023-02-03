@@ -280,7 +280,6 @@ deleted_images:
 
 import copy
 
-from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.kubernetes.core.plugins.module_utils.args_common import AUTH_ARG_SPEC
 
 
@@ -303,14 +302,13 @@ def argument_spec():
 
 
 def main():
-    module = AnsibleModule(argument_spec=argument_spec(), supports_check_mode=True)
 
     from ansible_collections.community.okd.plugins.module_utils.openshift_adm_prune_images import (
-        OpenShiftAdmPruneImages)
+        OpenShiftAdmPruneImages
+    )
 
-    adm_prune_images = OpenShiftAdmPruneImages(module)
-    adm_prune_images.argspec = argument_spec()
-    adm_prune_images.execute_module()
+    module = OpenShiftAdmPruneImages(argument_spec=argument_spec(), supports_check_mode=True)
+    module.run_module()
 
 
 if __name__ == '__main__':

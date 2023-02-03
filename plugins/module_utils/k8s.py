@@ -6,79 +6,113 @@ __metaclass__ = type
 import re
 import operator
 from functools import reduce
-import traceback
-from ansible_collections.kubernetes.core.plugins.module_utils.common import (
-    K8sAnsibleMixin,
-    get_api_client,
-)
-from ansible.module_utils._text import to_native
+from ansible_collections.community.okd.plugins.module_utils.openshift_common import AnsibleOpenshiftModule
 
+try:
+    from ansible_collections.kubernetes.core.plugins.module_utils.k8s.resource import create_definitions
+    from ansible_collections.kubernetes.core.plugins.module_utils.k8s.exceptions import CoreException
+except ImportError:
+    pass
+
+from ansible.module_utils._text import to_native
 
 try:
     from kubernetes.dynamic.exceptions import DynamicApiError, NotFoundError, ForbiddenError
-    HAS_KUBERNETES_COLLECTION = True
 except ImportError as e:
-    HAS_KUBERNETES_COLLECTION = False
-    k8s_collection_import_exception = e
-    K8S_COLLECTION_ERROR = traceback.format_exc()
+    pass
 
 
 TRIGGER_ANNOTATION = 'image.openshift.io/triggers'
 TRIGGER_CONTAINER = re.compile(r"(?P<path>.*)\[((?P<index>[0-9]+)|\?\(@\.name==[\"'\\]*(?P<name>[a-z0-9]([-a-z0-9]*[a-z0-9])?))")
 
 
-class OKDRawModule(K8sAnsibleMixin):
+class OKDRawModule(AnsibleOpenshiftModule):
 
-    def __init__(self, module, k8s_kind=None, *args, **kwargs):
-        self.module = module
-        self.client = get_api_client(module=module)
-        self.check_mode = self.module.check_mode
-        self.params = self.module.params
-        self.fail_json = self.module.fail_json
-        self.fail = self.module.fail_json
-        self.exit_json = self.module.exit_json
+    def __init__(self, **kwargs):
 
-        super(OKDRawModule, self).__init__(module, *args, **kwargs)
+        super(OKDRawModule, self).__init__(**kwargs)
 
-        self.warnings = []
+    @property
+    def module(self):
+        return self._module
 
-        self.kind = k8s_kind or self.params.get('kind')
-        self.api_version = self.params.get('api_version')
-        self.name = self.params.get('name')
-        self.namespace = self.params.get('namespace')
+    def execute_module(self):
+        results = []
+        changed = False
 
-        self.check_library_version()
-        self.set_resource_definitions(module)
+        try:
+            definitions = create_definitions(self.params)
+        except Exception as e:
+            msg = "Failed to load resource definition: {0}".format(e)
+            raise CoreException(msg) from e
 
-    def perform_action(self, resource, definition):
-        state = self.params.get('state', None)
-        name = definition['metadata'].get('name')
-        namespace = definition['metadata'].get('namespace')
+        for definition in definitions:
+            result = {"changed": False, "result": {}}
+            warnings = []
 
-        if state != 'absent':
+            if self.params.get("state") != 'absent':
+                existing = None
+                name = definition.get("metadata", {}).get("name")
+                namespace = definition.get("metadata", {}).get("namespace")
+                if definition.get("kind") in ['Project', 'ProjectRequest']:
+                    try:
+                        resource = self.svc.find_resource(kind=definition.get("kind"), api_version=definition.get("apiVersion", "v1"))
+                        existing = resource.get(name=name, namespace=namespace).to_dict()
+                    except (NotFoundError, ForbiddenError):
+                        result = self.create_project_request(definition)
+                        changed |= result["changed"]
+                        results.append(result)
+                        continue
+                    except DynamicApiError as exc:
+                        self.fail_json(msg='Failed to retrieve requested object: {0}'.format(exc.body),
+                                       error=exc.status, status=exc.status, reason=exc.reason)
 
-            if resource.kind in ['Project', 'ProjectRequest']:
-                try:
-                    resource.get(name, namespace)
-                except (NotFoundError, ForbiddenError):
-                    return self.create_project_request(definition)
-                except DynamicApiError as exc:
-                    self.fail_json(msg='Failed to retrieve requested object: {0}'.format(exc.body),
-                                   error=exc.status, status=exc.status, reason=exc.reason)
+                if definition.get("kind") not in ['Project', 'ProjectRequest']:
+                    try:
+                        resource = self.svc.find_resource(kind=definition.get("kind"), api_version=definition.get("apiVersion", "v1"))
+                        existing = resource.get(name=name, namespace=namespace).to_dict()
+                    except Exception:
+                        existing = None
+
+                if existing:
+                    if resource.kind == 'DeploymentConfig':
+                        if definition.get('spec', {}).get('triggers'):
+                            definition = self.resolve_imagestream_triggers(existing, definition)
+                    elif existing['metadata'].get('annotations', {}).get(TRIGGER_ANNOTATION):
+                        definition = self.resolve_imagestream_trigger_annotation(existing, definition)
+
+            if self.params.get("validate") is not None:
+                warnings = self.validate(definition)
 
             try:
-                existing = resource.get(name=name, namespace=namespace).to_dict()
-            except Exception:
-                existing = None
+                result = self.perform_action(definition, self.params)
+            except Exception as e:
+                try:
+                    error = e.result
+                except AttributeError:
+                    error = {}
+                try:
+                    error["reason"] = e.__cause__.reason
+                except AttributeError:
+                    pass
+                error["msg"] = to_native(e)
+                if warnings:
+                    error.setdefault("warnings", []).extend(warnings)
 
-            if existing:
-                if resource.kind == 'DeploymentConfig':
-                    if definition.get('spec', {}).get('triggers'):
-                        definition = self.resolve_imagestream_triggers(existing, definition)
-                elif existing['metadata'].get('annotations', {}).get(TRIGGER_ANNOTATION):
-                    definition = self.resolve_imagestream_trigger_annotation(existing, definition)
+                if self.params.get("continue_on_error"):
+                    result["error"] = error
+                else:
+                    self.fail_json(**error)
 
-        return super(OKDRawModule, self).perform_action(resource, definition)
+            if warnings:
+                result.setdefault("warnings", []).extend(warnings)
+            changed |= result["changed"]
+            results.append(result)
+
+        if len(results) == 1:
+            self.exit_json(**results[0])
+
+        self.exit_json(**{"changed": changed, "result": {"results": results}})
 
     @staticmethod
     def get_index(desired, objects, keys):
@@ -173,7 +207,7 @@ class OKDRawModule(K8sAnsibleMixin):
     def create_project_request(self, definition):
         definition['kind'] = 'ProjectRequest'
         result = {'changed': False, 'result': {}}
-        resource = self.find_resource('ProjectRequest', definition['apiVersion'], fail=True)
+        resource = self.svc.find_resource(kind='ProjectRequest', api_version=definition['apiVersion'], fail=True)
         if not self.check_mode:
             try:
                 k8s_obj = resource.create(definition)

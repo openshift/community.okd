@@ -10,7 +10,6 @@ __metaclass__ = type
 import traceback
 from datetime import datetime
 
-from ansible_collections.kubernetes.core.plugins.module_utils.common import (K8sAnsibleMixin, get_api_client)
 from ansible.module_utils.parsing.convert_bool import boolean
 from ansible.module_utils._text import to_native
 from ansible.module_utils.basic import missing_required_lib
@@ -31,18 +30,7 @@ except ImportError as e:
     HAS_PYTHON_LDAP = False
     PYTHON_LDAP_ERROR = e
 
-try:
-    from ansible_collections.kubernetes.core.plugins.module_utils.common import (
-        K8sAnsibleMixin,
-        get_api_client,
-    )
-    HAS_KUBERNETES_COLLECTION = True
-    k8s_collection_import_exception = None
-    K8S_COLLECTION_ERROR = None
-except ImportError as e:
-    HAS_KUBERNETES_COLLECTION = False
-    k8s_collection_import_exception = e
-    K8S_COLLECTION_ERROR = traceback.format_exc()
+from ansible_collections.community.okd.plugins.module_utils.openshift_common import AnsibleOpenshiftModule
 
 try:
     from kubernetes.dynamic.exceptions import DynamicApiError
@@ -264,13 +252,11 @@ class OpenshiftLDAPGroups(object):
         return result
 
 
-class OpenshiftGroupsSync(K8sAnsibleMixin):
+class OpenshiftGroupsSync(AnsibleOpenshiftModule):
 
-    def __init__(self, module):
+    def __init__(self, **kwargs):
 
-        self.module = module
-        self.params = self.module.params
-        self.check_mode = self.module.check_mode
+        super(OpenshiftGroupsSync, self).__init__(**kwargs)
         self.__k8s_group_api = None
         self.__ldap_connection = None
         self.host = None
@@ -279,21 +265,10 @@ class OpenshiftGroupsSync(K8sAnsibleMixin):
         self.scheme = None
         self.config = self.params.get("sync_config")
 
-        if not HAS_KUBERNETES_COLLECTION:
-            self.module.fail_json(
-                msg="The kubernetes.core collection must be installed",
-                exception=K8S_COLLECTION_ERROR,
-                error=to_native(k8s_collection_import_exception),
-            )
-
         if not HAS_PYTHON_LDAP:
             self.fail_json(
                 msg=missing_required_lib('python-ldap'), error=to_native(PYTHON_LDAP_ERROR)
             )
-
-        super(OpenshiftGroupsSync, self).__init__(self.module)
-
-        self.client = get_api_client(self.module)
 
     @property
     def k8s_group_api(self):

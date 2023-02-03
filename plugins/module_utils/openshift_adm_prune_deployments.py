@@ -8,18 +8,7 @@ import traceback
 
 from ansible.module_utils._text import to_native
 
-try:
-    from ansible_collections.kubernetes.core.plugins.module_utils.common import (
-        K8sAnsibleMixin,
-        get_api_client,
-    )
-    HAS_KUBERNETES_COLLECTION = True
-    k8s_collection_import_exception = None
-    K8S_COLLECTION_ERROR = None
-except ImportError as e:
-    HAS_KUBERNETES_COLLECTION = False
-    k8s_collection_import_exception = e
-    K8S_COLLECTION_ERROR = traceback.format_exc()
+from ansible_collections.community.okd.plugins.module_utils.openshift_common import AnsibleOpenshiftModule
 
 try:
     from kubernetes import client
@@ -42,24 +31,10 @@ def get_deploymentconfig_for_replicationcontroller(replica_controller):
         return None
 
 
-class OpenShiftAdmPruneDeployment(K8sAnsibleMixin):
-    def __init__(self, module):
-        self.module = module
-        self.fail_json = self.module.fail_json
-        self.exit_json = self.module.exit_json
+class OpenShiftAdmPruneDeployment(AnsibleOpenshiftModule):
 
-        if not HAS_KUBERNETES_COLLECTION:
-            self.module.fail_json(
-                msg="The kubernetes.core collection must be installed",
-                exception=K8S_COLLECTION_ERROR,
-                error=to_native(k8s_collection_import_exception),
-            )
-
-        super(OpenShiftAdmPruneDeployment, self).__init__(self.module)
-
-        self.params = self.module.params
-        self.check_mode = self.module.check_mode
-        self.client = get_api_client(self.module)
+    def __init__(self, **kwargs):
+        super(OpenShiftAdmPruneDeployment, self).__init__(**kwargs)
 
     def filter_replication_controller(self, replicacontrollers):
         def _deployment(obj):
@@ -109,7 +84,7 @@ class OpenShiftAdmPruneDeployment(K8sAnsibleMixin):
             results = filter(pred, results)
         return list(results)
 
-    def execute(self):
+    def execute_module(self):
         # list replicationcontroller candidate for pruning
         kind = 'ReplicationController'
         api_version = 'v1'

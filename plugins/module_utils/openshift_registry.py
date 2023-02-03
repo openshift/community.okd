@@ -6,20 +6,7 @@ __metaclass__ = type
 import traceback
 from urllib.parse import urlparse
 
-from ansible.module_utils._text import to_native
-
-try:
-    from ansible_collections.kubernetes.core.plugins.module_utils.common import (
-        K8sAnsibleMixin,
-        get_api_client,
-    )
-    HAS_KUBERNETES_COLLECTION = True
-    k8s_collection_import_exception = None
-    K8S_COLLECTION_ERROR = None
-except ImportError as e:
-    HAS_KUBERNETES_COLLECTION = False
-    k8s_collection_import_exception = e
-    K8S_COLLECTION_ERROR = traceback.format_exc()
+from ansible_collections.community.okd.plugins.module_utils.openshift_common import AnsibleOpenshiftModule
 
 from ansible_collections.community.okd.plugins.module_utils.openshift_docker_image import (
     parse_docker_image_ref,
@@ -36,25 +23,9 @@ except ImportError as e:
     REQUESTS_MODULE_ERROR = traceback.format_exc()
 
 
-class OpenShiftRegistry(K8sAnsibleMixin):
-    def __init__(self, module):
-        self.module = module
-        self.fail_json = self.module.fail_json
-        self.exit_json = self.module.exit_json
-
-        if not HAS_KUBERNETES_COLLECTION:
-            self.fail_json(
-                msg="The kubernetes.core collection must be installed",
-                exception=K8S_COLLECTION_ERROR,
-                error=to_native(k8s_collection_import_exception),
-            )
-
-        super(OpenShiftRegistry, self).__init__(self.module)
-
-        self.params = self.module.params
-        self.check_mode = self.module.check_mode
-        self.client = get_api_client(self.module)
-
+class OpenShiftRegistry(AnsibleOpenshiftModule):
+    def __init__(self, **kwargs):
+        super(OpenShiftRegistry, self).__init__(**kwargs)
         self.check = self.params.get("check")
 
     def list_image_streams(self, namespace=None):
@@ -103,7 +74,7 @@ class OpenShiftRegistry(K8sAnsibleMixin):
 
         self.fail_json(msg="No Image Streams could be located to retrieve registry info.")
 
-    def info(self):
+    def execute_module(self):
         result = {}
         result["internal_hostname"], result["public_hostname"] = self.find_registry_info()
 

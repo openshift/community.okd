@@ -84,7 +84,6 @@ check:
 
 import copy
 
-from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.kubernetes.core.plugins.module_utils.args_common import AUTH_ARG_SPEC
 
 
@@ -99,17 +98,16 @@ def argument_spec():
 
 
 def main():
-    module = AnsibleModule(
+
+    from ansible_collections.community.okd.plugins.module_utils.openshift_registry import (
+        OpenShiftRegistry
+    )
+
+    module = OpenShiftRegistry(
         argument_spec=argument_spec(),
         supports_check_mode=True
     )
-
-    from ansible_collections.community.okd.plugins.module_utils.openshift_registry import (
-        OpenShiftRegistry)
-
-    registry = OpenShiftRegistry(module)
-    registry.argspec = argument_spec()
-    registry.info()
+    module.run_module()
 
 
 if __name__ == '__main__':
