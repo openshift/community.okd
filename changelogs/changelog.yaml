@@ -180,3 +180,22 @@ releases:
       name: openshift_registry_info
       namespace: ''
     release_date: '2022-05-05'
+  2.3.0:
+    changes:
+      bugfixes:
+      - openshift_adm_groups_sync - initialize OpenshiftGroupSync attributes early
+        to avoid Attribute error (https://github.com/openshift/community.okd/issues/155).
+      - openshift_auth - Review the way the discard process is working, add openshift
+        algorithm to convert token to resource object name (https://github.com/openshift/community.okd/issues/176).
+    fragments:
+    - 165-initialize-attributes-early.yml
+    - 178-openshift_auth-fix-revoke-token.yml
+    - 180-default-values-doc.yml
+    modules:
+    - description: Prune old completed and failed builds
+      name: openshift_adm_prune_builds
+      namespace: ''
+    - description: Start a new build or Cancel running, pending, or new builds.
+      name: openshift_build
+      namespace: ''
+    release_date: '2023-02-03'

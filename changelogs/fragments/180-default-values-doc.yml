@@ -1,3 +1,0 @@
----
-trivial:
-  - add missing default values to docstrings (https://github.com/openshift/community.okd/pull/180).
