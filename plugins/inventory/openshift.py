@@ -22,6 +22,7 @@ DOCUMENTATION = '''
       why: |
         As discussed in U(https://github.com/ansible-collections/kubernetes.core/issues/31), we decided to
         remove the openshift inventory plugin in release 4.0.0.
+      alternative: ""
 
     options:
       plugin:
@@ -148,7 +149,7 @@ class InventoryModule(K8sInventoryModule):
         super(InventoryModule, self).fetch_objects(connections)
 
         self.display.deprecated("The 'openshift' inventory plugin has been deprecated and will be removed in release 4.0.0",
-            version='4.0.0', collection_name='community.okd')
+                                version='4.0.0', collection_name='community.okd')
 
         if connections:
             if not isinstance(connections, list):
