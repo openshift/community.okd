@@ -17,6 +17,13 @@ DOCUMENTATION = '''
       - Groups by cluster name, namespace, namespace_services, namespace_pods, namespace_routes, and labels
       - Uses openshift.(yml|yaml) YAML configuration file to set parameter values.
 
+    deprecated:
+      removed_in: 4.0.0
+      why: |
+        As discussed in U(https://github.com/ansible-collections/kubernetes.core/issues/31), we decided to
+        remove the openshift inventory plugin in release 4.0.0.
+      alternative: "Use M(kubernetes.core.k8s_info) and M(ansible.builtin.add_host) instead."
+
     options:
       plugin:
         description: token that ensures this is a source file for the 'openshift' plugin.
@@ -140,6 +147,9 @@ class InventoryModule(K8sInventoryModule):
     def fetch_objects(self, connections):
         self.check_kubernetes_collection()
         super(InventoryModule, self).fetch_objects(connections)
+
+        self.display.deprecated("The 'openshift' inventory plugin has been deprecated and will be removed in release 4.0.0",
+                                version='4.0.0', collection_name='community.okd')
 
         if connections:
             if not isinstance(connections, list):
