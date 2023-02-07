@@ -22,7 +22,7 @@ DOCUMENTATION = '''
       why: |
         As discussed in U(https://github.com/ansible-collections/kubernetes.core/issues/31), we decided to
         remove the openshift inventory plugin in release 4.0.0.
-      alternative: ""
+      alternative: "Use M(kubernetes.core.k8s_info) and M(ansible.builtin.add_host) instead."
 
     options:
       plugin:
