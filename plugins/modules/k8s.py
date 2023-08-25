@@ -29,6 +29,7 @@ description:
   - Authenticate using either a config file, certificates, password or token.
   - Supports check mode.
   - Optimized for OKD/OpenShift Kubernetes flavors.
+  - asdfadsf
 
 extends_documentation_fragment:
   - kubernetes.core.k8s_name_options
