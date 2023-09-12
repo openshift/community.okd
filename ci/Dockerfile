@@ -20,11 +20,11 @@ RUN yum install -y \
  && pip3 install --no-cache-dir --upgrade setuptools pip \
  && pip3 install --no-cache-dir \
       kubernetes \
-      ansible==2.9.* \
+      ansible-core==2.15.* \
       "molecule<3.3.0" \
   && yum clean all \
   && rm -rf $HOME/.cache \
-  && curl -L https://github.com/openshift/okd/releases/download/4.5.0-0.okd-2020-08-12-020541/openshift-client-linux-4.5.0-0.okd-2020-08-12-020541.tar.gz | tar -xz -C /usr/local/bin
+  && curl -L https://github.com/openshift/okd/releases/download/4.12.0-0.okd-2023-04-16-041331/openshift-client-linux-4.12.0-0.okd-2023-04-16-041331.tar.gz | tar -xz -C /usr/local/bin
   # TODO: Is there a better way to install this client in ubi8?
 
 COPY . /opt/ansible
