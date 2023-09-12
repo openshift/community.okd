@@ -192,7 +192,6 @@ builds:
 # ENDREMOVE (downstream)
 
 import copy
-import traceback
 
 from ansible_collections.kubernetes.core.plugins.module_utils.args_common import AUTH_ARG_SPEC
 

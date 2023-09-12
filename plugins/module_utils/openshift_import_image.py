@@ -3,10 +3,8 @@
 from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
 
-import traceback
 import copy
 
-from ansible.module_utils._text import to_native
 from ansible.module_utils.parsing.convert_bool import boolean
 from ansible.module_utils.six import string_types
 
@@ -315,7 +313,7 @@ class OpenShiftImportImage(AnsibleOpenshiftModule):
         if not result["api_found"]:
             msg = 'Failed to find API for resource with apiVersion "{0}" and kind "{1}"'.format(
                 api_version, kind
-            ),
+            )
             self.fail_json(msg=msg)
         imagestream = None
         if len(result["resources"]) > 0:

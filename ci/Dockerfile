@@ -1,4 +1,4 @@
-FROM registry.access.redhat.com/ubi8/ubi
+FROM registry.access.redhat.com/ubi9/ubi
 
 ENV OPERATOR=/usr/local/bin/ansible-operator \
     USER_UID=1001 \
@@ -11,10 +11,10 @@ RUN yum install -y \
       glibc-langpack-en \
       git \
       make \
-      python39 \
-      python39-devel \
-      python39-pip \
-      python39-setuptools \
+      python3 \
+      python3-devel \
+      python3-pip \
+      python3-setuptools \
       gcc \
       openldap-devel \
  && pip3 install --no-cache-dir --upgrade setuptools pip \
