@@ -20,7 +20,7 @@ RUN yum install -y \
  && python3 -m pip install --no-cache-dir --upgrade setuptools pip \
  && python3 -m pip install --no-cache-dir \
       kubernetes \
-      ansible-core==2.15.* \
+      "ansible-core==2.15.*" \
       "molecule<3.3.0" \
   && yum clean all \
   && rm -rf $HOME/.cache \
