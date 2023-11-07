@@ -1,5 +1,0 @@
----
-collections:
-  - name: https://github.com/ansible-collections/kubernetes.core.git
-    type: git
-    version: main
