@@ -7,7 +7,6 @@ import os
 
 from ansible.module_utils._text import to_native
 
-
 from ansible_collections.community.okd.plugins.module_utils.openshift_common import AnsibleOpenshiftModule
 
 try:
