@@ -1,0 +1,2 @@
+trivial:
+  - "Move unit and sanity tests from zuul to GitHub Actions."
