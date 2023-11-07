@@ -10,7 +10,7 @@ from ansible_collections.community.okd.plugins.module_utils.openshift_ldap impor
 import pytest
 
 try:
-    import ldap
+    import ldap  # pylint: disable=unused-import
 except ImportError:
     pytestmark = pytest.mark.skip("This test requires the python-ldap library")
 

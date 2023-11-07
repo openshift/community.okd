@@ -254,7 +254,7 @@ result:
        type: int
        sample: 48
      error:
-       description: error while trying to create/delete the object.
+       description: Error while trying to create/delete the object.
        returned: error
        type: complex
 '''

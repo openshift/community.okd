@@ -4,10 +4,8 @@ from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
 
 import os
-import traceback
 
 from ansible.module_utils._text import to_native
-
 
 from ansible_collections.community.okd.plugins.module_utils.openshift_common import AnsibleOpenshiftModule
 

@@ -7,7 +7,6 @@ from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
 
 
-import traceback
 from datetime import datetime
 
 from ansible.module_utils.parsing.convert_bool import boolean

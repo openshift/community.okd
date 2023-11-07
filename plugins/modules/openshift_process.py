@@ -49,6 +49,7 @@ options:
     description:
       - The namespace that resources should be created, updated, or deleted in.
       - Only used when I(state) is present or absent.
+    type: str
   parameters:
     description:
       - 'A set of key: value pairs that will be used to set/override values in the Template.'

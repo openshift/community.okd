@@ -142,7 +142,7 @@ class InventoryModule(K8sInventoryModule):
     def check_kubernetes_collection(self):
 
         if not HAS_KUBERNETES_COLLECTION:
-            K8sInventoryException("The kubernetes.core collection must be installed")
+            raise K8sInventoryException("The kubernetes.core collection must be installed")
 
     def fetch_objects(self, connections):
         self.check_kubernetes_collection()
