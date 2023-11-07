@@ -20,8 +20,8 @@ RUN yum install -y \
  && python3.9 -m pip install --no-cache-dir --upgrade setuptools pip \
  && python3.9 -m pip install --no-cache-dir \
       kubernetes \
-      "ansible-core==2.15.*" \
-      "molecule<3.3.0" \
+      "ansible-core" \
+      "molecule" \
   && yum clean all \
   && rm -rf $HOME/.cache \
   && curl -L https://github.com/openshift/okd/releases/download/4.12.0-0.okd-2023-04-16-041331/openshift-client-linux-4.12.0-0.okd-2023-04-16-041331.tar.gz | tar -xz -C /usr/local/bin
