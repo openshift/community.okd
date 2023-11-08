@@ -19,10 +19,10 @@
               app: hello-kubernetes
           spec:
             containers:
-            - name: hello-kubernetes
-              image: docker.io/openshift/hello-openshift
-              ports:
-              - containerPort: 8080
+              - name: hello-kubernetes
+                image: docker.io/openshift/hello-openshift
+                ports:
+                  - containerPort: 8080
 
 - name: Create Service
   community.okd.k8s:
@@ -35,8 +35,8 @@
         namespace: default
       spec:
         ports:
-        - port: 80
-          targetPort: 8080
+          - port: 80
+            targetPort: 8080
         selector:
           app: hello-kubernetes
 

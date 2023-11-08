@@ -172,8 +172,8 @@ EXAMPLES = r"""
         ports:
           - port: 80
             targetPort: 8080
-          selector:
-            app: hello-kubernetes
+        selector:
+          app: hello-kubernetes
 
 - name: Expose the insecure hello-world service externally
   community.okd.openshift_route:

@@ -83,12 +83,12 @@ okd_imagestream_template:
     lookupPolicy:
       local: true
     tags:
-    - annotations: null
-      from:
-        kind: DockerImage
-        name: '{{ image }}'
-      name: '{{ image_tag }}'
-      referencePolicy:
-        type: Source
+      - annotations: null
+        from:
+          kind: DockerImage
+          name: '{{ image }}'
+        name: '{{ image_tag }}'
+        referencePolicy:
+          type: Source
 
 image_tag: latest

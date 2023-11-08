@@ -1,3 +1,4 @@
+---
 - block:
     - name: Create temp directory
       tempfile:
