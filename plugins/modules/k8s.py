@@ -10,7 +10,7 @@ from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
 # STARTREMOVE (downstream)
-DOCUMENTATION = r'''
+DOCUMENTATION = r"""
 
 module: k8s
 
@@ -142,9 +142,9 @@ requirements:
   - "python >= 3.6"
   - "kubernetes >= 12.0.0"
   - "PyYAML >= 3.11"
-'''
+"""
 
-EXAMPLES = r'''
+EXAMPLES = r"""
 - name: Create a k8s namespace
   community.okd.k8s:
     name: testing
@@ -215,9 +215,9 @@ EXAMPLES = r'''
     validate:
       fail_on_error: no
       strict: yes
-'''
+"""
 
-RETURN = r'''
+RETURN = r"""
 result:
   description:
   - The created, patched, or otherwise present object. Will be empty in the case of a deletion.
@@ -257,19 +257,23 @@ result:
        description: Error while trying to create/delete the object.
        returned: error
        type: complex
-'''
+"""
 # ENDREMOVE (downstream)
 
 from ansible_collections.kubernetes.core.plugins.module_utils.args_common import (
-    NAME_ARG_SPEC, RESOURCE_ARG_SPEC, AUTH_ARG_SPEC, WAIT_ARG_SPEC, DELETE_OPTS_ARG_SPEC
+    NAME_ARG_SPEC,
+    RESOURCE_ARG_SPEC,
+    AUTH_ARG_SPEC,
+    WAIT_ARG_SPEC,
+    DELETE_OPTS_ARG_SPEC,
 )
 
 
 def validate_spec():
     return dict(
-        fail_on_error=dict(type='bool'),
+        fail_on_error=dict(type="bool"),
         version=dict(),
-        strict=dict(type='bool', default=True)
+        strict=dict(type="bool", default=True),
     )
 
 
@@ -279,30 +283,41 @@ def argspec():
     argument_spec.update(RESOURCE_ARG_SPEC)
     argument_spec.update(AUTH_ARG_SPEC)
     argument_spec.update(WAIT_ARG_SPEC)
-    argument_spec['merge_type'] = dict(type='list', elements='str', choices=['json', 'merge', 'strategic-merge'])
-    argument_spec['validate'] = dict(type='dict', default=None, options=validate_spec())
-    argument_spec['append_hash'] = dict(type='bool', default=False)
-    argument_spec['apply'] = dict(type='bool', default=False)
-    argument_spec['template'] = dict(type='raw', default=None)
-    argument_spec['delete_options'] = dict(type='dict', default=None, options=DELETE_OPTS_ARG_SPEC)
-    argument_spec['continue_on_error'] = dict(type='bool', default=False)
-    argument_spec['state'] = dict(default='present', choices=['present', 'absent', 'patched'])
-    argument_spec['force'] = dict(type='bool', default=False)
+    argument_spec["merge_type"] = dict(
+        type="list", elements="str", choices=["json", "merge", "strategic-merge"]
+    )
+    argument_spec["validate"] = dict(type="dict", default=None, options=validate_spec())
+    argument_spec["append_hash"] = dict(type="bool", default=False)
+    argument_spec["apply"] = dict(type="bool", default=False)
+    argument_spec["template"] = dict(type="raw", default=None)
+    argument_spec["delete_options"] = dict(
+        type="dict", default=None, options=DELETE_OPTS_ARG_SPEC
+    )
+    argument_spec["continue_on_error"] = dict(type="bool", default=False)
+    argument_spec["state"] = dict(
+        default="present", choices=["present", "absent", "patched"]
+    )
+    argument_spec["force"] = dict(type="bool", default=False)
     return argument_spec
 
 
 def main():
     mutually_exclusive = [
-        ('resource_definition', 'src'),
-        ('merge_type', 'apply'),
-        ('template', 'resource_definition'),
-        ('template', 'src'),
+        ("resource_definition", "src"),
+        ("merge_type", "apply"),
+        ("template", "resource_definition"),
+        ("template", "src"),
     ]
 
     from ansible_collections.community.okd.plugins.module_utils.k8s import OKDRawModule
-    module = OKDRawModule(argument_spec=argspec(), supports_check_mode=True, mutually_exclusive=mutually_exclusive)
+
+    module = OKDRawModule(
+        argument_spec=argspec(),
+        supports_check_mode=True,
+        mutually_exclusive=mutually_exclusive,
+    )
     module.run_module()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

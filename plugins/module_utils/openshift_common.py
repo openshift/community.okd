@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
+
 __metaclass__ = type
 
 import traceback
@@ -9,8 +10,12 @@ from abc import abstractmethod
 from ansible.module_utils._text import to_native
 
 try:
-    from ansible_collections.kubernetes.core.plugins.module_utils.k8s.client import get_api_client
-    from ansible_collections.kubernetes.core.plugins.module_utils.k8s.core import AnsibleK8SModule
+    from ansible_collections.kubernetes.core.plugins.module_utils.k8s.client import (
+        get_api_client,
+    )
+    from ansible_collections.kubernetes.core.plugins.module_utils.k8s.core import (
+        AnsibleK8SModule,
+    )
     from ansible_collections.kubernetes.core.plugins.module_utils.k8s.service import (
         K8sService,
         diff_objects,
@@ -24,7 +29,10 @@ try:
         merge_params,
         flatten_list_kind,
     )
-    from ansible_collections.kubernetes.core.plugins.module_utils.k8s.exceptions import CoreException
+    from ansible_collections.kubernetes.core.plugins.module_utils.k8s.exceptions import (
+        CoreException,
+    )
+
     HAS_KUBERNETES_COLLECTION = True
     k8s_collection_import_exception = None
     K8S_COLLECTION_ERROR = None
@@ -35,7 +43,6 @@ except ImportError as e:
 
 
 class AnsibleOpenshiftModule(AnsibleK8SModule):
-
     def __init__(self, **kwargs):
         super(AnsibleOpenshiftModule, self).__init__(**kwargs)
 
@@ -86,7 +93,6 @@ class AnsibleOpenshiftModule(AnsibleK8SModule):
         return diff_objects(existing, new)
 
     def run_module(self):
-
         try:
             self.execute_module()
         except CoreException as e:

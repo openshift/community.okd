@@ -5,10 +5,11 @@
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 from __future__ import absolute_import, division, print_function
+
 __metaclass__ = type
 
 # STARTREMOVE (downstream)
-DOCUMENTATION = r'''
+DOCUMENTATION = r"""
 
 module: openshift_adm_prune_auth
 
@@ -58,9 +59,9 @@ options:
 requirements:
   - python >= 3.6
   - kubernetes >= 12.0.0
-'''
+"""
 
-EXAMPLES = r'''
+EXAMPLES = r"""
 - name: Prune all roles from default namespace
   openshift_adm_prune_auth:
     resource: roles
@@ -72,10 +73,10 @@ EXAMPLES = r'''
     namespace: testing
     label_selectors:
       - phase=production
-'''
+"""
 
 
-RETURN = r'''
+RETURN = r"""
 cluster_role_binding:
   type: list
   description: list of cluster role binding deleted.
@@ -96,37 +97,45 @@ group:
   type: list
   description: list of Security Context Constraints deleted.
   returned: I(resource=users)
-'''
+"""
 # ENDREMOVE (downstream)
 
 import copy
 
-from ansible_collections.kubernetes.core.plugins.module_utils.args_common import AUTH_ARG_SPEC
+from ansible_collections.kubernetes.core.plugins.module_utils.args_common import (
+    AUTH_ARG_SPEC,
+)
 
 
 def argument_spec():
     args = copy.deepcopy(AUTH_ARG_SPEC)
     args.update(
         dict(
-            resource=dict(type='str', required=True, choices=['roles', 'clusterroles', 'users', 'groups']),
-            namespace=dict(type='str'),
-            name=dict(type='str'),
-            label_selectors=dict(type='list', elements='str'),
+            resource=dict(
+                type="str",
+                required=True,
+                choices=["roles", "clusterroles", "users", "groups"],
+            ),
+            namespace=dict(type="str"),
+            name=dict(type="str"),
+            label_selectors=dict(type="list", elements="str"),
         )
     )
     return args
 
 
 def main():
-
     from ansible_collections.community.okd.plugins.module_utils.openshift_adm_prune_auth import (
-        OpenShiftAdmPruneAuth)
+        OpenShiftAdmPruneAuth,
+    )
 
-    module = OpenShiftAdmPruneAuth(argument_spec=argument_spec(),
-                                   mutually_exclusive=[("name", "label_selectors")],
-                                   supports_check_mode=True)
+    module = OpenShiftAdmPruneAuth(
+        argument_spec=argument_spec(),
+        mutually_exclusive=[("name", "label_selectors")],
+        supports_check_mode=True,
+    )
     module.run_module()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
