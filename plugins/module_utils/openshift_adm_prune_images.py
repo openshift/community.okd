@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
+
 __metaclass__ = type
 
 from datetime import datetime, timezone, timedelta
@@ -10,7 +11,9 @@ from ansible.module_utils._text import to_native
 from ansible.module_utils.parsing.convert_bool import boolean
 from ansible.module_utils.six import iteritems
 
-from ansible_collections.community.okd.plugins.module_utils.openshift_common import AnsibleOpenshiftModule
+from ansible_collections.community.okd.plugins.module_utils.openshift_common import (
+    AnsibleOpenshiftModule,
+)
 
 from ansible_collections.community.okd.plugins.module_utils.openshift_images_common import (
     OpenShiftAnalyzeImageStream,
@@ -29,7 +32,7 @@ try:
     from kubernetes.dynamic.exceptions import (
         DynamicApiError,
         NotFoundError,
-        ApiException
+        ApiException,
     )
 except ImportError:
     pass
@@ -66,18 +69,20 @@ def determine_host_registry(module, images, image_streams):
     managed_images = list(filter(_f_managed_images, images))
 
     # Be sure to pick up the newest managed image which should have an up to date information
-    sorted_images = sorted(managed_images,
-                           key=lambda x: x["metadata"]["creationTimestamp"],
-                           reverse=True)
+    sorted_images = sorted(
+        managed_images, key=lambda x: x["metadata"]["creationTimestamp"], reverse=True
+    )
     docker_image_ref = ""
     if len(sorted_images) > 0:
         docker_image_ref = sorted_images[0].get("dockerImageReference", "")
     else:
         # 2nd try to get the pull spec from any image stream
         # Sorting by creation timestamp may not get us up to date info. Modification time would be much
-        sorted_image_streams = sorted(image_streams,
-                                      key=lambda x: x["metadata"]["creationTimestamp"],
-                                      reverse=True)
+        sorted_image_streams = sorted(
+            image_streams,
+            key=lambda x: x["metadata"]["creationTimestamp"],
+            reverse=True,
+        )
         for i_stream in sorted_image_streams:
             docker_image_ref = i_stream["status"].get("dockerImageRepository", "")
             if len(docker_image_ref) > 0:
@@ -87,7 +92,7 @@ def determine_host_registry(module, images, image_streams):
         module.exit_json(changed=False, result="no managed image found")
 
     result, error = parse_docker_image_ref(docker_image_ref, module)
-    return result['hostname']
+    return result["hostname"]
 
 
 class OpenShiftAdmPruneImages(AnsibleOpenshiftModule):
@@ -96,7 +101,7 @@ class OpenShiftAdmPruneImages(AnsibleOpenshiftModule):
 
         self.max_creation_timestamp = self.get_max_creation_timestamp()
         self._rest_client = None
-        self.registryhost = self.params.get('registry_url')
+        self.registryhost = self.params.get("registry_url")
         self.changed = False
 
     def list_objects(self):
@@ -106,9 +111,9 @@ class OpenShiftAdmPruneImages(AnsibleOpenshiftModule):
             if self.params.get("namespace") and kind.lower() == "imagestream":
                 namespace = self.params.get("namespace")
             try:
-                result[kind] = self.kubernetes_facts(kind=kind,
-                                                     api_version=version,
-                                                     namespace=namespace).get('resources')
+                result[kind] = self.kubernetes_facts(
+                    kind=kind, api_version=version, namespace=namespace
+                ).get("resources")
             except DynamicApiError as e:
                 self.fail_json(
                     msg="An error occurred while trying to list objects.",
@@ -118,7 +123,7 @@ class OpenShiftAdmPruneImages(AnsibleOpenshiftModule):
             except Exception as e:
                 self.fail_json(
                     msg="An error occurred while trying to list objects.",
-                    error=to_native(e)
+                    error=to_native(e),
                 )
         return result
 
@@ -133,8 +138,8 @@ class OpenShiftAdmPruneImages(AnsibleOpenshiftModule):
     def rest_client(self):
         if not self._rest_client:
             configuration = copy.deepcopy(self.client.configuration)
-            validate_certs = self.params.get('registry_validate_certs')
-            ssl_ca_cert = self.params.get('registry_ca_cert')
+            validate_certs = self.params.get("registry_validate_certs")
+            ssl_ca_cert = self.params.get("registry_ca_cert")
             if validate_certs is not None:
                 configuration.verify_ssl = validate_certs
             if ssl_ca_cert is not None:
@@ -145,7 +150,9 @@ class OpenShiftAdmPruneImages(AnsibleOpenshiftModule):
 
     def delete_from_registry(self, url):
         try:
-            response = self.rest_client.DELETE(url=url, headers=self.client.configuration.api_key)
+            response = self.rest_client.DELETE(
+                url=url, headers=self.client.configuration.api_key
+            )
             if response.status == 404:
                 # Unable to delete layer
                 return None
@@ -155,8 +162,9 @@ class OpenShiftAdmPruneImages(AnsibleOpenshiftModule):
             if response.status != 202 and response.status != 204:
                 self.fail_json(
                     msg="Delete URL {0}: Unexpected status code in response: {1}".format(
-                        response.status, url),
-                    reason=response.reason
+                        response.status, url
+                    ),
+                    reason=response.reason,
                 )
             return None
         except ApiException as e:
@@ -203,9 +211,7 @@ class OpenShiftAdmPruneImages(AnsibleOpenshiftModule):
                 result = self.request(
                     "PUT",
                     "/apis/{api_version}/namespaces/{namespace}/imagestreams/{name}/status".format(
-                        api_version=api_version,
-                        namespace=namespace,
-                        name=name
+                        api_version=api_version, namespace=namespace, name=name
                     ),
                     body=definition,
                     content_type="application/json",
@@ -236,11 +242,10 @@ class OpenShiftAdmPruneImages(AnsibleOpenshiftModule):
                 pass
             except DynamicApiError as exc:
                 self.fail_json(
-                    msg="Failed to delete object %s/%s due to: %s" % (
-                        kind, name, exc.body
-                    ),
+                    msg="Failed to delete object %s/%s due to: %s"
+                    % (kind, name, exc.body),
                     reason=exc.reason,
-                    status=exc.status
+                    status=exc.status,
                 )
         else:
             existing = resource.get(name=name)
@@ -284,9 +289,11 @@ class OpenShiftAdmPruneImages(AnsibleOpenshiftModule):
                 continue
 
             if idx == 0:
-                istag = "%s/%s:%s" % (stream_namespace,
-                                      stream_name,
-                                      tag_event_list["tag"])
+                istag = "%s/%s:%s" % (
+                    stream_namespace,
+                    stream_name,
+                    tag_event_list["tag"],
+                )
                 if istag in self.used_tags:
                     # keeping because tag is used
                     filtered_items.append(item)
@@ -301,20 +308,20 @@ class OpenShiftAdmPruneImages(AnsibleOpenshiftModule):
 
             image = self.image_mapping[item["image"]]
             # check prune over limit size
-            if prune_over_size_limit and not self.exceeds_limits(stream_namespace, image):
+            if prune_over_size_limit and not self.exceeds_limits(
+                stream_namespace, image
+            ):
                 filtered_items.append(item)
                 continue
 
-            image_ref = "%s/%s@%s" % (stream_namespace,
-                                      stream_name,
-                                      item["image"])
+            image_ref = "%s/%s@%s" % (stream_namespace, stream_name, item["image"])
             if image_ref in self.used_images:
                 # keeping because tag is used
                 filtered_items.append(item)
                 continue
 
             images_to_delete.append(item["image"])
-            if self.params.get('prune_registry'):
+            if self.params.get("prune_registry"):
                 manifests_to_delete.append(image["metadata"]["name"])
                 path = stream_namespace + "/" + stream_name
                 image_blobs, err = get_image_blobs(image)
@@ -324,21 +331,25 @@ class OpenShiftAdmPruneImages(AnsibleOpenshiftModule):
         return filtered_items, manifests_to_delete, images_to_delete
 
     def prune_image_streams(self, stream):
-        name = stream['metadata']['namespace'] + "/" + stream['metadata']['name']
+        name = stream["metadata"]["namespace"] + "/" + stream["metadata"]["name"]
         if is_too_young_object(stream, self.max_creation_timestamp):
             # keeping all images because of image stream too young
             return None, []
-        facts = self.kubernetes_facts(kind="ImageStream",
-                                      api_version=ApiConfiguration.get("ImageStream"),
-                                      name=stream["metadata"]["name"],
-                                      namespace=stream["metadata"]["namespace"])
-        image_stream = facts.get('resources')
+        facts = self.kubernetes_facts(
+            kind="ImageStream",
+            api_version=ApiConfiguration.get("ImageStream"),
+            name=stream["metadata"]["name"],
+            namespace=stream["metadata"]["namespace"],
+        )
+        image_stream = facts.get("resources")
         if len(image_stream) != 1:
             # skipping because it does not exist anymore
             return None, []
         stream = image_stream[0]
         namespace = self.params.get("namespace")
-        stream_to_update = not namespace or (stream["metadata"]["namespace"] == namespace)
+        stream_to_update = not namespace or (
+            stream["metadata"]["namespace"] == namespace
+        )
 
         manifests_to_delete, images_to_delete = [], []
         deleted_items = False
@@ -350,9 +361,9 @@ class OpenShiftAdmPruneImages(AnsibleOpenshiftModule):
                 (
                     filtered_tag_event,
                     tag_manifests_to_delete,
-                    tag_images_to_delete
+                    tag_images_to_delete,
                 ) = self.prune_image_stream_tag(stream, tag_event_list)
-                stream['status']['tags'][idx]['items'] = filtered_tag_event
+                stream["status"]["tags"][idx]["items"] = filtered_tag_event
                 manifests_to_delete += tag_manifests_to_delete
                 images_to_delete += tag_images_to_delete
                 deleted_items = deleted_items or (len(tag_images_to_delete) > 0)
@@ -360,11 +371,11 @@ class OpenShiftAdmPruneImages(AnsibleOpenshiftModule):
         # Deleting tags without items
         tags = []
         for tag in stream["status"].get("tags", []):
-            if tag['items'] is None or len(tag['items']) == 0:
+            if tag["items"] is None or len(tag["items"]) == 0:
                 continue
             tags.append(tag)
 
-        stream['status']['tags'] = tags
+        stream["status"]["tags"] = tags
         result = None
         # Update ImageStream
         if stream_to_update:
@@ -401,19 +412,23 @@ class OpenShiftAdmPruneImages(AnsibleOpenshiftModule):
 
     def execute_module(self):
         resources = self.list_objects()
-        if not self.check_mode and self.params.get('prune_registry'):
+        if not self.check_mode and self.params.get("prune_registry"):
             if not self.registryhost:
-                self.registryhost = determine_host_registry(self.module, resources['Image'], resources['ImageStream'])
+                self.registryhost = determine_host_registry(
+                    self.module, resources["Image"], resources["ImageStream"]
+                )
             # validate that host has a scheme
             if "://" not in self.registryhost:
                 self.registryhost = "https://" + self.registryhost
         # Analyze Image Streams
         analyze_ref = OpenShiftAnalyzeImageStream(
-            ignore_invalid_refs=self.params.get('ignore_invalid_refs'),
+            ignore_invalid_refs=self.params.get("ignore_invalid_refs"),
             max_creation_timestamp=self.max_creation_timestamp,
-            module=self.module
+            module=self.module,
         )
-        self.used_tags, self.used_images, error = analyze_ref.analyze_image_stream(resources)
+        self.used_tags, self.used_images, error = analyze_ref.analyze_image_stream(
+            resources
+        )
         if error:
             self.fail_json(msg=error)
 
@@ -434,16 +449,20 @@ class OpenShiftAdmPruneImages(AnsibleOpenshiftModule):
         updated_image_streams = []
         deleted_tags_images = []
         updated_is_mapping = {}
-        for stream in resources['ImageStream']:
+        for stream in resources["ImageStream"]:
             result, images_to_delete = self.prune_image_streams(stream)
             if result:
-                updated_is_mapping[result["metadata"]["namespace"] + "/" + result["metadata"]["name"]] = result
+                updated_is_mapping[
+                    result["metadata"]["namespace"] + "/" + result["metadata"]["name"]
+                ] = result
                 updated_image_streams.append(result)
             deleted_tags_images += images_to_delete
 
         # Create a list with images referenced on image stream
         self.referenced_images = []
-        for item in self.kubernetes_facts(kind="ImageStream", api_version="image.openshift.io/v1")["resources"]:
+        for item in self.kubernetes_facts(
+            kind="ImageStream", api_version="image.openshift.io/v1"
+        )["resources"]:
             name = "%s/%s" % (item["metadata"]["namespace"], item["metadata"]["name"])
             if name in updated_is_mapping:
                 item = updated_is_mapping[name]
@@ -452,7 +471,7 @@ class OpenShiftAdmPruneImages(AnsibleOpenshiftModule):
 
         # Stage 2: delete images
         images = []
-        images_to_delete = [x["metadata"]["name"] for x in resources['Image']]
+        images_to_delete = [x["metadata"]["name"] for x in resources["Image"]]
         if self.params.get("namespace") is not None:
             # When namespace is defined, prune only images that were referenced by ImageStream
             # from the corresponding namespace

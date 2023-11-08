@@ -3,7 +3,8 @@
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
+
 __metaclass__ = type
 
 
@@ -18,18 +19,21 @@ from ansible_collections.community.okd.plugins.module_utils.openshift_ldap impor
     ldap_split_host_port,
     OpenshiftLDAPRFC2307,
     OpenshiftLDAPActiveDirectory,
-    OpenshiftLDAPAugmentedActiveDirectory
+    OpenshiftLDAPAugmentedActiveDirectory,
 )
 
 try:
     import ldap
+
     HAS_PYTHON_LDAP = True
     PYTHON_LDAP_ERROR = None
 except ImportError as e:
     HAS_PYTHON_LDAP = False
     PYTHON_LDAP_ERROR = e
 
-from ansible_collections.community.okd.plugins.module_utils.openshift_common import AnsibleOpenshiftModule
+from ansible_collections.community.okd.plugins.module_utils.openshift_common import (
+    AnsibleOpenshiftModule,
+)
 
 try:
     from kubernetes.dynamic.exceptions import DynamicApiError
@@ -43,7 +47,9 @@ LDAP_OPENSHIFT_UID_ANNOTATION = "openshift.io/ldap.uid"
 LDAP_OPENSHIFT_SYNCTIME_ANNOTATION = "openshift.io/ldap.sync-time"
 
 
-def connect_to_ldap(module, server_uri, bind_dn=None, bind_pw=None, insecure=True, ca_file=None):
+def connect_to_ldap(
+    module, server_uri, bind_dn=None, bind_pw=None, insecure=True, ca_file=None
+):
     if insecure:
         ldap.set_option(ldap.OPT_X_TLS_REQUIRE_CERT, ldap.OPT_X_TLS_NEVER)
     elif ca_file:
@@ -55,27 +61,36 @@ def connect_to_ldap(module, server_uri, bind_dn=None, bind_pw=None, insecure=Tru
         connection.simple_bind_s(bind_dn, bind_pw)
         return connection
     except ldap.LDAPError as e:
-        module.fail_json(msg="Cannot bind to the LDAP server '{0}' due to: {1}".format(server_uri, e))
+        module.fail_json(
+            msg="Cannot bind to the LDAP server '{0}' due to: {1}".format(server_uri, e)
+        )
 
 
 def validate_group_annotation(definition, host_ip):
-    name = definition['metadata']['name']
+    name = definition["metadata"]["name"]
     # Validate LDAP URL Annotation
-    annotate_url = definition['metadata'].get('annotations', {}).get(LDAP_OPENSHIFT_URL_ANNOTATION)
+    annotate_url = (
+        definition["metadata"].get("annotations", {}).get(LDAP_OPENSHIFT_URL_ANNOTATION)
+    )
     if host_ip:
         if not annotate_url:
-            return "group '{0}' marked as having been synced did not have an '{1}' annotation".format(name, LDAP_OPENSHIFT_URL_ANNOTATION)
+            return "group '{0}' marked as having been synced did not have an '{1}' annotation".format(
+                name, LDAP_OPENSHIFT_URL_ANNOTATION
+            )
         elif annotate_url != host_ip:
             return "group '{0}' was not synchronized from: '{1}'".format(name, host_ip)
     # Validate LDAP UID Annotation
-    annotate_uid = definition['metadata']['annotations'].get(LDAP_OPENSHIFT_UID_ANNOTATION)
+    annotate_uid = definition["metadata"]["annotations"].get(
+        LDAP_OPENSHIFT_UID_ANNOTATION
+    )
     if not annotate_uid:
-        return "group '{0}' marked as having been synced did not have an '{1}' annotation".format(name, LDAP_OPENSHIFT_UID_ANNOTATION)
+        return "group '{0}' marked as having been synced did not have an '{1}' annotation".format(
+            name, LDAP_OPENSHIFT_UID_ANNOTATION
+        )
     return None
 
 
 class OpenshiftLDAPGroups(object):
-
     kind = "Group"
     version = "user.openshift.io/v1"
 
@@ -87,11 +102,7 @@ class OpenshiftLDAPGroups(object):
     @property
     def k8s_group_api(self):
         if not self.__group_api:
-            params = dict(
-                kind=self.kind,
-                api_version=self.version,
-                fail=True
-            )
+            params = dict(kind=self.kind, api_version=self.version, fail=True)
             self.__group_api = self.module.find_resource(**params)
         return self.__group_api
 
@@ -138,16 +149,26 @@ class OpenshiftLDAPGroups(object):
 
             if missing:
                 self.module.fail_json(
-                    msg="The following groups were not found: %s" % ''.join(missing)
+                    msg="The following groups were not found: %s" % "".join(missing)
                 )
         else:
             label_selector = "%s=%s" % (LDAP_OPENSHIFT_HOST_LABEL, host)
-            resources = self.get_group_info(label_selectors=[label_selector], return_list=True)
+            resources = self.get_group_info(
+                label_selectors=[label_selector], return_list=True
+            )
             if not resources:
-                return None, "Unable to find Group matching label selector '%s'" % label_selector
+                return (
+                    None,
+                    "Unable to find Group matching label selector '%s'"
+                    % label_selector,
+                )
             groups = resources
             if deny_groups:
-                groups = [item for item in groups if item["metadata"]["name"] not in deny_groups]
+                groups = [
+                    item
+                    for item in groups
+                    if item["metadata"]["name"] not in deny_groups
+                ]
 
         uids = []
         for grp in groups:
@@ -155,7 +176,9 @@ class OpenshiftLDAPGroups(object):
             if err and allow_groups:
                 # We raise an error for group part of the allow_group not matching LDAP sync criteria
                 return None, err
-            group_uid = grp['metadata']['annotations'].get(LDAP_OPENSHIFT_UID_ANNOTATION)
+            group_uid = grp["metadata"]["annotations"].get(
+                LDAP_OPENSHIFT_UID_ANNOTATION
+            )
             self.cache[group_uid] = grp
             uids.append(group_uid)
         return uids, None
@@ -173,38 +196,65 @@ class OpenshiftLDAPGroups(object):
                 "kind": "Group",
                 "metadata": {
                     "name": group_name,
-                    "labels": {
-                        LDAP_OPENSHIFT_HOST_LABEL: self.module.host
-                    },
+                    "labels": {LDAP_OPENSHIFT_HOST_LABEL: self.module.host},
                     "annotations": {
                         LDAP_OPENSHIFT_URL_ANNOTATION: self.module.netlocation,
                         LDAP_OPENSHIFT_UID_ANNOTATION: group_uid,
-                    }
-                }
+                    },
+                },
             }
 
         # Make sure we aren't taking over an OpenShift group that is already related to a different LDAP group
-        ldaphost_label = group["metadata"].get("labels", {}).get(LDAP_OPENSHIFT_HOST_LABEL)
+        ldaphost_label = (
+            group["metadata"].get("labels", {}).get(LDAP_OPENSHIFT_HOST_LABEL)
+        )
         if not ldaphost_label or ldaphost_label != self.module.host:
-            return None, "Group %s: %s label did not match sync host: wanted %s, got %s" % (
-                group_name, LDAP_OPENSHIFT_HOST_LABEL, self.module.host, ldaphost_label
+            return (
+                None,
+                "Group %s: %s label did not match sync host: wanted %s, got %s"
+                % (
+                    group_name,
+                    LDAP_OPENSHIFT_HOST_LABEL,
+                    self.module.host,
+                    ldaphost_label,
+                ),
             )
 
-        ldapurl_annotation = group["metadata"].get("annotations", {}).get(LDAP_OPENSHIFT_URL_ANNOTATION)
+        ldapurl_annotation = (
+            group["metadata"].get("annotations", {}).get(LDAP_OPENSHIFT_URL_ANNOTATION)
+        )
         if not ldapurl_annotation or ldapurl_annotation != self.module.netlocation:
-            return None, "Group %s: %s annotation did not match sync host: wanted %s, got %s" % (
-                group_name, LDAP_OPENSHIFT_URL_ANNOTATION, self.module.netlocation, ldapurl_annotation
+            return (
+                None,
+                "Group %s: %s annotation did not match sync host: wanted %s, got %s"
+                % (
+                    group_name,
+                    LDAP_OPENSHIFT_URL_ANNOTATION,
+                    self.module.netlocation,
+                    ldapurl_annotation,
+                ),
             )
 
-        ldapuid_annotation = group["metadata"].get("annotations", {}).get(LDAP_OPENSHIFT_UID_ANNOTATION)
+        ldapuid_annotation = (
+            group["metadata"].get("annotations", {}).get(LDAP_OPENSHIFT_UID_ANNOTATION)
+        )
         if not ldapuid_annotation or ldapuid_annotation != group_uid:
-            return None, "Group %s: %s annotation did not match LDAP UID: wanted %s, got %s" % (
-                group_name, LDAP_OPENSHIFT_UID_ANNOTATION, group_uid, ldapuid_annotation
+            return (
+                None,
+                "Group %s: %s annotation did not match LDAP UID: wanted %s, got %s"
+                % (
+                    group_name,
+                    LDAP_OPENSHIFT_UID_ANNOTATION,
+                    group_uid,
+                    ldapuid_annotation,
+                ),
             )
 
         # Overwrite Group Users data
         group["users"] = usernames
-        group["metadata"]["annotations"][LDAP_OPENSHIFT_SYNCTIME_ANNOTATION] = datetime.now().isoformat()
+        group["metadata"]["annotations"][
+            LDAP_OPENSHIFT_SYNCTIME_ANNOTATION
+        ] = datetime.now().isoformat()
         return group, None
 
     def create_openshift_groups(self, groups: list):
@@ -222,9 +272,15 @@ class OpenshiftLDAPGroups(object):
                     else:
                         definition = self.k8s_group_api.create(definition).to_dict()
                 except DynamicApiError as exc:
-                    self.module.fail_json(msg="Failed to %s Group '%s' due to: %s" % (method, name, exc.body))
+                    self.module.fail_json(
+                        msg="Failed to %s Group '%s' due to: %s"
+                        % (method, name, exc.body)
+                    )
                 except Exception as exc:
-                    self.module.fail_json(msg="Failed to %s Group '%s' due to: %s" % (method, name, to_native(exc)))
+                    self.module.fail_json(
+                        msg="Failed to %s Group '%s' due to: %s"
+                        % (method, name, to_native(exc))
+                    )
             equals = False
             if existing:
                 equals, diff = self.module.diff_objects(existing, definition)
@@ -234,27 +290,27 @@ class OpenshiftLDAPGroups(object):
         return results, diffs, changed
 
     def delete_openshift_group(self, name: str):
-        result = dict(
-            kind=self.kind,
-            apiVersion=self.version,
-            metadata=dict(
-                name=name
-            )
-        )
+        result = dict(kind=self.kind, apiVersion=self.version, metadata=dict(name=name))
         if not self.module.check_mode:
             try:
                 result = self.k8s_group_api.delete(name=name).to_dict()
             except DynamicApiError as exc:
-                self.module.fail_json(msg="Failed to delete Group '{0}' due to: {1}".format(name, exc.body))
+                self.module.fail_json(
+                    msg="Failed to delete Group '{0}' due to: {1}".format(
+                        name, exc.body
+                    )
+                )
             except Exception as exc:
-                self.module.fail_json(msg="Failed to delete Group '{0}' due to: {1}".format(name, to_native(exc)))
+                self.module.fail_json(
+                    msg="Failed to delete Group '{0}' due to: {1}".format(
+                        name, to_native(exc)
+                    )
+                )
         return result
 
 
 class OpenshiftGroupsSync(AnsibleOpenshiftModule):
-
     def __init__(self, **kwargs):
-
         super(OpenshiftGroupsSync, self).__init__(**kwargs)
         self.__k8s_group_api = None
         self.__ldap_connection = None
@@ -266,17 +322,14 @@ class OpenshiftGroupsSync(AnsibleOpenshiftModule):
 
         if not HAS_PYTHON_LDAP:
             self.fail_json(
-                msg=missing_required_lib('python-ldap'), error=to_native(PYTHON_LDAP_ERROR)
+                msg=missing_required_lib("python-ldap"),
+                error=to_native(PYTHON_LDAP_ERROR),
             )
 
     @property
     def k8s_group_api(self):
         if not self.__k8s_group_api:
-            params = dict(
-                kind="Group",
-                api_version="user.openshift.io/v1",
-                fail=True
-            )
+            params = dict(kind="Group", api_version="user.openshift.io/v1", fail=True)
             self.__k8s_group_api = self.find_resource(**params)
         return self.__k8s_group_api
 
@@ -290,11 +343,11 @@ class OpenshiftGroupsSync(AnsibleOpenshiftModule):
             # Create connection object
             params = dict(
                 module=self,
-                server_uri=self.config.get('url'),
-                bind_dn=self.config.get('bindDN'),
-                bind_pw=self.config.get('bindPassword'),
-                insecure=boolean(self.config.get('insecure')),
-                ca_file=self.config.get('ca')
+                server_uri=self.config.get("url"),
+                bind_dn=self.config.get("bindDN"),
+                bind_pw=self.config.get("bindPassword"),
+                insecure=boolean(self.config.get("insecure")),
+                ca_file=self.config.get("ca"),
             )
             self.__ldap_connection = connect_to_ldap(**params)
         return self.__ldap_connection
@@ -326,7 +379,6 @@ class OpenshiftGroupsSync(AnsibleOpenshiftModule):
         return syncer
 
     def synchronize(self):
-
         sync_group_type = self.module.params.get("type")
 
         groups_uids = []
@@ -364,7 +416,8 @@ class OpenshiftGroupsSync(AnsibleOpenshiftModule):
                 name, err = syncer.get_username_for_entry(entry)
                 if err:
                     self.exit_json(
-                        msg="Unable to determine username for entry %s: %s" % (entry, err)
+                        msg="Unable to determine username for entry %s: %s"
+                        % (entry, err)
                     )
                 if isinstance(name, list):
                     usernames.extend(name)
@@ -379,13 +432,17 @@ class OpenshiftGroupsSync(AnsibleOpenshiftModule):
                 self.exit_json(msg=err)
 
             # Make Openshift group
-            group, err = ldap_openshift_group.make_openshift_group(uid, group_name, usernames)
+            group, err = ldap_openshift_group.make_openshift_group(
+                uid, group_name, usernames
+            )
             if err:
                 self.fail_json(msg=err)
             openshift_groups.append(group)
 
         # Create Openshift Groups
-        results, diffs, changed = ldap_openshift_group.create_openshift_groups(openshift_groups)
+        results, diffs, changed = ldap_openshift_group.create_openshift_groups(
+            openshift_groups
+        )
         self.module.exit_json(changed=True, groups=results)
 
     def prune(self):
@@ -403,7 +460,10 @@ class OpenshiftGroupsSync(AnsibleOpenshiftModule):
             # Check if LDAP group exist
             exists, err = syncer.is_ldapgroup_exists(uid)
             if err:
-                msg = "Error determining LDAP group existence for group %s: %s" % (uid, err)
+                msg = "Error determining LDAP group existence for group %s: %s" % (
+                    uid,
+                    err,
+                )
                 self.module.fail_json(msg=msg)
 
             if exists:
@@ -428,14 +488,22 @@ class OpenshiftGroupsSync(AnsibleOpenshiftModule):
             self.fail_json(msg="Invalid LDAP Sync config: %s" % error)
 
         # Split host/port
-        if self.config.get('url'):
-            result, error = ldap_split_host_port(self.config.get('url'))
+        if self.config.get("url"):
+            result, error = ldap_split_host_port(self.config.get("url"))
             if error:
-                self.fail_json(msg="Failed to parse url='{0}': {1}".format(self.config.get('url'), error))
-            self.netlocation, self.host, self.port = result["netlocation"], result["host"], result["port"]
+                self.fail_json(
+                    msg="Failed to parse url='{0}': {1}".format(
+                        self.config.get("url"), error
+                    )
+                )
+            self.netlocation, self.host, self.port = (
+                result["netlocation"],
+                result["host"],
+                result["port"],
+            )
             self.scheme = result["scheme"]
 
-        if self.params.get('state') == 'present':
+        if self.params.get("state") == "present":
             self.synchronize()
         else:
             self.prune()
