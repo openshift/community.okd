@@ -1,8 +1,5 @@
 ---
 profile: production
-
-skip_list:
-  - yaml[key-duplicates]  # Duplication of key "plugin" in mapping
 exclude_paths:
   - molecule
   - tests/sanity
