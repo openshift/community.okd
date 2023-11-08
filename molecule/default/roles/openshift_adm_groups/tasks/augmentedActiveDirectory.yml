@@ -58,7 +58,6 @@
         banking_group: "{{ result.groups | selectattr('metadata.name', 'equalto', 'banking') | first }}"
         insurance_group: "{{ result.groups | selectattr('metadata.name', 'equalto', 'insurance') | first }}"
 
-
     - name: Synchronize Groups (Remove check_mode)
       community.okd.openshift_adm_groups_sync:
         config: "{{ sync_config }}"
@@ -79,7 +78,6 @@
           - name: insurance
             users:
               - "alice-courtney@ansible.org"
-
 
     - name: Read 'banking' openshift group
       kubernetes.core.k8s_info:

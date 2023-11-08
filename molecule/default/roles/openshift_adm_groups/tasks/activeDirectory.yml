@@ -58,7 +58,6 @@
         admins_group: "{{ result.groups | selectattr('metadata.name', 'equalto', 'admins') | first }}"
         devs_group: "{{ result.groups | selectattr('metadata.name', 'equalto', 'developers') | first }}"
 
-
     - name: Synchronize Groups (Remove check_mode)
       community.okd.openshift_adm_groups_sync:
         config: "{{ sync_config }}"
