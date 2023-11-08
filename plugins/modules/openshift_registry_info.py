@@ -51,7 +51,7 @@ EXAMPLES = r"""
 # Read registry integrated information and attempt to contact using local client.
 - name: Attempt to contact integrated registry using local client
   community.okd.openshift_registry_info:
-    check: yes
+    check: true
 """
 
 

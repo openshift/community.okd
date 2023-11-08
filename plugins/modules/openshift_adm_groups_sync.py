@@ -96,31 +96,31 @@ EXAMPLES = r"""
 - name: Sync all groups from an LDAP server
   openshift_adm_groups_sync:
     src:
-        kind: LDAPSyncConfig
-        apiVersion: v1
-        url: ldap://localhost:1390
-        insecure: true
-        bindDN: cn=admin,dc=example,dc=org
-        bindPassword: adminpassword
-        rfc2307:
-            groupsQuery:
-                baseDN: "cn=admins,ou=groups,dc=example,dc=org"
-                scope: sub
-                derefAliases: never
-                filter: (objectClass=*)
-                pageSize: 0
-            groupUIDAttribute: dn
-            groupNameAttributes: [ cn ]
-            groupMembershipAttributes: [ member ]
-            usersQuery:
-                baseDN: "ou=users,dc=example,dc=org"
-                scope: sub
-                derefAliases: never
-                pageSize: 0
-            userUIDAttribute: dn
-            userNameAttributes: [ mail ]
-            tolerateMemberNotFoundErrors: true
-            tolerateMemberOutOfScopeErrors: true
+      kind: LDAPSyncConfig
+      apiVersion: v1
+      url: ldap://localhost:1390
+      insecure: true
+      bindDN: cn=admin,dc=example,dc=org
+      bindPassword: adminpassword
+      rfc2307:
+        groupsQuery:
+          baseDN: "cn=admins,ou=groups,dc=example,dc=org"
+          scope: sub
+          derefAliases: never
+          filter: (objectClass=*)
+          pageSize: 0
+        groupUIDAttribute: dn
+        groupNameAttributes: [cn]
+        groupMembershipAttributes: [member]
+        usersQuery:
+          baseDN: "ou=users,dc=example,dc=org"
+          scope: sub
+          derefAliases: never
+          pageSize: 0
+        userUIDAttribute: dn
+        userNameAttributes: [mail]
+        tolerateMemberNotFoundErrors: true
+        tolerateMemberOutOfScopeErrors: true
 
 # Sync all groups except the ones from the deny_groups  from an LDAP server
 - name: Sync all groups from an LDAP server using deny_groups

@@ -89,8 +89,8 @@ EXAMPLES = r"""
   community.okd.k8s:
     namespace: default
     definition: '{{ item }}'
-    wait: yes
-    apply: yes
+    wait: true
+    apply: true
   loop: '{{ result.resources }}'
 
 - name: Process a template with parameters from an env file and create the resources
@@ -100,7 +100,7 @@ EXAMPLES = r"""
     namespace_target: default
     parameter_file: 'files/nginx.env'
     state: present
-    wait: yes
+    wait: true
 
 - name: Process a local template and create the resources
   community.okd.openshift_process:
@@ -115,7 +115,7 @@ EXAMPLES = r"""
     parameter_file: files/example.env
     namespace_target: default
     state: absent
-    wait: yes
+    wait: true
 """
 
 RETURN = r"""

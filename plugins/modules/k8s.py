@@ -169,10 +169,10 @@ EXAMPLES = r"""
           app: galaxy
           service: web
         ports:
-        - protocol: TCP
-          targetPort: 8000
-          name: port-8000-tcp
-          port: 8000
+          - protocol: TCP
+            targetPort: 8000
+            name: port-8000-tcp
+            port: 8000
 
 - name: Remove an existing Service object
   community.okd.k8s:
@@ -206,15 +206,15 @@ EXAMPLES = r"""
     state: present
     definition: "{{ lookup('template', '/testing/deployment.yml') | from_yaml }}"
     validate:
-      fail_on_error: yes
+      fail_on_error: true
 
 - name: warn on validation errors, check for unexpected properties
   community.okd.k8s:
     state: present
     definition: "{{ lookup('template', '/testing/deployment.yml') | from_yaml }}"
     validate:
-      fail_on_error: no
-      strict: yes
+      fail_on_error: false
+      strict: true
 """
 
 RETURN = r"""
