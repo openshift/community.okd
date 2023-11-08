@@ -55,7 +55,7 @@ EXAMPLES = r"""
 
 - name: Prune orphans deployments, keep younger than 2hours
   community.okd.openshift_adm_prune_deployments:
-    orphans: True
+    orphans: true
     keep_younger_than: 120
 """
 

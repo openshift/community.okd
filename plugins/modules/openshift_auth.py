@@ -78,37 +78,40 @@ requirements:
 """
 
 EXAMPLES = r"""
-- hosts: localhost
+- name: Example Playbook
+  hosts: localhost
   module_defaults:
     group/community.okd.okd:
       host: https://k8s.example.com/
       ca_cert: ca.pem
   tasks:
-  - block:
-    # It's good practice to store login credentials in a secure vault and not
-    # directly in playbooks.
-    - include_vars: openshift_passwords.yml
+    - name: Authenticate to OpenShift cluster and gell a list of all pods from any namespace
+      block:
+        # It's good practice to store login credentials in a secure vault and not
+        # directly in playbooks.
+        - name: Include 'openshift_passwords.yml'
+          ansible.builtin.include_vars: openshift_passwords.yml
 
-    - name: Log in (obtain access token)
-      community.okd.openshift_auth:
-        username: admin
-        password: "{{ openshift_admin_password }}"
-      register: openshift_auth_results
+        - name: Log in (obtain access token)
+          community.okd.openshift_auth:
+            username: admin
+            password: "{{ openshift_admin_password }}"
+          register: openshift_auth_results
 
-    # Previous task provides the token/api_key, while all other parameters
-    # are taken from module_defaults
-    - name: Get a list of all pods from any namespace
-      kubernetes.core.k8s_info:
-        api_key: "{{ openshift_auth_results.openshift_auth.api_key }}"
-        kind: Pod
-      register: pod_list
+        # Previous task provides the token/api_key, while all other parameters
+        # are taken from module_defaults
+        - name: Get a list of all pods from any namespace
+          kubernetes.core.k8s_info:
+            api_key: "{{ openshift_auth_results.openshift_auth.api_key }}"
+            kind: Pod
+          register: pod_list
 
-    always:
-    - name: If login succeeded, try to log out (revoke access token)
-      when: openshift_auth_results.openshift_auth.api_key is defined
-      community.okd.openshift_auth:
-        state: absent
-        api_key: "{{ openshift_auth_results.openshift_auth.api_key }}"
+      always:
+      - name: If login succeeded, try to log out (revoke access token)
+        when: openshift_auth_results.openshift_auth.api_key is defined
+        community.okd.openshift_auth:
+          state: absent
+          api_key: "{{ openshift_auth_results.openshift_auth.api_key }}"
 """
 
 # Returned value names need to match k8s modules parameter names, to make it

@@ -155,10 +155,10 @@ EXAMPLES = r"""
               app: hello-kubernetes
           spec:
             containers:
-            - name: hello-kubernetes
-              image: paulbouwer/hello-kubernetes:1.8
-              ports:
-              - containerPort: 8080
+              - name: hello-kubernetes
+                image: paulbouwer/hello-kubernetes:1.8
+                ports:
+                  - containerPort: 8080
 
 - name: Create Service for the hello-world deployment
   community.okd.k8s:
@@ -170,10 +170,10 @@ EXAMPLES = r"""
         namespace: default
       spec:
         ports:
-        - port: 80
-          targetPort: 8080
-        selector:
-          app: hello-kubernetes
+          - port: 80
+            targetPort: 8080
+          selector:
+            app: hello-kubernetes
 
 - name: Expose the insecure hello-world service externally
   community.okd.openshift_route:

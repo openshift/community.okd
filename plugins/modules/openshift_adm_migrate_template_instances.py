@@ -31,14 +31,14 @@ requirements:
 """
 
 EXAMPLES = r"""
-  - name: Migrate TemplateInstances in namespace=test
-    community.okd.openshift_adm_migrate_template_instances:
-      namespace: test
-    register: _result
+- name: Migrate TemplateInstances in namespace=test
+  community.okd.openshift_adm_migrate_template_instances:
+    namespace: test
+  register: _result
 
-  - name: Migrate TemplateInstances in all namespaces
-    community.okd.openshift_adm_migrate_template_instances:
-    register: _result
+- name: Migrate TemplateInstances in all namespaces
+  community.okd.openshift_adm_migrate_template_instances:
+  register: _result
 """
 
 RETURN = r"""

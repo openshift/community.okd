@@ -13,4 +13,3 @@ rules:
     max: 160
 
 ignore-from-file: .gitignore
-
