@@ -37,12 +37,12 @@
             name: cluster
           spec:
             identityProviders:
-            - name: htpasswd_provider
-              mappingMethod: claim
-              type: HTPasswd
-              htpasswd:
-                fileData:
-                  name: htpass-secret
+              - name: htpasswd_provider
+                mappingMethod: claim
+                type: HTPasswd
+                htpasswd:
+                  fileData:
+                    name: htpass-secret
 
     - name: Create ClusterRoleBinding for test user
       community.okd.k8s:

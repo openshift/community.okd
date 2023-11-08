@@ -1,5 +1,5 @@
 ---
-- name: Get cluster information 
+- name: Get cluster information
   kubernetes.core.k8s_cluster_info:
   register: info
 
@@ -16,21 +16,21 @@
           app: ldap
       spec:
         containers:
-        - name: ldap
-          image: bitnami/openldap
-          env:
-            - name: LDAP_ADMIN_USERNAME
-              value: "{{ ldap_admin_user }}"
-            - name: LDAP_ADMIN_PASSWORD
-              value: "{{ ldap_admin_password }}"
-            - name: LDAP_USERS
-              value: "ansible"
-            - name: LDAP_PASSWORDS
-              value: "ansible123"
-            - name: LDAP_ROOT
-              value: "{{ ldap_root }}"
-          ports:
-          - containerPort: 1389
+          - name: ldap
+            image: bitnami/openldap
+            env:
+              - name: LDAP_ADMIN_USERNAME
+                value: "{{ ldap_admin_user }}"
+              - name: LDAP_ADMIN_PASSWORD
+                value: "{{ ldap_admin_password }}"
+              - name: LDAP_USERS
+                value: "ansible"
+              - name: LDAP_PASSWORDS
+                value: "ansible123"
+              - name: LDAP_ROOT
+                value: "{{ ldap_root }}"
+            ports:
+              - containerPort: 1389
   register: pod_info
 
 - name: Set Pod Internal IP

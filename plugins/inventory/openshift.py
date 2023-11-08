@@ -110,7 +110,7 @@ connections:
 plugin: community.okd.openshift
 connections:
   - namespaces:
-        - testing
+      - testing
 
 # Use a custom config file, and a specific context.
 plugin: community.okd.openshift

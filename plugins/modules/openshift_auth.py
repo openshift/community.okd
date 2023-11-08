@@ -107,11 +107,11 @@ EXAMPLES = r"""
           register: pod_list
 
       always:
-      - name: If login succeeded, try to log out (revoke access token)
-        when: openshift_auth_results.openshift_auth.api_key is defined
-        community.okd.openshift_auth:
-          state: absent
-          api_key: "{{ openshift_auth_results.openshift_auth.api_key }}"
+        - name: If login succeeded, try to log out (revoke access token)
+          when: openshift_auth_results.openshift_auth.api_key is defined
+          community.okd.openshift_auth:
+            state: absent
+            api_key: "{{ openshift_auth_results.openshift_auth.api_key }}"
 """
 
 # Returned value names need to match k8s modules parameter names, to make it
