@@ -64,14 +64,16 @@ okd_dc_triggers:
 
 okd_dc_spec:
   template: '{{ k8s_pod_template }}'
-  triggers: '{{ okd_dc_triggers }}'
+  selector:
+    matchLabels:
+      app: "{{ k8s_pod_name }}"
   replicas: 1
   strategy:
     type: Recreate
 
 okd_dc_template:
-  apiVersion: v1
-  kind: DeploymentConfig
+  apiVersion: apps/v1
+  kind: Deployment
   spec: '{{ okd_dc_spec }}'
 
 okd_imagestream_template:
