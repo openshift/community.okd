@@ -35,7 +35,7 @@
   register: pod_info
 
 - name: Create LDAP service
-  community:okd.k8s:
+  community.okd.k8s:
     definition:
       kind: Service
       apiVersion: v1
