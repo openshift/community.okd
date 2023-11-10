@@ -49,7 +49,7 @@
         ports:
           - protocol: TCP
             port: 1389
-            targetPort: ldap-svc
+            targetPort: ldap-server
 
 - name: Set LDAP Common facts
   set_fact:
