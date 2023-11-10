@@ -31,15 +31,29 @@
                 value: "{{ ldap_root }}"
             ports:
               - containerPort: 1389
+                name: ldap-server
   register: pod_info
 
-- name: Set Pod Internal IP
-  set_fact:
-    podIp: "{{ pod_info.result.status.podIP }}"
+- name: Create LDAP service
+  community:okd.k8s:
+    definition:
+      kind: Service
+      apiVersion: v1
+      metadata:
+        name: ldap-svc
+        namespace: default
+      spec:
+        type: ClusterIP
+        selector:
+          app: ldap
+        ports:
+          - protocol: TCP
+            port: 1389
+            targetPort: ldap-svc
 
 - name: Set LDAP Common facts
   set_fact:
-    ldap_server_uri: "ldap://{{ podIp }}:1389"
+    ldap_server_uri: "ldap://ldap-svc:1389"
     ldap_bind_dn: "cn={{ ldap_admin_user }},{{ ldap_root }}"
     ldap_bind_pw: "{{ ldap_admin_password }}"
 
