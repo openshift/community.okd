@@ -67,7 +67,6 @@ f_prep()
         LICENSE
         README.md
         Makefile
-        setup.cfg
         .yamllint
         requirements.txt
         requirements.yml
@@ -76,6 +75,7 @@ f_prep()
 
     # Directories to recursively copy downstream (relative repo root dir path)
     _dir_manifest=(
+        .config
         changelogs
         ci
         meta

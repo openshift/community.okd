@@ -61,6 +61,16 @@
   debug:
     var: ldap_server_uri
 
+- name: Check if existing NetworkPolicy
+  kubernetes.core.k8s_info:
+    kind: NetworkPolicy
+    api_version: networking.k8s.io/v1
+  register: result
+
+- name: Show any NetworkPolicies
+  debug:
+    var: result
+
 - name: Test existing user from LDAP server
   openshift_ldap_entry_info:
     bind_dn: "{{ ldap_bind_dn }}"
