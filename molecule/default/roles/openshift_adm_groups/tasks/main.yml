@@ -34,42 +34,19 @@
                 name: ldap-server
   register: pod_info
 
-- name: Create LDAP service
-  community.okd.k8s:
-    definition:
-      kind: Service
-      apiVersion: v1
-      metadata:
-        name: ldap-svc
-        namespace: default
-      spec:
-        type: ClusterIP
-        selector:
-          app: ldap
-        ports:
-          - protocol: TCP
-            port: 1389
-            targetPort: ldap-server
+- name: Display LDAP Service
+  debug:
+    msg: ldap_svc
 
 - name: Set LDAP Common facts
   set_fact:
-    ldap_server_uri: "ldap://ldap-svc:1389"
+    ldap_server_uri: "ldap://{{ pod_info.result.status.podIP }}:1389"
     ldap_bind_dn: "cn={{ ldap_admin_user }},{{ ldap_root }}"
     ldap_bind_pw: "{{ ldap_admin_password }}"
 
 - name: Display LDAP Server URI
   debug:
     var: ldap_server_uri
-
-- name: Check if existing NetworkPolicy
-  kubernetes.core.k8s_info:
-    kind: NetworkPolicy
-    api_version: networking.k8s.io/v1
-  register: result
-
-- name: Show any NetworkPolicies
-  debug:
-    var: result
 
 - name: Test existing user from LDAP server
   openshift_ldap_entry_info:
