@@ -84,9 +84,10 @@
           - cancel.builds | length == 1
           - cancel.builds.0.metadata.name == "{{ build_config }}-1"
           - cancel.builds.0.metadata.namespace == "{{ build_ns }}"
+          - '"cancelled" in cancel.builds.0.status'
           - cancel.builds.0.status.cancelled
 
-    - name: Get Build info
+    - name: Get info for 1st Build
       kubernetes.core.k8s_info:
         version: build.openshift.io/v1
         kind: Build
@@ -98,6 +99,7 @@
       assert:
         that:
           - build.resources | length == 1
+          - '"cancelled" in build.resources.0.status'
           - build.resources.0.status.cancelled
           - build.resources.0.status.phase == 'Cancelled'
 
@@ -107,6 +109,7 @@
         build_config_name: "{{ build_config }}"
         state: restarted
         build_phases:
+          - Pending
           - Running
           - New
       register: restart
@@ -118,7 +121,7 @@
           - restart.builds | length == 1
           - 'restart.builds.0.metadata.name == "{{ build_config }}-3"'
 
-    - name: Get Build 2 info
+    - name: Get info for 2nd Build
       kubernetes.core.k8s_info:
         version: build.openshift.io/v1
         kind: Build
@@ -130,10 +133,11 @@
       assert:
         that:
           - build.resources | length == 1
+          - '"cancelled" in build.resources.0.status'
           - build.resources.0.status.cancelled
           - build.resources.0.status.phase == 'Cancelled'
 
-    - name: Get Build info
+    - name: Get info for 3rd build
       kubernetes.core.k8s_info:
         version: build.openshift.io/v1
         kind: Build
