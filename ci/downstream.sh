@@ -156,7 +156,7 @@ f_handle_doc_fragments_workaround()
     # Build the collection, export docs, render them, stitch it all back together
     pushd "${_build_dir}" || return
         ansible-galaxy collection build
-        ansible-galaxy collection install -p "${install_collections_dir}" ./*.tar.gz
+        ansible-galaxy collection install --force-with-deps -p "${install_collections_dir}" ./*.tar.gz
         rm ./*.tar.gz
         for doc_fragment_mod in "${_doc_fragment_modules[@]}"
         do
