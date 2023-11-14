@@ -52,8 +52,10 @@
     bind_pw: "{{ ldap_bind_pw }}"
     dn: "ou=users,{{ ldap_root }}"
     server_uri: "{{ ldap_server_uri }}"
-  # ignore_errors: true
-  # register: ping_ldap
+  register: test_ldap
+  retries: 10
+  delay: 5
+  until: test_ldap is not failed
 
 - include_tasks: "tasks/python-ldap-not-installed.yml"
 - include_tasks: "tasks/rfc2307.yml"
