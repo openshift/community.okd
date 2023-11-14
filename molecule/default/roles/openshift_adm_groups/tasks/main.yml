@@ -34,12 +34,10 @@
                 name: ldap-server
   register: pod_info
 
-- name: Display LDAP Service
-  debug:
-    msg: ldap_svc
-
 - name: Set LDAP Common facts
   set_fact:
+    # we can use the Pod IP directly because the integration are running inside a Pod in the
+    # same openshift cluster
     ldap_server_uri: "ldap://{{ pod_info.result.status.podIP }}:1389"
     ldap_bind_dn: "cn={{ ldap_admin_user }},{{ ldap_root }}"
     ldap_bind_pw: "{{ ldap_admin_password }}"
