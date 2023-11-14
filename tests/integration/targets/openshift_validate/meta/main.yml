@@ -1,0 +1,6 @@
+---
+dependencies:
+  - role: setup_virtualenv
+    virtualenv_libs:
+      - kubernetes>=12.0.0
+      - kubernetes-validate==1.12.0

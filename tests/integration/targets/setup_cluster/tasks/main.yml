@@ -1,0 +1,51 @@
+---
+- name: 'Configure htpasswd secret (username: test, password: testing123)'
+  community.okd.k8s:
+    definition:
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: htpass-secret
+        namespace: openshift-config
+      stringData:
+        htpasswd: "test:$2y$05$zgjczyp96jCIp//CGmnWiefhd7G3l54IdsZoV4IwA1UWtd04L0lE2"
+
+- set_fact:
+    openshift_user: test
+    openshift_pass: testing123
+
+- name: Pause for login to be available
+  pause:
+    seconds: 10
+
+- name: Configure htpasswd identity provider
+  community.okd.k8s:
+    definition:
+      apiVersion: config.openshift.io/v1
+      kind: OAuth
+      metadata:
+        name: cluster
+      spec:
+        identityProviders:
+          - name: htpasswd_provider
+            mappingMethod: claim
+            type: HTPasswd
+            htpasswd:
+              fileData:
+                name: htpass-secret
+
+- name: Create ClusterRoleBinding for test user
+  community.okd.k8s:
+    definition:
+      apiVersion: rbac.authorization.k8s.io/v1
+      kind: ClusterRoleBinding
+      metadata:
+        name: test-cluster-reader
+      roleRef:
+        apiGroup: rbac.authorization.k8s.io
+        kind: ClusterRole
+        name: cluster-admin
+      subjects:
+        - apiGroup: rbac.authorization.k8s.io
+          kind: User
+          name: test

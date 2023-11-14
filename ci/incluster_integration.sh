@@ -13,6 +13,7 @@ NAMESPACE=${NAMESPACE:-default}
 # would resolve to quay.io/mynamespace/molecule-test-runner
 # shellcheck disable=SC2034
 component='molecule-test-runner'
+INTEGRATION_JOB_NAME="ansible-test-integration"
 if [[ -n "${MOLECULE_IMAGE}" ]]; then
   IMAGE="${MOLECULE_IMAGE}"
 else
@@ -31,15 +32,15 @@ oc adm policy add-cluster-role-to-user cluster-admin -z default
 oc adm policy who-can create projectrequests
 
 echo "Deleting test job if it exists"
-oc delete job molecule-integration-test --wait --ignore-not-found
+oc delete job ${INTEGRATION_JOB_NAME} --wait --ignore-not-found
 
-echo "Creating molecule test job"
+echo "Creating ${INTEGRATION_JOB_NAME} job"
 cat << EOF | oc create -f -
 ---
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: molecule-integration-test
+  name: ${INTEGRATION_JOB_NAME}
 spec:
   template:
     spec:
@@ -57,17 +58,17 @@ spec:
 EOF
 
 function check_success {
-  oc wait --for=condition=complete job/molecule-integration-test --timeout 5s -n "$NAMESPACE" \
-   && oc logs job/molecule-integration-test \
-   && echo "Molecule integration tests ran successfully" \
+  oc wait --for=condition=complete job/${INTEGRATION_JOB_NAME} --timeout 5s -n "$NAMESPACE" \
+   && oc logs job/${INTEGRATION_JOB_NAME} \
+   && echo "Integration tests ran successfully" \
    && return 0
   return 1
 }
 
 function check_failure {
-  oc wait --for=condition=failed job/molecule-integration-test --timeout 5s -n "$NAMESPACE" \
-   && oc logs job/molecule-integration-test \
-   && echo "Molecule integration tests failed, see logs for more information..." \
+  oc wait --for=condition=failed job/${INTEGRATION_JOB_NAME} --timeout 5s -n "$NAMESPACE" \
+   && oc logs job/${INTEGRATION_JOB_NAME} \
+   && echo "Integration tests failed, see logs for more information..." \
    && return 0
   return 1
 }
@@ -88,5 +89,5 @@ do
   sleep 10
 done
 
-oc logs job/molecule-integration-test
+oc logs job/${INTEGRATION_JOB_NAME}
 exit 1

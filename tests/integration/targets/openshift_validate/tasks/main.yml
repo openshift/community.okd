@@ -1,0 +1,14 @@
+- vars:
+    ansible_python_interpreter: '{{ virtualenv_interpreter }}'
+    test_namespace: "ansible-test"
+  block:
+    - import_tasks: validate_installed.yml
+
+    - pip:
+        name: kubernetes-validate
+        state: absent
+        virtualenv: "{{ virtualenv }}"
+        virtualenv_command: "{{ virtualenv_command }}"
+        virtualenv_site_packages: no
+
+    - import_tasks: validate_not_installed.yml

@@ -1,0 +1,52 @@
+---
+- name: Create Pod resources to validate inventory plugin
+  hosts: localhost
+  gather_facts: false
+
+  tasks:
+    - name: Create resources namespace
+      community.okd.k8s:
+        api_version: v1
+        kind: Namespace
+        name: inventory-test
+
+    - name: Create deployment
+      community.okd.k8s:
+        state: present
+        name: hello-world
+        namespace: inventory-test
+        wait: true
+        definition:
+          apiVersion: apps/v1
+          kind: Deployment
+          spec:
+            template:
+              metadata:
+                labels:
+                  app: inventory
+              spec:
+                serviceAccount: default
+                containers:
+                  - image: python
+                    imagePullPolicy: Always
+                    name: hello-world
+                    command:
+                      - python
+                      - '-m'
+                      - http.server
+                    readinessProbe:
+                      initialDelaySeconds: 15
+                      exec:
+                        command:
+                          - /bin/true
+                    resources:
+                      limits:
+                        cpu: "100m"
+                        memory: "100Mi"
+                    env:
+                      - name: TEST
+                        value: test
+            selector:
+              matchLabels:
+                app: inventory
+            replicas: 1

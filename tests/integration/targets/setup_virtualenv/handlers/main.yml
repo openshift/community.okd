@@ -1,0 +1,6 @@
+---
+- name: Delete virtualenv directory
+  file:
+    state: absent
+    path: "{{ virtualenv_dir.path }}"
+  when: virtualenv_dir is defined

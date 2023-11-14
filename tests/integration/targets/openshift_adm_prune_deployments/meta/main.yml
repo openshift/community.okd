@@ -1,0 +1,4 @@
+---
+dependencies:
+  - setup_virtualenv
+  - setup_cluster

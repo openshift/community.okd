@@ -24,8 +24,8 @@ sanity: install
 units: install
 	cd ansible_collections/community/okd && ansible-test units -v --python $(PYTHON_VERSION) $(UNITS_TEST_ARGS)
 
-molecule: install
-	molecule test
+integration: install
+	cd ansible_collections/community/okd && ansible-test integration -v --python $(PYTHON_VERSION) $(INTEGRATION_TEST_ARGS)
 
 test-integration: upstream-test-integration downstream-test-integration
 
@@ -40,7 +40,7 @@ upstream-test-sanity: sanity
 
 upstream-test-units: units
 
-upstream-test-integration: molecule
+upstream-test-integration: integration
 
 downstream-test-sanity:
 	./ci/downstream.sh -s

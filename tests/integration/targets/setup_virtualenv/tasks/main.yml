@@ -1,0 +1,20 @@
+---
+- name: Create temporary directory for virtualenv
+  tempfile:
+    suffix: .virtualenv
+    state: directory
+  register: virtualenv_dir
+  notify: 'Delete virtualenv directory'
+
+- set_fact:
+    virtualenv: "{{ virtualenv_dir.path }}/virtualenv"
+
+- name: Create virtualenv
+  pip:
+    name: "{{ virtualenv_libs }}"
+    virtualenv: "{{ virtualenv }}"
+    virtualenv_command: "{{ virtualenv_command }}"
+    virtualenv_site_packages: no
+
+- set_fact:
+    virtualenv_interpreter: "{{ virtualenv }}/bin/python"

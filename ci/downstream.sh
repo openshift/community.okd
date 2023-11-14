@@ -25,7 +25,6 @@ f_show_help()
     printf "\t-s\t\tCreate a temporary downstream release and perform sanity tests.\n"
     printf "\t-u\t\tCreate a temporary downstream release and perform units tests.\n"
     printf "\t-i\t\tCreate a temporary downstream release and perform integration tests.\n"
-    printf "\t-m\t\tCreate a temporary downstream release and perform molecule tests.\n"
     printf "\t-b\t\tCreate a downstream release and stage for release.\n"
     printf "\t-r\t\tCreate a downstream release and publish release.\n"
 }
@@ -79,7 +78,6 @@ f_prep()
         changelogs
         ci
         meta
-        molecule
         plugins
         tests
     )
@@ -226,7 +224,7 @@ f_test_integration_option()
     f_common_steps
     pushd "${_build_dir}" || return
         f_log_info "INTEGRATION TEST WD: ${PWD}"
-        make molecule
+        make integration
     popd || return
     f_cleanup
 }

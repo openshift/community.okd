@@ -1,0 +1,18 @@
+- vars:
+    ansible_python_interpreter: '{{ virtualenv_interpreter }}'
+  block:
+    - name: Create namespace
+      community.okd.k8s:
+        api_version: v1
+        kind: Namespace
+        name: process-test
+    - import_tasks: tasks/openshift_process.yml
+      vars:
+        files_dir: '{{ role_path }}/files'
+  always:
+    - name: Delete namespace
+      community.okd.k8s:
+        api_version: v1
+        kind: Namespace
+        name: process-test
+        state: absent

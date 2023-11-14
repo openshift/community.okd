@@ -1,0 +1,6 @@
+---
+collections:
+  - community.okd
+  - kubernetes.core
+dependencies:
+  - setup_virtualenv
