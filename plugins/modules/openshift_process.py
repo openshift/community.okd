@@ -2,13 +2,14 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import absolute_import, division, print_function
+
 __metaclass__ = type
 
 # Copyright (c) 2020-2021, Red Hat
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 # STARTREMOVE (downstream)
-DOCUMENTATION = r'''
+DOCUMENTATION = r"""
 module: openshift_process
 
 short_description: Process an OpenShift template.openshift.io/v1 Template
@@ -49,6 +50,7 @@ options:
     description:
       - The namespace that resources should be created, updated, or deleted in.
       - Only used when I(state) is present or absent.
+    type: str
   parameters:
     description:
       - 'A set of key: value pairs that will be used to set/override values in the Template.'
@@ -70,9 +72,9 @@ options:
     type: str
     default: rendered
     choices: [ absent, present, rendered ]
-'''
+"""
 
-EXAMPLES = r'''
+EXAMPLES = r"""
 - name: Process a template in the cluster
   community.okd.openshift_process:
     name: nginx-example
@@ -87,8 +89,8 @@ EXAMPLES = r'''
   community.okd.k8s:
     namespace: default
     definition: '{{ item }}'
-    wait: yes
-    apply: yes
+    wait: true
+    apply: true
   loop: '{{ result.resources }}'
 
 - name: Process a template with parameters from an env file and create the resources
@@ -98,7 +100,7 @@ EXAMPLES = r'''
     namespace_target: default
     parameter_file: 'files/nginx.env'
     state: present
-    wait: yes
+    wait: true
 
 - name: Process a local template and create the resources
   community.okd.openshift_process:
@@ -113,10 +115,10 @@ EXAMPLES = r'''
     parameter_file: files/example.env
     namespace_target: default
     state: absent
-    wait: yes
-'''
+    wait: true
+"""
 
-RETURN = r'''
+RETURN = r"""
 result:
   description:
   - The created, patched, or otherwise present object. Will be empty in the case of a deletion.
@@ -200,11 +202,13 @@ resources:
          conditions:
              type: complex
              description: Array of status conditions for the object. Not guaranteed to be present
-'''
+"""
 # ENDREMOVE (downstream)
 
 from ansible_collections.kubernetes.core.plugins.module_utils.args_common import (
-    AUTH_ARG_SPEC, RESOURCE_ARG_SPEC, WAIT_ARG_SPEC
+    AUTH_ARG_SPEC,
+    RESOURCE_ARG_SPEC,
+    WAIT_ARG_SPEC,
 )
 
 
@@ -213,24 +217,26 @@ def argspec():
     argument_spec.update(AUTH_ARG_SPEC)
     argument_spec.update(WAIT_ARG_SPEC)
     argument_spec.update(RESOURCE_ARG_SPEC)
-    argument_spec['state'] = dict(type='str', default='rendered', choices=['present', 'absent', 'rendered'])
-    argument_spec['namespace'] = dict(type='str')
-    argument_spec['namespace_target'] = dict(type='str')
-    argument_spec['parameters'] = dict(type='dict')
-    argument_spec['name'] = dict(type='str')
-    argument_spec['parameter_file'] = dict(type='str')
+    argument_spec["state"] = dict(
+        type="str", default="rendered", choices=["present", "absent", "rendered"]
+    )
+    argument_spec["namespace"] = dict(type="str")
+    argument_spec["namespace_target"] = dict(type="str")
+    argument_spec["parameters"] = dict(type="dict")
+    argument_spec["name"] = dict(type="str")
+    argument_spec["parameter_file"] = dict(type="str")
 
     return argument_spec
 
 
 def main():
-
     from ansible_collections.community.okd.plugins.module_utils.openshift_process import (
-        OpenShiftProcess)
+        OpenShiftProcess,
+    )
 
     module = OpenShiftProcess(argument_spec=argspec(), supports_check_mode=True)
     module.run_module()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

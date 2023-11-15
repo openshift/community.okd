@@ -1,16 +1,17 @@
 #!/usr/bin/env python
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
+
 __metaclass__ = type
 
-import traceback
 import copy
 
-from ansible.module_utils._text import to_native
 from ansible.module_utils.parsing.convert_bool import boolean
 from ansible.module_utils.six import string_types
 
-from ansible_collections.community.okd.plugins.module_utils.openshift_common import AnsibleOpenshiftModule
+from ansible_collections.community.okd.plugins.module_utils.openshift_common import (
+    AnsibleOpenshiftModule,
+)
 
 try:
     from kubernetes.dynamic.exceptions import DynamicApiError
@@ -44,10 +45,17 @@ def follow_imagestream_tag_reference(stream, tag):
         return name, tag, len(parts) == 2
 
     content = []
-    err_cross_stream_ref = "tag %s points to an imagestreamtag from another ImageStream" % tag
+    err_cross_stream_ref = (
+        "tag %s points to an imagestreamtag from another ImageStream" % tag
+    )
     while True:
         if tag in content:
-            return tag, None, multiple, "tag %s on the image stream is a reference to same tag" % tag
+            return (
+                tag,
+                None,
+                multiple,
+                "tag %s on the image stream is a reference to same tag" % tag,
+            )
         content.append(tag)
         tag_ref = _imagestream_has_tag()
         if not tag_ref:
@@ -56,7 +64,10 @@ def follow_imagestream_tag_reference(stream, tag):
         if not tag_ref.get("from") or tag_ref["from"]["kind"] != "ImageStreamTag":
             return tag, tag_ref, multiple, None
 
-        if tag_ref["from"]["namespace"] != "" and tag_ref["from"]["namespace"] != stream["metadata"]["namespace"]:
+        if (
+            tag_ref["from"]["namespace"] != ""
+            and tag_ref["from"]["namespace"] != stream["metadata"]["namespace"]
+        ):
             return tag, None, multiple, err_cross_stream_ref
 
         # The reference needs to be followed with two format patterns:
@@ -64,7 +75,12 @@ def follow_imagestream_tag_reference(stream, tag):
         if ":" in tag_ref["from"]["name"]:
             name, tagref, result = _imagestream_split_tag(tag_ref["from"]["name"])
             if not result:
-                return tag, None, multiple, "tag %s points to an invalid imagestreamtag" % tag
+                return (
+                    tag,
+                    None,
+                    multiple,
+                    "tag %s points to an invalid imagestreamtag" % tag,
+                )
             if name != stream["metadata"]["namespace"]:
                 # anotheris:sometag - this should not happen.
                 return tag, None, multiple, err_cross_stream_ref
@@ -80,7 +96,7 @@ class OpenShiftImportImage(AnsibleOpenshiftModule):
         super(OpenShiftImportImage, self).__init__(**kwargs)
 
         self._rest_client = None
-        self.registryhost = self.params.get('registry_url')
+        self.registryhost = self.params.get("registry_url")
         self.changed = False
 
         ref_policy = self.params.get("reference_policy")
@@ -90,9 +106,7 @@ class OpenShiftImportImage(AnsibleOpenshiftModule):
         elif ref_policy == "local":
             ref_policy_type = "Local"
 
-        self.ref_policy = {
-            "type": ref_policy_type
-        }
+        self.ref_policy = {"type": ref_policy_type}
 
         self.validate_certs = self.params.get("validate_registry_certs")
         self.cluster_resources = {}
@@ -104,15 +118,15 @@ class OpenShiftImportImage(AnsibleOpenshiftModule):
             "metadata": {
                 "name": stream["metadata"]["name"],
                 "namespace": stream["metadata"]["namespace"],
-                "resourceVersion": stream["metadata"].get("resourceVersion")
+                "resourceVersion": stream["metadata"].get("resourceVersion"),
             },
-            "spec": {
-                "import": True
-            }
+            "spec": {"import": True},
         }
 
         annotations = stream.get("annotations", {})
-        insecure = boolean(annotations.get("openshift.io/image.insecureRepository", True))
+        insecure = boolean(
+            annotations.get("openshift.io/image.insecureRepository", True)
+        )
         if self.validate_certs is not None:
             insecure = not self.validate_certs
         return isi, insecure
@@ -126,7 +140,7 @@ class OpenShiftImportImage(AnsibleOpenshiftModule):
             },
             "importPolicy": {
                 "insecure": insecure,
-                "scheduled": self.params.get("scheduled")
+                "scheduled": self.params.get("scheduled"),
             },
             "referencePolicy": self.ref_policy,
         }
@@ -149,26 +163,23 @@ class OpenShiftImportImage(AnsibleOpenshiftModule):
                 scheduled = scheduled or old_tag["importPolicy"].get("scheduled")
 
             images = isi["spec"].get("images", [])
-            images.append({
-                "from": {
-                    "kind": "DockerImage",
-                    "name": tags.get(k),
-                },
-                "to": {
-                    "name": k
-                },
-                "importPolicy": {
-                    "insecure": insecure,
-                    "scheduled": scheduled
-                },
-                "referencePolicy": self.ref_policy,
-            })
+            images.append(
+                {
+                    "from": {
+                        "kind": "DockerImage",
+                        "name": tags.get(k),
+                    },
+                    "to": {"name": k},
+                    "importPolicy": {"insecure": insecure, "scheduled": scheduled},
+                    "referencePolicy": self.ref_policy,
+                }
+            )
             isi["spec"]["images"] = images
         return isi
 
     def create_image_stream(self, ref):
         """
-            Create new ImageStream and accompanying ImageStreamImport
+        Create new ImageStream and accompanying ImageStreamImport
         """
         source = self.params.get("source")
         if not source:
@@ -183,27 +194,20 @@ class OpenShiftImportImage(AnsibleOpenshiftModule):
             ),
         )
         if self.params.get("all") and not ref["tag"]:
-            spec = dict(
-                dockerImageRepository=source
-            )
+            spec = dict(dockerImageRepository=source)
             isi = self.create_image_stream_import_all(stream, source)
         else:
             spec = dict(
                 tags=[
                     {
-                        "from": {
-                            "kind": "DockerImage",
-                            "name": source
-                        },
-                        "referencePolicy": self.ref_policy
+                        "from": {"kind": "DockerImage", "name": source},
+                        "referencePolicy": self.ref_policy,
                     }
                 ]
             )
             tags = {ref["tag"]: source}
             isi = self.create_image_stream_import_tags(stream, tags)
-        stream.update(
-            dict(spec=spec)
-        )
+        stream.update(dict(spec=spec))
         return stream, isi
 
     def import_all(self, istream):
@@ -220,8 +224,9 @@ class OpenShiftImportImage(AnsibleOpenshiftModule):
                     if t.get("from") and t["from"].get("kind") == "DockerImage":
                         tags[t.get("name")] = t["from"].get("name")
                 if tags == {}:
-                    msg = "image stream %s/%s does not have tags pointing to external container images" % (
-                        stream["metadata"]["namespace"], stream["metadata"]["name"]
+                    msg = (
+                        "image stream %s/%s does not have tags pointing to external container images"
+                        % (stream["metadata"]["namespace"], stream["metadata"]["name"])
                     )
                     self.fail_json(msg=msg)
                 isi = self.create_image_stream_import_tags(stream, tags)
@@ -236,7 +241,9 @@ class OpenShiftImportImage(AnsibleOpenshiftModule):
         source = self.params.get("source")
 
         # Follow any referential tags to the destination
-        final_tag, existing, multiple, err = follow_imagestream_tag_reference(stream, tag)
+        final_tag, existing, multiple, err = follow_imagestream_tag_reference(
+            stream, tag
+        )
         if err:
             if err == err_stream_not_found_ref:
                 # Create a new tag
@@ -245,7 +252,10 @@ class OpenShiftImportImage(AnsibleOpenshiftModule):
                 # if the from is still empty this means there's no such tag defined
                 # nor we can't create any from .spec.dockerImageRepository
                 if not source:
-                    msg = "the tag %s does not exist on the image stream - choose an existing tag to import" % tag
+                    msg = (
+                        "the tag %s does not exist on the image stream - choose an existing tag to import"
+                        % tag
+                    )
                     self.fail_json(msg=msg)
                 existing = {
                     "from": {
@@ -257,13 +267,21 @@ class OpenShiftImportImage(AnsibleOpenshiftModule):
                 self.fail_json(msg=err)
         else:
             # Disallow re-importing anything other than DockerImage
-            if existing.get("from", {}) and existing["from"].get("kind") != "DockerImage":
+            if (
+                existing.get("from", {})
+                and existing["from"].get("kind") != "DockerImage"
+            ):
                 msg = "tag {tag} points to existing {kind}/={name}, it cannot be re-imported.".format(
-                    tag=tag, kind=existing["from"]["kind"], name=existing["from"]["name"]
+                    tag=tag,
+                    kind=existing["from"]["kind"],
+                    name=existing["from"]["name"],
                 )
             # disallow changing an existing tag
             if not existing.get("from", {}):
-                msg = "tag %s already exists - you cannot change the source using this module." % tag
+                msg = (
+                    "tag %s already exists - you cannot change the source using this module."
+                    % tag
+                )
                 self.fail_json(msg=msg)
             if source and source != existing["from"]["name"]:
                 if multiple:
@@ -271,7 +289,10 @@ class OpenShiftImportImage(AnsibleOpenshiftModule):
                         tag, final_tag, existing["from"]["name"]
                     )
                 else:
-                    msg = "the tag %s points to %s you cannot change the source using this module." % (tag, final_tag)
+                    msg = (
+                        "the tag %s points to %s you cannot change the source using this module."
+                        % (tag, final_tag)
+                    )
                 self.fail_json(msg=msg)
 
             # Set the target item to import
@@ -309,13 +330,13 @@ class OpenShiftImportImage(AnsibleOpenshiftModule):
             kind=kind,
             api_version=api_version,
             name=ref.get("name"),
-            namespace=self.params.get("namespace")
+            namespace=self.params.get("namespace"),
         )
         result = self.kubernetes_facts(**params)
         if not result["api_found"]:
             msg = 'Failed to find API for resource with apiVersion "{0}" and kind "{1}"'.format(
                 api_version, kind
-            ),
+            )
             self.fail_json(msg=msg)
         imagestream = None
         if len(result["resources"]) > 0:
@@ -335,7 +356,9 @@ class OpenShiftImportImage(AnsibleOpenshiftModule):
     def parse_image_reference(self, image_ref):
         result, err = parse_docker_image_ref(image_ref, self.module)
         if result.get("digest"):
-            self.fail_json(msg="Cannot import by ID, error with definition: %s" % image_ref)
+            self.fail_json(
+                msg="Cannot import by ID, error with definition: %s" % image_ref
+            )
         tag = result.get("tag") or None
         if not self.params.get("all") and not tag:
             tag = "latest"
@@ -345,7 +368,6 @@ class OpenShiftImportImage(AnsibleOpenshiftModule):
         return dict(name=result.get("name"), tag=tag, source=image_ref)
 
     def execute_module(self):
-
         names = []
         name = self.params.get("name")
         if isinstance(name, string_types):

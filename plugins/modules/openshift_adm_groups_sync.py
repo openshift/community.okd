@@ -96,31 +96,31 @@ EXAMPLES = r"""
 - name: Sync all groups from an LDAP server
   openshift_adm_groups_sync:
     src:
-        kind: LDAPSyncConfig
-        apiVersion: v1
-        url: ldap://localhost:1390
-        insecure: true
-        bindDN: cn=admin,dc=example,dc=org
-        bindPassword: adminpassword
-        rfc2307:
-            groupsQuery:
-                baseDN: "cn=admins,ou=groups,dc=example,dc=org"
-                scope: sub
-                derefAliases: never
-                filter: (objectClass=*)
-                pageSize: 0
-            groupUIDAttribute: dn
-            groupNameAttributes: [ cn ]
-            groupMembershipAttributes: [ member ]
-            usersQuery:
-                baseDN: "ou=users,dc=example,dc=org"
-                scope: sub
-                derefAliases: never
-                pageSize: 0
-            userUIDAttribute: dn
-            userNameAttributes: [ mail ]
-            tolerateMemberNotFoundErrors: true
-            tolerateMemberOutOfScopeErrors: true
+      kind: LDAPSyncConfig
+      apiVersion: v1
+      url: ldap://localhost:1390
+      insecure: true
+      bindDN: cn=admin,dc=example,dc=org
+      bindPassword: adminpassword
+      rfc2307:
+        groupsQuery:
+          baseDN: "cn=admins,ou=groups,dc=example,dc=org"
+          scope: sub
+          derefAliases: never
+          filter: (objectClass=*)
+          pageSize: 0
+        groupUIDAttribute: dn
+        groupNameAttributes: [cn]
+        groupMembershipAttributes: [member]
+        usersQuery:
+          baseDN: "ou=users,dc=example,dc=org"
+          scope: sub
+          derefAliases: never
+          pageSize: 0
+        userUIDAttribute: dn
+        userNameAttributes: [mail]
+        tolerateMemberNotFoundErrors: true
+        tolerateMemberOutOfScopeErrors: true
 
 # Sync all groups except the ones from the deny_groups  from an LDAP server
 - name: Sync all groups from an LDAP server using deny_groups
@@ -192,20 +192,21 @@ builds:
 # ENDREMOVE (downstream)
 
 import copy
-import traceback
 
-from ansible_collections.kubernetes.core.plugins.module_utils.args_common import AUTH_ARG_SPEC
+from ansible_collections.kubernetes.core.plugins.module_utils.args_common import (
+    AUTH_ARG_SPEC,
+)
 
 
 def argument_spec():
     args = copy.deepcopy(AUTH_ARG_SPEC)
     args.update(
         dict(
-            state=dict(type='str', choices=['absent', 'present'], default='present'),
-            type=dict(type='str', choices=['ldap', 'openshift'], default='ldap'),
-            sync_config=dict(type='dict', aliases=['config', 'src'], required=True),
-            deny_groups=dict(type='list', elements='str', default=[]),
-            allow_groups=dict(type='list', elements='str', default=[]),
+            state=dict(type="str", choices=["absent", "present"], default="present"),
+            type=dict(type="str", choices=["ldap", "openshift"], default="ldap"),
+            sync_config=dict(type="dict", aliases=["config", "src"], required=True),
+            deny_groups=dict(type="list", elements="str", default=[]),
+            allow_groups=dict(type="list", elements="str", default=[]),
         )
     )
     return args
@@ -213,12 +214,14 @@ def argument_spec():
 
 def main():
     from ansible_collections.community.okd.plugins.module_utils.openshift_groups import (
-        OpenshiftGroupsSync
+        OpenshiftGroupsSync,
     )
 
-    module = OpenshiftGroupsSync(argument_spec=argument_spec(), supports_check_mode=True)
+    module = OpenshiftGroupsSync(
+        argument_spec=argument_spec(), supports_check_mode=True
+    )
     module.run_module()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

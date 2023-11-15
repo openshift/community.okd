@@ -5,10 +5,11 @@
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 from __future__ import absolute_import, division, print_function
+
 __metaclass__ = type
 
 # STARTREMOVE (downstream)
-DOCUMENTATION = r'''
+DOCUMENTATION = r"""
 
 module: openshift_build
 
@@ -134,9 +135,9 @@ options:
 requirements:
   - python >= 3.6
   - kubernetes >= 12.0.0
-'''
+"""
 
-EXAMPLES = r'''
+EXAMPLES = r"""
 # Starts build from build config default/hello-world
 - name: Starts build from build config
   community.okd.openshift_build:
@@ -171,9 +172,9 @@ EXAMPLES = r'''
     build_phases:
       - New
     state: cancelled
-'''
+"""
 
-RETURN = r'''
+RETURN = r"""
 builds:
   description:
   - The builds that were started/cancelled.
@@ -200,37 +201,47 @@ builds:
       description: Current status details for the object.
       returned: success
       type: dict
-'''
+"""
 # ENDREMOVE (downstream)
 
 import copy
 
-from ansible_collections.kubernetes.core.plugins.module_utils.args_common import AUTH_ARG_SPEC
+from ansible_collections.kubernetes.core.plugins.module_utils.args_common import (
+    AUTH_ARG_SPEC,
+)
 
 
 def argument_spec():
     args = copy.deepcopy(AUTH_ARG_SPEC)
 
     args_options = dict(
-        name=dict(type='str', required=True),
-        value=dict(type='str', required=True)
+        name=dict(type="str", required=True), value=dict(type="str", required=True)
     )
 
     args.update(
         dict(
-            state=dict(type='str', choices=['started', 'cancelled', 'restarted'], default="started"),
-            build_args=dict(type='list', elements='dict', options=args_options),
-            commit=dict(type='str'),
-            env_vars=dict(type='list', elements='dict', options=args_options),
-            build_name=dict(type='str'),
-            build_config_name=dict(type='str'),
-            namespace=dict(type='str', required=True),
-            incremental=dict(type='bool'),
-            no_cache=dict(type='bool'),
-            wait=dict(type='bool', default=False),
-            wait_sleep=dict(type='int', default=5),
-            wait_timeout=dict(type='int', default=120),
-            build_phases=dict(type='list', elements='str', default=[], choices=["New", "Pending", "Running"]),
+            state=dict(
+                type="str",
+                choices=["started", "cancelled", "restarted"],
+                default="started",
+            ),
+            build_args=dict(type="list", elements="dict", options=args_options),
+            commit=dict(type="str"),
+            env_vars=dict(type="list", elements="dict", options=args_options),
+            build_name=dict(type="str"),
+            build_config_name=dict(type="str"),
+            namespace=dict(type="str", required=True),
+            incremental=dict(type="bool"),
+            no_cache=dict(type="bool"),
+            wait=dict(type="bool", default=False),
+            wait_sleep=dict(type="int", default=5),
+            wait_timeout=dict(type="int", default=120),
+            build_phases=dict(
+                type="list",
+                elements="str",
+                default=[],
+                choices=["New", "Pending", "Running"],
+            ),
         )
     )
     return args
@@ -238,23 +249,24 @@ def argument_spec():
 
 def main():
     mutually_exclusive = [
-        ('build_name', 'build_config_name'),
+        ("build_name", "build_config_name"),
     ]
     from ansible_collections.community.okd.plugins.module_utils.openshift_builds import (
-        OpenShiftBuilds
+        OpenShiftBuilds,
     )
+
     module = OpenShiftBuilds(
         argument_spec=argument_spec(),
         mutually_exclusive=mutually_exclusive,
         required_one_of=[
             [
-                'build_name',
-                'build_config_name',
+                "build_name",
+                "build_config_name",
             ]
         ],
     )
     module.run_module()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

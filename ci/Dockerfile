@@ -1,4 +1,4 @@
-FROM registry.access.redhat.com/ubi8/ubi
+FROM registry.access.redhat.com/ubi9/ubi
 
 ENV OPERATOR=/usr/local/bin/ansible-operator \
     USER_UID=1001 \
@@ -11,20 +11,20 @@ RUN yum install -y \
       glibc-langpack-en \
       git \
       make \
-      python39 \
-      python39-devel \
-      python39-pip \
-      python39-setuptools \
+      python3 \
+      python3-devel \
+      python3-pip \
+      python3-setuptools \
       gcc \
       openldap-devel \
- && pip3 install --no-cache-dir --upgrade setuptools pip \
- && pip3 install --no-cache-dir \
+ && python3.9 -m pip install --no-cache-dir --upgrade setuptools pip \
+ && python3.9 -m pip install --no-cache-dir \
       kubernetes \
-      ansible==2.9.* \
-      "molecule<3.3.0" \
+      "ansible-core" \
+      "molecule" \
   && yum clean all \
   && rm -rf $HOME/.cache \
-  && curl -L https://github.com/openshift/okd/releases/download/4.5.0-0.okd-2020-08-12-020541/openshift-client-linux-4.5.0-0.okd-2020-08-12-020541.tar.gz | tar -xz -C /usr/local/bin
+  && curl -L https://github.com/openshift/okd/releases/download/4.12.0-0.okd-2023-04-16-041331/openshift-client-linux-4.12.0-0.okd-2023-04-16-041331.tar.gz | tar -xz -C /usr/local/bin
   # TODO: Is there a better way to install this client in ubi8?
 
 COPY . /opt/ansible

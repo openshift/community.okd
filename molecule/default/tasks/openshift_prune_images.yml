@@ -38,12 +38,12 @@
             name: "{{ pod_name }}"
           spec:
             containers:
-            - name: test-container
-              image: "{{ prune_registry }}/{{ prune_ns }}/{{ container.name }}:latest"
-              command:
-                - /bin/sh
-                - -c
-                - while true;do date;sleep 5; done
+              - name: test-container
+                image: "{{ prune_registry }}/{{ prune_ns }}/{{ container.name }}:latest"
+                command:
+                  - /bin/sh
+                  - -c
+                  - while true;do date;sleep 5; done
 
     - name: Create limit range for images size
       community.okd.k8s:
@@ -57,7 +57,7 @@
               - type: openshift.io/Image
                 max:
                   storage: 1Gi
-        
+
     - name: Prune images from namespace
       community.okd.openshift_adm_prune_images:
         registry_url: "{{ prune_registry }}"

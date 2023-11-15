@@ -13,22 +13,22 @@ metadata:
     tags: quickstart,examples
   name: simple-example
 objects:
-- apiVersion: v1
-  kind: ConfigMap
-  metadata:
-    annotations:
-      description: Big example
-    name: ${NAME}
-  data:
-    content: "${CONTENT}"
+  - apiVersion: v1
+    kind: ConfigMap
+    metadata:
+      annotations:
+        description: Big example
+      name: ${NAME}
+    data:
+      content: "${CONTENT}"
 parameters:
-- description: The name assigned to the ConfigMap
-  displayName: Name
-  name: NAME
-  required: true
-  value: example
-- description: The value for the content key of the configmap
-  displayName: Content
-  name: CONTENT
-  required: true
-  value: ''
+  - description: The name assigned to the ConfigMap
+    displayName: Name
+    name: NAME
+    required: true
+    value: example
+  - description: The value for the content key of the configmap
+    displayName: Content
+    name: CONTENT
+    required: true
+    value: ''

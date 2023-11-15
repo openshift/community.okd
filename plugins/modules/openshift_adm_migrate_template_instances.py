@@ -31,14 +31,14 @@ requirements:
 """
 
 EXAMPLES = r"""
-  - name: Migrate TemplateInstances in namespace=test
-    community.okd.openshift_adm_migrate_template_instances:
-      namespace: test
-    register: _result
+- name: Migrate TemplateInstances in namespace=test
+  community.okd.openshift_adm_migrate_template_instances:
+    namespace: test
+  register: _result
 
-  - name: Migrate TemplateInstances in all namespaces
-    community.okd.openshift_adm_migrate_template_instances:
-    register: _result
+- name: Migrate TemplateInstances in all namespaces
+  community.okd.openshift_adm_migrate_template_instances:
+  register: _result
 """
 
 RETURN = r"""
@@ -235,7 +235,9 @@ result:
 
 from ansible.module_utils._text import to_native
 
-from ansible_collections.community.okd.plugins.module_utils.openshift_common import AnsibleOpenshiftModule
+from ansible_collections.community.okd.plugins.module_utils.openshift_common import (
+    AnsibleOpenshiftModule,
+)
 
 try:
     from kubernetes.dynamic.exceptions import DynamicApiError
@@ -339,9 +341,7 @@ class OpenShiftMigrateTemplateInstances(AnsibleOpenshiftModule):
 
             if ti_to_be_migrated:
                 if self.check_mode:
-                    self.exit_json(
-                        **{"changed": True, "result": ti_to_be_migrated}
-                    )
+                    self.exit_json(**{"changed": True, "result": ti_to_be_migrated})
                 else:
                     for ti_elem in ti_to_be_migrated:
                         results["result"].append(
@@ -363,7 +363,9 @@ def argspec():
 
 def main():
     argument_spec = argspec()
-    module = OpenShiftMigrateTemplateInstances(argument_spec=argument_spec, supports_check_mode=True)
+    module = OpenShiftMigrateTemplateInstances(
+        argument_spec=argument_spec, supports_check_mode=True
+    )
     module.run_module()
 
 

@@ -1,2 +1,4 @@
+---
 deprecated_features:
-- openshift - the ``openshift`` inventory plugin has been deprecated and will be removed in release 4.0.0 (https://github.com/ansible-collections/kubernetes.core/issues/31).
+  - openshift - the ``openshift`` inventory plugin has been deprecated and will be removed in release 4.0.0
+    (https://github.com/ansible-collections/kubernetes.core/issues/31).

@@ -47,7 +47,7 @@ f_text_sub()
     sed -i.bak "s/Kubernetes/OpenShift/g" "${_build_dir}/galaxy.yml"
     sed -i.bak "s/^version\:.*$/version: ${DOWNSTREAM_VERSION}/" "${_build_dir}/galaxy.yml"
     sed -i.bak "/STARTREMOVE/,/ENDREMOVE/d" "${_build_dir}/README.md"
-    sed -i.bak "s/[[:space:]]okd:$/ openshift:/" ${_build_dir}/meta/runtime.yml
+    sed -i.bak "s/[[:space:]]okd:$/ openshift:/" "${_build_dir}/meta/runtime.yml"
 
     find "${_build_dir}" -type f ! -name galaxy.yml -exec sed -i.bak "s/community\.okd/redhat\.openshift/g" {} \;
     find "${_build_dir}" -type f -name "*.bak" -delete
@@ -67,7 +67,6 @@ f_prep()
         LICENSE
         README.md
         Makefile
-        setup.cfg
         .yamllint
         requirements.txt
         requirements.yml
@@ -76,6 +75,7 @@ f_prep()
 
     # Directories to recursively copy downstream (relative repo root dir path)
     _dir_manifest=(
+        .config
         changelogs
         ci
         meta
@@ -156,7 +156,7 @@ f_handle_doc_fragments_workaround()
     # Build the collection, export docs, render them, stitch it all back together
     pushd "${_build_dir}" || return
         ansible-galaxy collection build
-        ansible-galaxy collection install -p "${install_collections_dir}" ./*.tar.gz
+        ansible-galaxy collection install --force-with-deps -p "${install_collections_dir}" ./*.tar.gz
         rm ./*.tar.gz
         for doc_fragment_mod in "${_doc_fragment_modules[@]}"
         do

@@ -5,10 +5,11 @@
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 from __future__ import absolute_import, division, print_function
+
 __metaclass__ = type
 
 # STARTREMOVE (downstream)
-DOCUMENTATION = r'''
+DOCUMENTATION = r"""
 
 module: openshift_adm_prune_builds
 
@@ -45,14 +46,14 @@ options:
 requirements:
   - python >= 3.6
   - kubernetes >= 12.0.0
-'''
+"""
 
-EXAMPLES = r'''
+EXAMPLES = r"""
 # Run deleting older completed and failed builds and also including
 # all builds whose associated BuildConfig no longer exists
 - name: Run delete orphan Builds
   community.okd.openshift_adm_prune_builds:
-    orphans: True
+    orphans: true
 
 # Run deleting older completed and failed builds keep younger than 2hours
 - name: Run delete builds, keep younger than 2h
@@ -63,9 +64,9 @@ EXAMPLES = r'''
 - name: Run delete builds from namespace
   community.okd.openshift_adm_prune_builds:
     namespace: testing_namespace
-'''
+"""
 
-RETURN = r'''
+RETURN = r"""
 builds:
   description:
   - The builds that were deleted
@@ -92,33 +93,38 @@ builds:
       description: Current status details for the object.
       returned: success
       type: dict
-'''
+"""
 # ENDREMOVE (downstream)
 
 import copy
 
-from ansible_collections.kubernetes.core.plugins.module_utils.args_common import AUTH_ARG_SPEC
+from ansible_collections.kubernetes.core.plugins.module_utils.args_common import (
+    AUTH_ARG_SPEC,
+)
 
 
 def argument_spec():
     args = copy.deepcopy(AUTH_ARG_SPEC)
     args.update(
         dict(
-            namespace=dict(type='str'),
-            keep_younger_than=dict(type='int'),
-            orphans=dict(type='bool', default=False),
+            namespace=dict(type="str"),
+            keep_younger_than=dict(type="int"),
+            orphans=dict(type="bool", default=False),
         )
     )
     return args
 
 
 def main():
+    from ansible_collections.community.okd.plugins.module_utils.openshift_builds import (
+        OpenShiftPruneBuilds,
+    )
 
-    from ansible_collections.community.okd.plugins.module_utils.openshift_builds import OpenShiftPruneBuilds
-
-    module = OpenShiftPruneBuilds(argument_spec=argument_spec(), supports_check_mode=True)
+    module = OpenShiftPruneBuilds(
+        argument_spec=argument_spec(), supports_check_mode=True
+    )
     module.run_module()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

@@ -5,10 +5,11 @@
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 from __future__ import absolute_import, division, print_function
+
 __metaclass__ = type
 
 # STARTREMOVE (downstream)
-DOCUMENTATION = r'''
+DOCUMENTATION = r"""
 
 module: openshift_adm_prune_deployments
 
@@ -45,32 +46,34 @@ options:
 requirements:
   - python >= 3.6
   - kubernetes >= 12.0.0
-'''
+"""
 
-EXAMPLES = r'''
+EXAMPLES = r"""
 - name: Prune Deployments from testing namespace
   community.okd.openshift_adm_prune_deployments:
     namespace: testing
 
 - name: Prune orphans deployments, keep younger than 2hours
   community.okd.openshift_adm_prune_deployments:
-    orphans: True
+    orphans: true
     keep_younger_than: 120
-'''
+"""
 
 
-RETURN = r'''
+RETURN = r"""
 replication_controllers:
   type: list
   description: list of replication controllers candidate for pruning.
   returned: always
-'''
+"""
 # ENDREMOVE (downstream)
 
 import copy
 
 try:
-    from ansible_collections.kubernetes.core.plugins.module_utils.args_common import AUTH_ARG_SPEC
+    from ansible_collections.kubernetes.core.plugins.module_utils.args_common import (
+        AUTH_ARG_SPEC,
+    )
 except ImportError as e:
     pass
 
@@ -79,22 +82,28 @@ def argument_spec():
     args = copy.deepcopy(AUTH_ARG_SPEC)
     args.update(
         dict(
-            namespace=dict(type='str',),
-            keep_younger_than=dict(type='int',),
-            orphans=dict(type='bool', default=False),
+            namespace=dict(
+                type="str",
+            ),
+            keep_younger_than=dict(
+                type="int",
+            ),
+            orphans=dict(type="bool", default=False),
         )
     )
     return args
 
 
 def main():
-
     from ansible_collections.community.okd.plugins.module_utils.openshift_adm_prune_deployments import (
-        OpenShiftAdmPruneDeployment)
+        OpenShiftAdmPruneDeployment,
+    )
 
-    module = OpenShiftAdmPruneDeployment(argument_spec=argument_spec(), supports_check_mode=True)
+    module = OpenShiftAdmPruneDeployment(
+        argument_spec=argument_spec(), supports_check_mode=True
+    )
     module.run_module()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

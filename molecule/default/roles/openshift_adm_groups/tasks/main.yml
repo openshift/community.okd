@@ -1,5 +1,5 @@
 ---
-- name: Get cluster information 
+- name: Get cluster information
   kubernetes.core.k8s_cluster_info:
   register: info
 
@@ -16,30 +16,29 @@
           app: ldap
       spec:
         containers:
-        - name: ldap
-          image: bitnami/openldap
-          env:
-            - name: LDAP_ADMIN_USERNAME
-              value: "{{ ldap_admin_user }}"
-            - name: LDAP_ADMIN_PASSWORD
-              value: "{{ ldap_admin_password }}"
-            - name: LDAP_USERS
-              value: "ansible"
-            - name: LDAP_PASSWORDS
-              value: "ansible123"
-            - name: LDAP_ROOT
-              value: "{{ ldap_root }}"
-          ports:
-          - containerPort: 1389
+          - name: ldap
+            image: bitnami/openldap
+            env:
+              - name: LDAP_ADMIN_USERNAME
+                value: "{{ ldap_admin_user }}"
+              - name: LDAP_ADMIN_PASSWORD
+                value: "{{ ldap_admin_password }}"
+              - name: LDAP_USERS
+                value: "ansible"
+              - name: LDAP_PASSWORDS
+                value: "ansible123"
+              - name: LDAP_ROOT
+                value: "{{ ldap_root }}"
+            ports:
+              - containerPort: 1389
+                name: ldap-server
   register: pod_info
-
-- name: Set Pod Internal IP
-  set_fact:
-    podIp: "{{ pod_info.result.status.podIP }}"
 
 - name: Set LDAP Common facts
   set_fact:
-    ldap_server_uri: "ldap://{{ podIp }}:1389"
+    # we can use the Pod IP directly because the integration are running inside a Pod in the
+    # same openshift cluster
+    ldap_server_uri: "ldap://{{ pod_info.result.status.podIP }}:1389"
     ldap_bind_dn: "cn={{ ldap_admin_user }},{{ ldap_root }}"
     ldap_bind_pw: "{{ ldap_admin_password }}"
 
@@ -53,8 +52,10 @@
     bind_pw: "{{ ldap_bind_pw }}"
     dn: "ou=users,{{ ldap_root }}"
     server_uri: "{{ ldap_server_uri }}"
-  # ignore_errors: true
-  # register: ping_ldap
+  register: test_ldap
+  retries: 10
+  delay: 5
+  until: test_ldap is not failed
 
 - include_tasks: "tasks/python-ldap-not-installed.yml"
 - include_tasks: "tasks/rfc2307.yml"
