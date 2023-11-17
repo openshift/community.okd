@@ -145,7 +145,7 @@ f_handle_doc_fragments_workaround()
     local rendered_fragments="./rendereddocfragments.txt"
 
     # FIXME: Check Python interpreter from environment variable to work with prow
-    PYTHON=${DOWNSTREAM_BUILD_PYTHON:-/usr/bin/python3.6}
+    PYTHON=${DOWNSTREAM_BUILD_PYTHON:-/usr/bin/python3}
     f_log_info "Using Python interpreter: ${PYTHON}"
 
     # Modules with inherited doc fragments from kubernetes.core that need
