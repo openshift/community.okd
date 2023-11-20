@@ -5,6 +5,20 @@ OKD Collection Release Notes
 .. contents:: Topics
 
 
+v3.0.0
+======
+
+Breaking Changes / Porting Guide
+--------------------------------
+
+- Bump minimum Python suupported version to 3.9 (https://github.com/openshift/community.okd/pull/202).
+- Remove support for ansible-core < 2.14 (https://github.com/openshift/community.okd/pull/202).
+
+Deprecated Features
+-------------------
+
+- openshift - the ``openshift`` inventory plugin has been deprecated and will be removed in release 4.0.0 (https://github.com/ansible-collections/kubernetes.core/issues/31).
+
 v2.3.0
 ======
 
