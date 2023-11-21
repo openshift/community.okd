@@ -8,6 +8,11 @@ OKD Collection Release Notes
 v3.0.0
 ======
 
+Release Summary
+---------------
+
+This major release drops support for ansible-core versions lower than 2.14 and Python versions lower than 3.9. It also deprecates ``openshift`` inventory plugin.
+
 Breaking Changes / Porting Guide
 --------------------------------
 

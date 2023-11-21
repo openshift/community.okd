@@ -207,6 +207,7 @@ releases:
       deprecated_features:
       - openshift - the ``openshift`` inventory plugin has been deprecated and will
         be removed in release 4.0.0 (https://github.com/ansible-collections/kubernetes.core/issues/31).
+      release_summary: This major release drops support for ansible-core versions lower than 2.14 and Python versions lower than 3.9. It also deprecates ``openshift`` inventory plugin.
     fragments:
     - 20230206-deprecate-openshift-inventory.yml
     - 20231107-move-sanity-and-units-to-gha.yml
