@@ -6,23 +6,25 @@ VERSION = 3.0.0
 SANITY_TEST_ARGS ?= --docker --color
 UNITS_TEST_ARGS ?= --docker --color
 PYTHON_VERSION ?= `python3 -c 'import platform; print("{0}.{1}".format(platform.python_version_tuple()[0], platform.python_version_tuple()[1]))'`
+INSTALL_PATH ?= ~/openshift/ansible_collections
+
 
 clean:
 	rm -f community-okd-$(VERSION).tar.gz
 	rm -f redhat-openshift-$(VERSION).tar.gz
-	rm -rf ansible_collections
+	rm -rf $(INSTALL_PATH)
 
 build: clean
 	ansible-galaxy collection build
 
 install: build
-	ansible-galaxy collection install --force -p ansible_collections community-okd-$(VERSION).tar.gz
+	ansible-galaxy collection install --force -p $(INSTALL_PATH) community-okd-$(VERSION).tar.gz
 
 sanity: install
-	cd ansible_collections/community/okd && ansible-test sanity -v --python $(PYTHON_VERSION) $(SANITY_TEST_ARGS)
+	cd $(INSTALL_PATH)/community/okd && ansible-test sanity -v --python $(PYTHON_VERSION) $(SANITY_TEST_ARGS)
 
 units: install
-	cd ansible_collections/community/okd && ansible-test units -v --python $(PYTHON_VERSION) $(UNITS_TEST_ARGS)
+	cd $(INSTALL_PATH)/community/okd && ansible-test units -v --python $(PYTHON_VERSION) $(UNITS_TEST_ARGS)
 
 molecule: install
 	molecule test
