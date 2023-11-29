@@ -62,6 +62,7 @@ f_prep()
 
     # Files to copy downstream (relative repo root dir path)
     _file_manifest=(
+        .gitignore
         CHANGELOG.rst
         galaxy.yml
         LICENSE
