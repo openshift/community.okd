@@ -5,6 +5,15 @@ OKD Collection Release Notes
 .. contents:: Topics
 
 
+v3.0.1
+======
+
+Release Summary
+---------------
+
+This patch release fixes an issue in building the downstream collection.
+
+
 v3.0.0
 ======
 
