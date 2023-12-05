@@ -28,7 +28,7 @@ units: install
 	cd $(INSTALL_PATH)/ansible_collections/community/okd && ansible-test units -v --python $(PYTHON_VERSION) $(UNITS_TEST_ARGS) && rm -rf $(INSTALL_PATH)
 
 molecule: install
-	cd $(INSTALL_PATH)/ansible_collections/community/okd && molecule test
+	cd $(INSTALL_PATH)/ansible_collections/community/okd && molecule test && rm -rf $(INSTALL_PATH)
 
 test-integration: upstream-test-integration downstream-test-integration
 
