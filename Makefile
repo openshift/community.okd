@@ -8,7 +8,7 @@ UNITS_TEST_ARGS ?= --docker --color
 PYTHON_VERSION ?= `python3 -c 'import platform; print("{0}.{1}".format(platform.python_version_tuple()[0], platform.python_version_tuple()[1]))'`
 # this expression compute the install path once for all the execution
 # See: https://stackoverflow.com/questions/44114466/how-to-declare-a-deferred-variable-that-is-computed-only-once-for-all
-INSTALL_PATH ?= $(eval INSTALL_PATH := $(shell mktemp -d -p ~/))$(INSTALL_PATH)
+INSTALL_PATH ?= $(eval INSTALL_PATH := $(shell mktemp -d))$(INSTALL_PATH)
 
 clean:
 	rm -f community-okd-$(VERSION).tar.gz
