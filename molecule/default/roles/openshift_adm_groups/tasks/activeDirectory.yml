@@ -49,9 +49,9 @@
           - result is changed
           - admins_group
           - devs_group
-          - '"jane.smith@ansible.org" in {{ admins_group.users }}'
-          - '"jim.adams@ansible.org" in {{ admins_group.users }}'
-          - '"jordanbulls@ansible.org" in {{ devs_group.users }}'
+          - '"jane.smith@ansible.org" in admins_group.users'
+          - '"jim.adams@ansible.org" in admins_group.users'
+          - '"jordanbulls@ansible.org" in devs_group.users'
           - admins_group.users | length == 2
           - devs_group.users | length == 1
       vars:
@@ -79,8 +79,8 @@
       assert:
         that:
           - result.resources | length == 1
-          - '"jane.smith@ansible.org" in {{ result.resources.0.users }}'
-          - '"jim.adams@ansible.org" in {{ result.resources.0.users }}'
+          - '"jane.smith@ansible.org" in result.resources.0.users'
+          - '"jim.adams@ansible.org" in result.resources.0.users'
 
     - name: Read developers group
       kubernetes.core.k8s_info:
@@ -93,7 +93,7 @@
       assert:
         that:
           - result.resources | length == 1
-          - '"jordanbulls@ansible.org" in {{ result.resources.0.users }}'
+          - '"jordanbulls@ansible.org" in result.resources.0.users'
 
     - name: Define user dn to delete
       set_fact:
@@ -133,8 +133,8 @@
       assert:
         that:
           - result.resources | length == 1
-          - '"jane.smith@ansible.org" in {{ result.resources.0.users }}'
-          - '"jim.adams@ansible.org" in {{ result.resources.0.users }}'
+          - '"jane.smith@ansible.org" in result.resources.0.users'
+          - '"jim.adams@ansible.org" in result.resources.0.users'
 
     - name: Synchronize Openshift groups using deny_groups
       community.okd.openshift_adm_groups_sync:

@@ -125,7 +125,7 @@
       assert:
         that:
           - error_tag is failed
-          - 'error_tag.msg == "image stream {{ test_ns }}/local-is does not have tags pointing to external container images"'
+          - error_tag.msg == "image stream "+test_ns+"/local-is does not have tags pointing to external container images"
 
     - name: import all tags for container image ibmcom/pause and specific tag for redhat/ubi8-micro
       community.okd.openshift_import_image:

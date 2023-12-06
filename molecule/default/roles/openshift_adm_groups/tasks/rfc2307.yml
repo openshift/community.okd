@@ -70,9 +70,9 @@
           - result is changed
           - admins_group
           - devs_group
-          - '"jane.smith@ansible.org" in {{ admins_group.users }}'
-          - '"jim.adams@ansible.org" in {{ devs_group.users }}'
-          - '"jordanbulls@ansible.org" in {{ devs_group.users }}'
+          - '"jane.smith@ansible.org" in admins_group.users'
+          - '"jim.adams@ansible.org" in devs_group.users'
+          - '"jordanbulls@ansible.org" in devs_group.users'
           - admins_group.users | length == 1
           - devs_group.users | length == 2
       vars:
@@ -91,9 +91,9 @@
           - result is changed
           - admins_group
           - devs_group
-          - '"jane.smith@ansible.org" in {{ admins_group.users }}'
-          - '"jim.adams@ansible.org" in {{ devs_group.users }}'
-          - '"jordanbulls@ansible.org" in {{ devs_group.users }}'
+          - '"jane.smith@ansible.org" in admins_group.users'
+          - '"jim.adams@ansible.org" in devs_group.users'
+          - '"jordanbulls@ansible.org" in devs_group.users'
           - admins_group.users | length == 1
           - devs_group.users | length == 2
       vars:
@@ -112,9 +112,9 @@
           - result is changed
           - admins_group
           - devs_group
-          - '"cn=Jane,ou=people,ou=rfc2307,{{ ldap_root }}" in {{ admins_group.users }}'
-          - '"cn=Jim,ou=people,ou=rfc2307,{{ ldap_root }}" in {{ devs_group.users }}'
-          - '"cn=Jordan,ou=people,ou=rfc2307,{{ ldap_root }}" in {{ devs_group.users }}'
+          - '"cn=Jane,ou=people,ou=rfc2307,"+ldap_root in admins_group.users'
+          - '"cn=Jim,ou=people,ou=rfc2307,"+ldap_root in devs_group.users'
+          - '"cn=Jordan,ou=people,ou=rfc2307,"+ldap_root in devs_group.users'
           - admins_group.users | length == 1
           - devs_group.users | length == 2
       vars:
@@ -133,9 +133,9 @@
           - result is changed
           - admins_group
           - devs_group
-          - '"jane.smith@ansible.org" in {{ admins_group.users }}'
-          - '"jim.adams@ansible.org" in {{ devs_group.users }}'
-          - '"jordanbulls@ansible.org" in {{ devs_group.users }}'
+          - '"jane.smith@ansible.org" in admins_group.users'
+          - '"jim.adams@ansible.org" in devs_group.users'
+          - '"jordanbulls@ansible.org" in devs_group.users'
           - admins_group.users | length == 1
           - devs_group.users | length == 2
       vars:
@@ -162,7 +162,7 @@
       assert:
         that:
           - result is failed
-          - result.msg.startswith("Entry not found for base='cn=Matthew,ou=people,ou=outrfc2307,{{ ldap_root }}'")
+          - result.msg.startswith("Entry not found for base='cn=Matthew,ou=people,ou=outrfc2307,"+ldap_root+"'")
 
     - name: Define sync configuration with tolerateMemberNotFoundErrors
       set_fact:
@@ -264,7 +264,7 @@
       assert:
         that:
           - result.resources | length == 1
-          - '"jane.smith@ansible.org" in {{ result.resources.0.users }}'
+          - '"jane.smith@ansible.org" in result.resources.0.users'
 
     - name: Read Groups
       kubernetes.core.k8s_info:
@@ -277,8 +277,8 @@
       assert:
         that:
           - result.resources | length == 1
-          - '"jim.adams@ansible.org" in {{ result.resources.0.users }}'
-          - '"jordanbulls@ansible.org" in {{ result.resources.0.users }}'
+          - '"jim.adams@ansible.org" in result.resources.0.users'
+          - '"jordanbulls@ansible.org" in result.resources.0.users'
 
     - name: Set users to delete (no admins users anymore and only 1 developer kept)
       set_fact:
@@ -335,7 +335,7 @@
       assert:
         that:
           - result.resources | length == 1
-          - '"jordanbulls@ansible.org" in {{ result.resources.0.users }}'
+          - '"jordanbulls@ansible.org" in result.resources.0.users'
 
     - name: Set group to delete
       set_fact:

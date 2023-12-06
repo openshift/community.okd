@@ -95,7 +95,7 @@
       assert:
         that:
           - replications.resources | length == 1
-          - 'replications.resources.0.metadata.name is match("{{ dc_name }}-*")'
+          - replications.resources.0.metadata.name is match(dc_name+"-*")
 
     - name: Assure that candidate ReplicationController was found for pruning
       assert:
