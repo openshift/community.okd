@@ -5,7 +5,7 @@ authors:
   - willthames (https://github.com/willthames)
   - Akasurde (https://github.com/akasurde)
 dependencies:
-  kubernetes.core: '>=2.4.0'
+  kubernetes.core: '>=3.0.0'
 description: OKD Collection for Ansible.
 documentation: ''
 homepage: ''
@@ -24,4 +24,4 @@ tags:
   - okd
   - cluster
 # Also needs to be updated in the Makefile
-version: 2.3.0
+version: 3.0.1

@@ -55,6 +55,7 @@ Parameters
                     </div>
                 </td>
                 <td>
+                        <b>Default:</b><br/><div style="color: blue">[]</div>
                 </td>
                 <td>
                         <div>Allowed groups, could be openshift group name or LDAP group dn value.</div>
@@ -150,6 +151,7 @@ Parameters
                     </div>
                 </td>
                 <td>
+                        <b>Default:</b><br/><div style="color: blue">[]</div>
                 </td>
                 <td>
                         <div>Denied groups, could be openshift group name or LDAP group dn value.</div>
@@ -175,6 +177,41 @@ Parameters
             <tr>
                 <td colspan="2">
                     <div class="ansibleOptionAnchor" id="parameter-"></div>
+                    <b>impersonate_groups</b>
+                    <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
+                    <div style="font-size: small">
+                        <span style="color: purple">list</span>
+                         / <span style="color: purple">elements=string</span>
+                    </div>
+                    <div style="font-style: italic; font-size: small; color: darkgreen">added in 2.3.0</div>
+                </td>
+                <td>
+                </td>
+                <td>
+                        <div>Group(s) to impersonate for the operation.</div>
+                        <div>Can also be specified via K8S_AUTH_IMPERSONATE_GROUPS environment. Example: Group1,Group2</div>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <div class="ansibleOptionAnchor" id="parameter-"></div>
+                    <b>impersonate_user</b>
+                    <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                    </div>
+                    <div style="font-style: italic; font-size: small; color: darkgreen">added in 2.3.0</div>
+                </td>
+                <td>
+                </td>
+                <td>
+                        <div>Username to impersonate for the operation.</div>
+                        <div>Can also be specified via K8S_AUTH_IMPERSONATE_USER environment.</div>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <div class="ansibleOptionAnchor" id="parameter-"></div>
                     <b>kubeconfig</b>
                     <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
                     <div style="font-size: small">
@@ -185,7 +222,27 @@ Parameters
                 </td>
                 <td>
                         <div>Path to an existing Kubernetes config file. If not provided, and no other connection options are provided, the Kubernetes client will attempt to load the default configuration file from <em>~/.kube/config</em>. Can also be specified via K8S_AUTH_KUBECONFIG environment variable.</div>
+                        <div>Multiple Kubernetes config file can be provided using separator &#x27;;&#x27; for Windows platform or &#x27;:&#x27; for others platforms.</div>
                         <div>The kubernetes configuration can be provided as dictionary. This feature requires a python kubernetes client version &gt;= 17.17.0. Added in version 2.2.0.</div>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <div class="ansibleOptionAnchor" id="parameter-"></div>
+                    <b>no_proxy</b>
+                    <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                    </div>
+                    <div style="font-style: italic; font-size: small; color: darkgreen">added in 2.3.0</div>
+                </td>
+                <td>
+                </td>
+                <td>
+                        <div>The comma separated list of hosts/domains/IP/CIDR that shouldn&#x27;t go through proxy. Can also be specified via K8S_AUTH_NO_PROXY environment variable.</div>
+                        <div>Please note that this module does not pick up typical proxy settings from the environment (e.g. NO_PROXY).</div>
+                        <div>This feature requires kubernetes&gt;=19.15.0. When kubernetes library is less than 19.15.0, it fails even no_proxy set in correct.</div>
+                        <div>example value is &quot;localhost,.local,.example.com,127.0.0.1,127.0.0.0/8,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16&quot;</div>
                 </td>
             </tr>
             <tr>
@@ -439,31 +496,31 @@ Examples
     - name: Sync all groups from an LDAP server
       openshift_adm_groups_sync:
         src:
-            kind: LDAPSyncConfig
-            apiVersion: v1
-            url: ldap://localhost:1390
-            insecure: true
-            bindDN: cn=admin,dc=example,dc=org
-            bindPassword: adminpassword
-            rfc2307:
-                groupsQuery:
-                    baseDN: "cn=admins,ou=groups,dc=example,dc=org"
-                    scope: sub
-                    derefAliases: never
-                    filter: (objectClass=*)
-                    pageSize: 0
-                groupUIDAttribute: dn
-                groupNameAttributes: [ cn ]
-                groupMembershipAttributes: [ member ]
-                usersQuery:
-                    baseDN: "ou=users,dc=example,dc=org"
-                    scope: sub
-                    derefAliases: never
-                    pageSize: 0
-                userUIDAttribute: dn
-                userNameAttributes: [ mail ]
-                tolerateMemberNotFoundErrors: true
-                tolerateMemberOutOfScopeErrors: true
+          kind: LDAPSyncConfig
+          apiVersion: v1
+          url: ldap://localhost:1390
+          insecure: true
+          bindDN: cn=admin,dc=example,dc=org
+          bindPassword: adminpassword
+          rfc2307:
+            groupsQuery:
+              baseDN: "cn=admins,ou=groups,dc=example,dc=org"
+              scope: sub
+              derefAliases: never
+              filter: (objectClass=*)
+              pageSize: 0
+            groupUIDAttribute: dn
+            groupNameAttributes: [cn]
+            groupMembershipAttributes: [member]
+            usersQuery:
+              baseDN: "ou=users,dc=example,dc=org"
+              scope: sub
+              derefAliases: never
+              pageSize: 0
+            userUIDAttribute: dn
+            userNameAttributes: [mail]
+            tolerateMemberNotFoundErrors: true
+            tolerateMemberOutOfScopeErrors: true
 
     # Sync all groups except the ones from the deny_groups  from an LDAP server
     - name: Sync all groups from an LDAP server using deny_groups

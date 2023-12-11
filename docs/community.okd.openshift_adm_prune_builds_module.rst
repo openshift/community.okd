@@ -435,7 +435,7 @@ Examples
     # all builds whose associated BuildConfig no longer exists
     - name: Run delete orphan Builds
       community.okd.openshift_adm_prune_builds:
-        orphans: True
+        orphans: true
 
     # Run deleting older completed and failed builds keep younger than 2hours
     - name: Run delete builds, keep younger than 2h

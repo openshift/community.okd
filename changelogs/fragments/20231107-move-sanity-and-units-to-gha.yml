@@ -1,6 +1,0 @@
----
-trivial:
-  - "Move unit and sanity tests from zuul to GitHub Actions (https://github.com/openshift/community.okd/pull/202)."
-breaking_changes:
-  - "Remove support for ansible-core < 2.14 (https://github.com/openshift/community.okd/pull/202)."
-  - "Bump minimum Python suupported version to 3.9 (https://github.com/openshift/community.okd/pull/202)."

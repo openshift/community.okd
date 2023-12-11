@@ -12,15 +12,19 @@ The collection includes a variety of Ansible content to help automate the manage
 
 This collection has been tested against following Ansible versions: **>=2.14.0**.
 
+Please ensure to update the `network_os` to use the fully qualified collection name (for example, `cisco.ios.ios`).
+Plugins and modules within a collection may be tested with only specific Ansible versions.
+A collection may contain metadata that identifies these versions.
+PEP440 is the schema used to describe the versions of Ansible.
 <!--end requires_ansible-->
 
 ## Python Support
 
-* Collection supports 3.6+
+* Collection supports 3.9+
 
 ## Kubernetes Version Support
 
-This collection supports Kubernetes versions >=1.19.
+This collection supports Kubernetes versions >=1.24.
 
 ## Included content
 
@@ -72,7 +76,7 @@ You can also include it in a `requirements.yml` file and install it via `ansible
 ---
 collections:
   - name: community.okd
-    version: 2.3.0
+    version: 3.0.1
 ```
 
 ### Installing the Kubernetes Python Library
@@ -156,17 +160,17 @@ where the `IMAGE_FORMAT` environment variable is the full reference to your cont
 Releases are automatically built and pushed to Ansible Galaxy for any new tag. Before tagging a release, make sure to do the following:
 
   1. Update the version in the following places:
-    a. The `version` in `galaxy.yml`
-    b. This README's `requirements.yml` example
-    c. The `DOWNSTREAM_VERSION` in `ci/downstream.sh`
-    d. The `VERSION` in `Makefile`
-    e. The version in `requirements.yml`
-  1. Update the CHANGELOG:
-    1. Make sure you have [`antsibull-changelog`](https://pypi.org/project/antsibull-changelog/) installed.
-    1. Make sure there are fragments for all known changes in `changelogs/fragments`.
-    1. Run `antsibull-changelog release`.
-  1. Commit the changes and create a PR with the changes. Wait for tests to pass, then merge it once they have.
-  1. Tag the version in Git and push to GitHub.
+    * a. The `version` in `galaxy.yml`
+    * b. This README's `requirements.yml` example
+    * c. The `DOWNSTREAM_VERSION` in `ci/downstream.sh`
+    * d. The `VERSION` in `Makefile`
+    * e. The version in `requirements.yml`
+  2. Update the CHANGELOG:
+    * 1. Make sure you have [`antsibull-changelog`](https://pypi.org/project/antsibull-changelog/) installed.
+    * 2. Make sure there are fragments for all known changes in `changelogs/fragments`.
+    * 3. Run `antsibull-changelog release`.
+  3. Commit the changes and create a PR with the changes. Wait for tests to pass, then merge it once they have.
+  4. Tag the version in Git and push to GitHub.
 
 After the version is published, verify it exists on the [OKD Collection Galaxy page](https://galaxy.ansible.com/community/okd).
 <!--- ENDREMOVE --->
