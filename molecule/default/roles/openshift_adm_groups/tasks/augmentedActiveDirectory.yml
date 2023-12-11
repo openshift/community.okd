@@ -49,9 +49,9 @@
           - result is changed
           - banking_group
           - insurance_group
-          - '"james-allan@ansible.org" in {{ banking_group.users }}'
-          - '"gordon-kane@ansible.org" in {{ banking_group.users }}'
-          - '"alice-courtney@ansible.org" in {{ insurance_group.users }}'
+          - '"james-allan@ansible.org" in banking_group.users'
+          - '"gordon-kane@ansible.org" in banking_group.users'
+          - '"alice-courtney@ansible.org" in insurance_group.users'
           - banking_group.users | length == 2
           - insurance_group.users | length == 1
       vars:
@@ -90,8 +90,8 @@
       assert:
         that:
           - result.resources | length == 1
-          - '"james-allan@ansible.org" in {{ result.resources.0.users }}'
-          - '"gordon-kane@ansible.org" in {{ result.resources.0.users }}'
+          - '"james-allan@ansible.org" in result.resources.0.users'
+          - '"gordon-kane@ansible.org" in result.resources.0.users'
 
     - name: Read 'insurance' openshift group
       kubernetes.core.k8s_info:

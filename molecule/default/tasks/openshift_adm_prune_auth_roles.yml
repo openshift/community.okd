@@ -177,7 +177,7 @@
 
     - name: validate that list role binding are candidates for prune
       assert:
-        that: '"{{ test_ns }}/{{ item.name }}-bind" in check.role_binding'
+        that: 'test_ns+"/"+item["name"]+"-bind" in check.role_binding'
       with_items: "{{ role_definition }}"
 
     - name: Prune resource using label_selectors option
@@ -192,7 +192,7 @@
       assert:
         that:
           - prune is changed
-          - '"{{ test_ns }}/{{ role_definition[2].name }}-bind" in check.role_binding'
+          - 'test_ns+"/"+role_definition[2]["name"]+"-bind" in check.role_binding'
 
     - name: assert that user could not delete pod anymore
       kubernetes.core.k8s:
@@ -262,7 +262,7 @@
       assert:
         that:
           - prune is changed
-          - '"{{ test_ns }}/{{ role_definition[1].name }}-bind" in check.role_binding'
+          - 'test_ns+"/"+role_definition[1]["name"]+"-bind" in check.role_binding'
 
     - name: Create Pod (should failed)
       kubernetes.core.k8s:
@@ -315,7 +315,7 @@
       assert:
         that:
           - prune is changed
-          - '"{{ test_ns }}/{{ role_definition[0].name }}-bind" in check.role_binding'
+          - 'test_ns+"/"+role_definition[0]["name"]+"-bind" in check.role_binding'
 
     - name: List Pod
       kubernetes.core.k8s_info:

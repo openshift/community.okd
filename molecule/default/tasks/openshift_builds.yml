@@ -55,7 +55,7 @@
       assert:
         that:
           - new_build is changed
-          - new_build.builds.0.metadata.name == "{{ build_config }}-1"
+          - new_build.builds.0.metadata.name == build_config+"-1"
 
     - name: Start a new Build from previous Build
       community.okd.openshift_build:
@@ -67,7 +67,7 @@
       assert:
         that:
           - rerun_build is changed
-          - rerun_build.builds.0.metadata.name == "{{ build_config }}-2"
+          - rerun_build.builds.0.metadata.name == build_config+"-2"
 
     - name: Cancel first build created
       community.okd.openshift_build:
@@ -82,8 +82,8 @@
         that:
           - cancel is changed
           - cancel.builds | length == 1
-          - cancel.builds.0.metadata.name == "{{ build_config }}-1"
-          - cancel.builds.0.metadata.namespace == "{{ build_ns }}"
+          - cancel.builds.0.metadata.name == build_config+"-1"
+          - cancel.builds.0.metadata.namespace == build_ns
           - '"cancelled" in cancel.builds.0.status'
           - cancel.builds.0.status.cancelled
 
@@ -119,7 +119,7 @@
         that:
           - restart is changed
           - restart.builds | length == 1
-          - 'restart.builds.0.metadata.name == "{{ build_config }}-3"'
+          - restart.builds.0.metadata.name == build_config+"-3"
 
     - name: Get info for 2nd Build
       kubernetes.core.k8s_info:
@@ -175,8 +175,8 @@
         that:
           - prune_without_ns is changed
           - prune_without_ns.builds | length > 0
-          - '"{{ build_config }}-1" in build_names'
-          - '"{{ build_config }}-2" in build_names'
+          - 'build_config+"-1" in build_names'
+          - 'build_config+"-2" in build_names'
       vars:
         build_names: '{{ prune_without_ns.builds | map(attribute="metadata") | flatten | map(attribute="name") | list }}'
 

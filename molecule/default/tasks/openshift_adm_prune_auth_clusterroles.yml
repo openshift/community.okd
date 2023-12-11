@@ -223,8 +223,8 @@
     - name: validate clusterrole binding candidates for prune
       assert:
         that:
-          - '"{{ item.name }}-binding" in check.cluster_role_binding'
-          - '"{{ test_ns }}/{{ cluster_roles[0].name }}-binding" in check.role_binding'
+          - 'item["name"]+"-binding" in check.cluster_role_binding'
+          - 'test_ns+"/"+cluster_roles[0].name+"-binding" in check.role_binding'
       with_items: "{{ cluster_roles }}"
 
     - name: Prune Cluster Role for managing Pod
