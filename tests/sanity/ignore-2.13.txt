@@ -1,3 +1,0 @@
-plugins/modules/k8s.py validate-modules:parameter-type-not-in-doc
-plugins/modules/k8s.py validate-modules:return-syntax-error
-plugins/modules/openshift_process.py validate-modules:parameter-type-not-in-doc
