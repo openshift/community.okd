@@ -970,6 +970,15 @@ Examples
 
 .. code-block:: yaml
 
+    - name: Create an OCP project
+      redhat.openshift.k8s:
+        state: present
+        resource_definition:
+          apiVersion: project.openshift.io/v1
+          kind: Project
+          metadata:
+            name: testing
+
     - name: Create a k8s namespace
       community.okd.k8s:
         name: testing
