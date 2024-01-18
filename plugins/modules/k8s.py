@@ -145,6 +145,15 @@ requirements:
 """
 
 EXAMPLES = r"""
+- name: Create an OCP project
+  community.okd.k8s:
+    state: present
+    resource_definition:
+      apiVersion: project.openshift.io/v1
+      kind: Project
+      metadata:
+        name: testing
+
 - name: Create a k8s namespace
   community.okd.k8s:
     name: testing
