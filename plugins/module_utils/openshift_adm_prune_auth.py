@@ -66,7 +66,7 @@ class OpenShiftAdmPruneAuth(AnsibleOpenshiftModule):
     def update_resource_binding(self, ref_kind, ref_names, namespaced=False):
 
         kind = 'ClusterRoleBinding'
-        api_version = "rbac.authorization.k8s.io/v1",
+        api_version = "rbac.authorization.k8s.io/v1"
         if namespaced:
             kind = "RoleBinding"
         resource = self.find_resource(kind=kind, api_version=api_version, fail=True)
