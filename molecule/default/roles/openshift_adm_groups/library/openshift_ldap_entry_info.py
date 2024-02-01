@@ -89,6 +89,7 @@ def execute():
 
     ldap.set_option(ldap.OPT_X_TLS_REQUIRE_CERT, ldap.OPT_X_TLS_NEVER)
     connection = ldap.initialize(module.params['server_uri'])
+    connection.set_option(ldap.OPT_REFERRALS, 0)
     try:
         connection.simple_bind_s(module.params['bind_dn'], module.params['bind_pw'])
     except ldap.LDAPError as e:

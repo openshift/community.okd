@@ -5,10 +5,11 @@
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 from __future__ import absolute_import, division, print_function
+
 __metaclass__ = type
 
 # STARTREMOVE (downstream)
-DOCUMENTATION = r'''
+DOCUMENTATION = r"""
 
 module: openshift_import_image
 
@@ -75,9 +76,9 @@ requirements:
   - python >= 3.6
   - kubernetes >= 12.0.0
   - docker-image-py
-'''
+"""
 
-EXAMPLES = r'''
+EXAMPLES = r"""
 # Import tag latest into a new image stream.
 - name: Import tag latest into new image stream
   community.okd.openshift_import_image:
@@ -122,10 +123,10 @@ EXAMPLES = r'''
       - mystream3
     source: registry.io/repo/image:latest
     all: true
-'''
+"""
 
 
-RETURN = r'''
+RETURN = r"""
 result:
   description:
     -  List with all ImageStreamImport that have been created.
@@ -153,42 +154,44 @@ result:
       description: Current status details for the object.
       returned: success
       type: dict
-'''
+"""
 # ENDREMOVE (downstream)
 
 import copy
 
-from ansible_collections.kubernetes.core.plugins.module_utils.args_common import AUTH_ARG_SPEC
+from ansible_collections.kubernetes.core.plugins.module_utils.args_common import (
+    AUTH_ARG_SPEC,
+)
 
 
 def argument_spec():
     args = copy.deepcopy(AUTH_ARG_SPEC)
     args.update(
         dict(
-            namespace=dict(type='str', required=True),
-            name=dict(type='raw', required=True),
-            all=dict(type='bool', default=False),
-            validate_registry_certs=dict(type='bool'),
-            reference_policy=dict(type='str', choices=["source", "local"], default="source"),
-            scheduled=dict(type='bool', default=False),
-            source=dict(type='str'),
+            namespace=dict(type="str", required=True),
+            name=dict(type="raw", required=True),
+            all=dict(type="bool", default=False),
+            validate_registry_certs=dict(type="bool"),
+            reference_policy=dict(
+                type="str", choices=["source", "local"], default="source"
+            ),
+            scheduled=dict(type="bool", default=False),
+            source=dict(type="str"),
         )
     )
     return args
 
 
 def main():
-
     from ansible_collections.community.okd.plugins.module_utils.openshift_import_image import (
-        OpenShiftImportImage
+        OpenShiftImportImage,
     )
 
     module = OpenShiftImportImage(
-        argument_spec=argument_spec(),
-        supports_check_mode=True
+        argument_spec=argument_spec(), supports_check_mode=True
     )
     module.run_module()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

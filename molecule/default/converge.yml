@@ -21,16 +21,13 @@
       debug:
         var: output
 
-    - name: Create deployment config
+    - name: Create deployment
       community.okd.k8s:
         state: present
         name: hello-world
         namespace: testing
         definition: '{{ okd_dc_template }}'
         wait: yes
-        wait_condition:
-          type: Available
-          status: True
       vars:
         k8s_pod_name: hello-world
         k8s_pod_image: python
@@ -71,19 +68,12 @@
             namespace: '{{ namespace }}'
             definition: '{{ okd_imagestream_template }}'
 
-        - name: Create DeploymentConfig to reference ImageStream
-          community.okd.k8s:
-            name: '{{ k8s_pod_name }}'
-            namespace: '{{ namespace }}'
-            definition: '{{ okd_dc_template }}'
-          vars:
-            k8s_pod_name: is-idempotent-dc
-
         - name: Create Deployment to reference ImageStream
           community.okd.k8s:
             name: '{{ k8s_pod_name }}'
             namespace: '{{ namespace }}'
             definition: '{{ k8s_deployment_template | combine(metadata)  }}'
+            wait: true
           vars:
             k8s_pod_annotations:
               "alpha.image.policy.openshift.io/resolve-names": "*"

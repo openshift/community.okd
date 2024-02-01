@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
+
 __metaclass__ = type
 
 from datetime import datetime, timezone, timedelta
@@ -8,7 +9,9 @@ import time
 
 from ansible.module_utils._text import to_native
 
-from ansible_collections.community.okd.plugins.module_utils.openshift_common import AnsibleOpenshiftModule
+from ansible_collections.community.okd.plugins.module_utils.openshift_common import (
+    AnsibleOpenshiftModule,
+)
 
 try:
     from kubernetes.dynamic.exceptions import DynamicApiError
@@ -35,8 +38,7 @@ class OpenShiftBuilds(AnsibleOpenshiftModule):
             result = self.request(
                 method="POST",
                 path="/apis/build.openshift.io/v1/namespaces/{namespace}/builds/{name}/clone".format(
-                    namespace=namespace,
-                    name=name
+                    namespace=namespace, name=name
                 ),
                 body=request,
                 content_type="application/json",
@@ -46,7 +48,11 @@ class OpenShiftBuilds(AnsibleOpenshiftModule):
             msg = "Failed to clone Build %s/%s due to: %s" % (namespace, name, exc.body)
             self.fail_json(msg=msg, status=exc.status, reason=exc.reason)
         except Exception as e:
-            msg = "Failed to clone Build %s/%s due to: %s" % (namespace, name, to_native(e))
+            msg = "Failed to clone Build %s/%s due to: %s" % (
+                namespace,
+                name,
+                to_native(e),
+            )
             self.fail_json(msg=msg, error=to_native(e), exception=e)
 
     def instantiate_build_config(self, name, namespace, request):
@@ -54,22 +60,28 @@ class OpenShiftBuilds(AnsibleOpenshiftModule):
             result = self.request(
                 method="POST",
                 path="/apis/build.openshift.io/v1/namespaces/{namespace}/buildconfigs/{name}/instantiate".format(
-                    namespace=namespace,
-                    name=name
+                    namespace=namespace, name=name
                 ),
                 body=request,
                 content_type="application/json",
             )
             return result.to_dict()
         except DynamicApiError as exc:
-            msg = "Failed to instantiate BuildConfig %s/%s due to: %s" % (namespace, name, exc.body)
+            msg = "Failed to instantiate BuildConfig %s/%s due to: %s" % (
+                namespace,
+                name,
+                exc.body,
+            )
             self.fail_json(msg=msg, status=exc.status, reason=exc.reason)
         except Exception as e:
-            msg = "Failed to instantiate BuildConfig %s/%s due to: %s" % (namespace, name, to_native(e))
+            msg = "Failed to instantiate BuildConfig %s/%s due to: %s" % (
+                namespace,
+                name,
+                to_native(e),
+            )
             self.fail_json(msg=msg, error=to_native(e), exception=e)
 
     def start_build(self):
-
         result = None
         name = self.params.get("build_config_name")
         if not name:
@@ -78,32 +90,20 @@ class OpenShiftBuilds(AnsibleOpenshiftModule):
         build_request = {
             "kind": "BuildRequest",
             "apiVersion": "build.openshift.io/v1",
-            "metadata": {
-                "name": name
-            },
-            "triggeredBy": [
-                {"message": "Manually triggered"}
-            ],
+            "metadata": {"name": name},
+            "triggeredBy": [{"message": "Manually triggered"}],
         }
 
         # Overrides incremental
         incremental = self.params.get("incremental")
         if incremental is not None:
             build_request.update(
-                {
-                    "sourceStrategyOptions": {
-                        "incremental": incremental
-                    }
-                }
+                {"sourceStrategyOptions": {"incremental": incremental}}
             )
 
         # Environment variable
         if self.params.get("env_vars"):
-            build_request.update(
-                {
-                    "env": self.params.get("env_vars")
-                }
-            )
+            build_request.update({"env": self.params.get("env_vars")})
 
         # Docker strategy option
         if self.params.get("build_args"):
@@ -120,22 +120,14 @@ class OpenShiftBuilds(AnsibleOpenshiftModule):
         if no_cache is not None:
             build_request.update(
                 {
-                    "dockerStrategyOptions": {
-                        "noCache": no_cache
-                    },
+                    "dockerStrategyOptions": {"noCache": no_cache},
                 }
             )
 
         # commit
         if self.params.get("commit"):
             build_request.update(
-                {
-                    "revision": {
-                        "git": {
-                            "commit": self.params.get("commit")
-                        }
-                    }
-                }
+                {"revision": {"git": {"commit": self.params.get("commit")}}}
             )
 
         if self.params.get("build_config_name"):
@@ -143,7 +135,7 @@ class OpenShiftBuilds(AnsibleOpenshiftModule):
             result = self.instantiate_build_config(
                 name=self.params.get("build_config_name"),
                 namespace=self.params.get("namespace"),
-                request=build_request
+                request=build_request,
             )
 
         else:
@@ -151,7 +143,7 @@ class OpenShiftBuilds(AnsibleOpenshiftModule):
             result = self.clone_build(
                 name=self.params.get("build_name"),
                 namespace=self.params.get("namespace"),
-                request=build_request
+                request=build_request,
             )
 
         if result and self.params.get("wait"):
@@ -178,10 +170,11 @@ class OpenShiftBuilds(AnsibleOpenshiftModule):
                         break
                     elif last_status_phase in ("Cancelled", "Error", "Failed"):
                         self.fail_json(
-                            msg="Unexpected status for Build %s/%s: %s" % (
+                            msg="Unexpected status for Build %s/%s: %s"
+                            % (
                                 result["metadata"]["name"],
                                 result["metadata"]["namespace"],
-                                last_status_phase
+                                last_status_phase,
                             )
                         )
                 time.sleep(wait_sleep)
@@ -189,8 +182,11 @@ class OpenShiftBuilds(AnsibleOpenshiftModule):
             if last_status_phase != "Complete":
                 name = result["metadata"]["name"]
                 namespace = result["metadata"]["namespace"]
-                msg = "Build %s/%s has not complete after %d second(s)," \
-                      "current status is %s" % (namespace, name, wait_timeout, last_status_phase)
+                msg = (
+                    "Build %s/%s has not complete after %d second(s),"
+                    "current status is %s"
+                    % (namespace, name, wait_timeout, last_status_phase)
+                )
 
                 self.fail_json(msg=msg)
 
@@ -198,9 +194,8 @@ class OpenShiftBuilds(AnsibleOpenshiftModule):
         self.exit_json(changed=True, builds=result)
 
     def cancel_build(self, restart):
-
-        kind = 'Build'
-        api_version = 'build.openshift.io/v1'
+        kind = "Build"
+        api_version = "build.openshift.io/v1"
 
         namespace = self.params.get("namespace")
         phases = ["new", "pending", "running"]
@@ -214,16 +209,18 @@ class OpenShiftBuilds(AnsibleOpenshiftModule):
         else:
             build_config = self.params.get("build_config_name")
             # list all builds from namespace
-            params = dict(
-                kind=kind,
-                api_version=api_version,
-                namespace=namespace
-            )
+            params = dict(kind=kind, api_version=api_version, namespace=namespace)
             resources = self.kubernetes_facts(**params).get("resources", [])
 
             def _filter_builds(build):
-                config = build["metadata"].get("labels", {}).get("openshift.io/build-config.name")
-                return build_config is None or (build_config is not None and config in build_config)
+                config = (
+                    build["metadata"]
+                    .get("labels", {})
+                    .get("openshift.io/build-config.name")
+                )
+                return build_config is None or (
+                    build_config is not None and config in build_config
+                )
 
             for item in list(filter(_filter_builds, resources)):
                 name = item["metadata"]["name"]
@@ -231,16 +228,15 @@ class OpenShiftBuilds(AnsibleOpenshiftModule):
                     names.append(name)
 
         if len(names) == 0:
-            self.exit_json(changed=False, msg="No Build found from namespace %s" % namespace)
+            self.exit_json(
+                changed=False, msg="No Build found from namespace %s" % namespace
+            )
 
         warning = []
         builds_to_cancel = []
         for name in names:
             params = dict(
-                kind=kind,
-                api_version=api_version,
-                name=name,
-                namespace=namespace
+                kind=kind, api_version=api_version, name=name, namespace=namespace
             )
 
             resource = self.kubernetes_facts(**params).get("resources", [])
@@ -255,7 +251,10 @@ class OpenShiftBuilds(AnsibleOpenshiftModule):
             if phase in phases:
                 builds_to_cancel.append(resource)
             else:
-                warning.append("build %s/%s is not in expected phase, found %s" % (namespace, name, phase))
+                warning.append(
+                    "build %s/%s is not in expected phase, found %s"
+                    % (namespace, name, phase)
+                )
 
         changed = False
         result = []
@@ -277,9 +276,10 @@ class OpenShiftBuilds(AnsibleOpenshiftModule):
                 result.append(cancelled_build)
             except DynamicApiError as exc:
                 self.fail_json(
-                    msg="Failed to cancel Build %s/%s due to: %s" % (namespace, name, exc),
+                    msg="Failed to cancel Build %s/%s due to: %s"
+                    % (namespace, name, exc),
                     reason=exc.reason,
-                    status=exc.status
+                    status=exc.status,
                 )
             except Exception as e:
                 self.fail_json(
@@ -293,10 +293,7 @@ class OpenShiftBuilds(AnsibleOpenshiftModule):
             name = build["metadata"]["name"]
             while (datetime.now() - start).seconds < wait_timeout:
                 params = dict(
-                    kind=kind,
-                    api_version=api_version,
-                    name=name,
-                    namespace=namespace
+                    kind=kind, api_version=api_version, name=name, namespace=namespace
                 )
                 resource = self.kubernetes_facts(**params).get("resources", [])
                 if len(resource) == 0:
@@ -306,7 +303,11 @@ class OpenShiftBuilds(AnsibleOpenshiftModule):
                 if last_phase == "Cancelled":
                     return resource, None
                 time.sleep(wait_sleep)
-            return None, "Build %s/%s is not cancelled as expected, current state is %s" % (namespace, name, last_phase)
+            return (
+                None,
+                "Build %s/%s is not cancelled as expected, current state is %s"
+                % (namespace, name, last_phase),
+            )
 
         if result and self.params.get("wait"):
             wait_timeout = self.params.get("wait_timeout")
@@ -340,8 +341,8 @@ class OpenShiftPruneBuilds(OpenShiftBuilds):
 
     def execute_module(self):
         # list replicationcontroller candidate for pruning
-        kind = 'Build'
-        api_version = 'build.openshift.io/v1'
+        kind = "Build"
+        api_version = "build.openshift.io/v1"
         resource = self.find_resource(kind=kind, api_version=api_version, fail=True)
 
         self.max_creation_timestamp = None
@@ -351,7 +352,12 @@ class OpenShiftPruneBuilds(OpenShiftBuilds):
             self.max_creation_timestamp = now - timedelta(minutes=keep_younger_than)
 
         def _prunable_build(build):
-            return build["status"]["phase"] in ("Complete", "Failed", "Error", "Cancelled")
+            return build["status"]["phase"] in (
+                "Complete",
+                "Failed",
+                "Error",
+                "Cancelled",
+            )
 
         def _orphan_build(build):
             if not _prunable_build(build):
@@ -366,7 +372,9 @@ class OpenShiftPruneBuilds(OpenShiftBuilds):
         def _younger_build(build):
             if not self.max_creation_timestamp:
                 return False
-            creation_timestamp = datetime.strptime(build['metadata']['creationTimestamp'], '%Y-%m-%dT%H:%M:%SZ')
+            creation_timestamp = datetime.strptime(
+                build["metadata"]["creationTimestamp"], "%Y-%m-%dT%H:%M:%SZ"
+            )
             return creation_timestamp < self.max_creation_timestamp
 
         predicates = [
@@ -400,9 +408,17 @@ class OpenShiftPruneBuilds(OpenShiftBuilds):
                 namespace = build["metadata"]["namespace"]
                 resource.delete(name=name, namespace=namespace, body={})
             except DynamicApiError as exc:
-                msg = "Failed to delete Build %s/%s due to: %s" % (namespace, name, exc.body)
+                msg = "Failed to delete Build %s/%s due to: %s" % (
+                    namespace,
+                    name,
+                    exc.body,
+                )
                 self.fail_json(msg=msg, status=exc.status, reason=exc.reason)
             except Exception as e:
-                msg = "Failed to delete Build %s/%s due to: %s" % (namespace, name, to_native(e))
+                msg = "Failed to delete Build %s/%s due to: %s" % (
+                    namespace,
+                    name,
+                    to_native(e),
+                )
                 self.fail_json(msg=msg, error=to_native(e), exception=e)
         self.exit_json(changed=changed, builds=candidates)

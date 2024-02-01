@@ -5,10 +5,11 @@
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 from __future__ import absolute_import, division, print_function
+
 __metaclass__ = type
 
 # STARTREMOVE (downstream)
-DOCUMENTATION = r'''
+DOCUMENTATION = r"""
 
 module: openshift_adm_prune_images
 
@@ -84,9 +85,9 @@ requirements:
   - python >= 3.6
   - kubernetes >= 12.0.0
   - docker-image-py
-'''
+"""
 
-EXAMPLES = r'''
+EXAMPLES = r"""
 # Prune if only images and their referrers were more than an hour old
 - name: Prune image with referrer been more than an hour old
   community.okd.openshift_adm_prune_images:
@@ -102,10 +103,10 @@ EXAMPLES = r'''
   community.okd.openshift_adm_prune_images:
     registry_url: http://registry.example.org
     registry_validate_certs: false
-'''
+"""
 
 
-RETURN = r'''
+RETURN = r"""
 updated_image_streams:
   description:
   - The images streams updated.
@@ -275,41 +276,44 @@ deleted_images:
       },
       ...
   ]
-'''
+"""
 # ENDREMOVE (downstream)
 
 import copy
 
-from ansible_collections.kubernetes.core.plugins.module_utils.args_common import AUTH_ARG_SPEC
+from ansible_collections.kubernetes.core.plugins.module_utils.args_common import (
+    AUTH_ARG_SPEC,
+)
 
 
 def argument_spec():
     args = copy.deepcopy(AUTH_ARG_SPEC)
     args.update(
         dict(
-            namespace=dict(type='str'),
-            all_images=dict(type='bool', default=True),
-            keep_younger_than=dict(type='int'),
-            prune_over_size_limit=dict(type='bool', default=False),
-            registry_url=dict(type='str'),
-            registry_validate_certs=dict(type='bool'),
-            registry_ca_cert=dict(type='path'),
-            prune_registry=dict(type='bool', default=True),
-            ignore_invalid_refs=dict(type='bool', default=False),
+            namespace=dict(type="str"),
+            all_images=dict(type="bool", default=True),
+            keep_younger_than=dict(type="int"),
+            prune_over_size_limit=dict(type="bool", default=False),
+            registry_url=dict(type="str"),
+            registry_validate_certs=dict(type="bool"),
+            registry_ca_cert=dict(type="path"),
+            prune_registry=dict(type="bool", default=True),
+            ignore_invalid_refs=dict(type="bool", default=False),
         )
     )
     return args
 
 
 def main():
-
     from ansible_collections.community.okd.plugins.module_utils.openshift_adm_prune_images import (
-        OpenShiftAdmPruneImages
+        OpenShiftAdmPruneImages,
     )
 
-    module = OpenShiftAdmPruneImages(argument_spec=argument_spec(), supports_check_mode=True)
+    module = OpenShiftAdmPruneImages(
+        argument_spec=argument_spec(), supports_check_mode=True
+    )
     module.run_module()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
