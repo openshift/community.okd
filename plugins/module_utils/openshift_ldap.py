@@ -249,7 +249,7 @@ def ldap_split_host_port(hostport):
     if "://" in hostport:
         idx = hostport.find(scheme_l)
         result["scheme"] = hostport[:idx]
-        netlocation = hostport[idx + len(scheme_l) :]
+        netlocation = hostport[idx + len(scheme_l):]  # fmt: skip
     result["netlocation"] = netlocation
 
     if netlocation[-1] == "]":
@@ -324,7 +324,7 @@ def openshift_ancestorof_dn(dn, other):
         return False
     # Take the last attribute from the other DN to compare against
     return openshift_equal_dn_objects(
-        dn_obj, other_dn_obj[len(other_dn_obj) - len(dn_obj) :]
+        dn_obj, other_dn_obj[len(other_dn_obj) - len(dn_obj):]  # fmt: skip
     )
 
 

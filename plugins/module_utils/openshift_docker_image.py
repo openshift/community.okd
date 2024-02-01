@@ -46,7 +46,7 @@ def is_valid_digest(digest):
             digest,
         )
 
-    hex_value = digest[idx + 1 :]
+    hex_value = digest[idx + 1:]  # fmt: skip
     if len(hex_value) != digest_algorithm_size.get(algorithm):
         return "Invalid length for digest hex expected %d found %d (digest is %s)" % (
             digest_algorithm_size.get(algorithm),
@@ -79,13 +79,13 @@ def parse_docker_image_ref(image_ref, module=None):
     ):
         result["hostname"], remainder = default_domain, image_ref
     else:
-        result["hostname"], remainder = image_ref[:idx], image_ref[idx + 1 :]
+        result["hostname"], remainder = image_ref[:idx], image_ref[idx + 1:]  # fmt: skip
 
     # Parse remainder information
     idx = remainder.find("@")
     if idx > 0 and len(remainder) > (idx + 1):
         # docker image reference with digest
-        component, result["digest"] = remainder[:idx], remainder[idx + 1 :]
+        component, result["digest"] = remainder[:idx], remainder[idx + 1:]  # fmt: skip
         err = is_valid_digest(result["digest"])
         if err:
             if module:
@@ -95,7 +95,7 @@ def parse_docker_image_ref(image_ref, module=None):
         idx = remainder.find(":")
         if idx > 0 and len(remainder) > (idx + 1):
             # docker image reference with tag
-            component, result["tag"] = remainder[:idx], remainder[idx + 1 :]
+            component, result["tag"] = remainder[:idx], remainder[idx + 1:]  # fmt: skip
         else:
             # name only
             component = remainder
