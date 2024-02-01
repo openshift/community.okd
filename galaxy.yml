@@ -5,10 +5,10 @@ authors:
   - willthames (https://github.com/willthames)
   - Akasurde (https://github.com/akasurde)
 dependencies:
-  kubernetes.core: '>=2.4.0'
+  kubernetes.core: ">=2.4.0"
 description: OKD Collection for Ansible.
-documentation: ''
-homepage: ''
+documentation: ""
+homepage: ""
 issues: https://github.com/openshift/community.okd/issues
 license_file: LICENSE
 name: okd

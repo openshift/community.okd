@@ -16,7 +16,7 @@ build: clean
 	ansible-galaxy collection build
 
 install: build
-	ansible-galaxy collection install -p ansible_collections community-okd-$(VERSION).tar.gz
+	ansible-galaxy collection install --force -p ansible_collections community-okd-$(VERSION).tar.gz
 
 sanity: install
 	cd ansible_collections/community/okd && ansible-test sanity -v --python $(PYTHON_VERSION) $(SANITY_TEST_ARGS)

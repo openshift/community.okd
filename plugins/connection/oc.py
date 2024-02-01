@@ -17,10 +17,11 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Ansible.  If not, see <http://www.gnu.org/licenses/>.
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
+
 __metaclass__ = type
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
     author:
         - xuxinkun (@xuxinkun)
 
@@ -145,29 +146,32 @@ DOCUMENTATION = '''
         env:
           - name: K8S_AUTH_VERIFY_SSL
         aliases: [ oc_verify_ssl ]
-'''
+"""
 
-from ansible_collections.kubernetes.core.plugins.connection.kubectl import Connection as KubectlConnection
+from ansible_collections.kubernetes.core.plugins.connection.kubectl import (
+    Connection as KubectlConnection,
+)
 
 
-CONNECTION_TRANSPORT = 'oc'
+CONNECTION_TRANSPORT = "oc"
 
 CONNECTION_OPTIONS = {
-    'oc_container': '-c',
-    'oc_namespace': '-n',
-    'oc_kubeconfig': '--kubeconfig',
-    'oc_context': '--context',
-    'oc_host': '--server',
-    'client_cert': '--client-certificate',
-    'client_key': '--client-key',
-    'ca_cert': '--certificate-authority',
-    'validate_certs': '--insecure-skip-tls-verify',
-    'oc_token': '--token'
+    "oc_container": "-c",
+    "oc_namespace": "-n",
+    "oc_kubeconfig": "--kubeconfig",
+    "oc_context": "--context",
+    "oc_host": "--server",
+    "client_cert": "--client-certificate",
+    "client_key": "--client-key",
+    "ca_cert": "--certificate-authority",
+    "validate_certs": "--insecure-skip-tls-verify",
+    "oc_token": "--token",
 }
 
 
 class Connection(KubectlConnection):
-    ''' Local oc based connections '''
+    """Local oc based connections"""
+
     transport = CONNECTION_TRANSPORT
     connection_options = CONNECTION_OPTIONS
     documentation = DOCUMENTATION

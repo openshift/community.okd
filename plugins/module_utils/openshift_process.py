@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
+
 __metaclass__ = type
 
 import os
@@ -8,7 +9,9 @@ import os
 from ansible.module_utils._text import to_native
 
 
-from ansible_collections.community.okd.plugins.module_utils.openshift_common import AnsibleOpenshiftModule
+from ansible_collections.community.okd.plugins.module_utils.openshift_common import (
+    AnsibleOpenshiftModule,
+)
 
 try:
     from kubernetes.dynamic.exceptions import DynamicApiError
@@ -123,7 +126,6 @@ class OpenShiftProcess(AnsibleOpenshiftModule):
         self.exit_json(**result)
 
     def create_resources(self, definitions):
-
         params = {"namespace": self.params.get("namespace_target")}
 
         self.params["apply"] = False
@@ -138,9 +140,7 @@ class OpenShiftProcess(AnsibleOpenshiftModule):
                 continue
             kind = definition.get("kind")
             if kind and kind.endswith("List"):
-                flattened_definitions.extend(
-                    self.flatten_list_kind(definition, params)
-                )
+                flattened_definitions.extend(self.flatten_list_kind(definition, params))
             else:
                 flattened_definitions.append(self.merge_params(definition, params))
 

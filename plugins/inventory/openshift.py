@@ -1,11 +1,11 @@
 # Copyright (c) 2018 Ansible Project
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
     name: openshift
     author:
       - Chris Houseknecht (@chouseknecht)
@@ -87,9 +87,9 @@ DOCUMENTATION = '''
     - "python >= 3.6"
     - "kubernetes >= 12.0.0"
     - "PyYAML >= 3.11"
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 # File must be named openshift.yaml or openshift.yml
 
 # Authenticate with token, and return all pods and services for all namespaces
@@ -110,11 +110,18 @@ plugin: community.okd.openshift
 connections:
   - kubeconfig: /path/to/config
     context: 'awx/192-168-64-4:8443/developer'
-'''
+"""
 
 try:
-    from ansible_collections.kubernetes.core.plugins.inventory.k8s import K8sInventoryException, InventoryModule as K8sInventoryModule, format_dynamic_api_exc
-    from ansible_collections.kubernetes.core.plugins.module_utils.k8s.client import get_api_client
+    from ansible_collections.kubernetes.core.plugins.inventory.k8s import (
+        K8sInventoryException,
+        InventoryModule as K8sInventoryModule,
+        format_dynamic_api_exc,
+    )
+    from ansible_collections.kubernetes.core.plugins.module_utils.k8s.client import (
+        get_api_client,
+    )
+
     HAS_KUBERNETES_COLLECTION = True
 except ImportError as e:
     HAS_KUBERNETES_COLLECTION = False
@@ -127,10 +134,10 @@ except ImportError:
 
 
 class InventoryModule(K8sInventoryModule):
-    NAME = 'community.okd.openshift'
+    NAME = "community.okd.openshift"
 
-    connection_plugin = 'community.okd.oc'
-    transport = 'oc'
+    connection_plugin = "community.okd.oc"
+    transport = "oc"
 
     def check_kubernetes_collection(self):
         if not HAS_KUBERNETES_COLLECTION:
@@ -148,9 +155,11 @@ class InventoryModule(K8sInventoryModule):
 
             for connection in connections:
                 client = get_api_client(**connection)
-                name = connection.get('name', self.get_default_host_name(client.configuration.host))
-                if connection.get('namespaces'):
-                    namespaces = connection['namespaces']
+                name = connection.get(
+                    "name", self.get_default_host_name(client.configuration.host)
+                )
+                if connection.get("namespaces"):
+                    namespaces = connection["namespaces"]
                 else:
                     namespaces = self.get_available_namespaces(client)
                 for namespace in namespaces:
@@ -164,15 +173,19 @@ class InventoryModule(K8sInventoryModule):
 
     def get_routes_for_namespace(self, client, name, namespace):
         self.check_kubernetes_collection()
-        v1_route = client.resources.get(api_version='route.openshift.io/v1', kind='Route')
+        v1_route = client.resources.get(
+            api_version="route.openshift.io/v1", kind="Route"
+        )
         try:
             obj = v1_route.get(namespace=namespace)
         except DynamicApiError as exc:
             self.display.debug(exc)
-            raise K8sInventoryException('Error fetching Routes list: %s' % format_dynamic_api_exc(exc))
+            raise K8sInventoryException(
+                "Error fetching Routes list: %s" % format_dynamic_api_exc(exc)
+            )
 
-        namespace_group = 'namespace_{0}'.format(namespace)
-        namespace_routes_group = '{0}_routes'.format(namespace_group)
+        namespace_group = "namespace_{0}".format(namespace)
+        namespace_routes_group = "{0}_routes".format(namespace_group)
 
         self.inventory.add_group(name)
         self.inventory.add_group(namespace_group)
@@ -181,14 +194,18 @@ class InventoryModule(K8sInventoryModule):
         self.inventory.add_child(namespace_group, namespace_routes_group)
         for route in obj.items:
             route_name = route.metadata.name
-            route_annotations = {} if not route.metadata.annotations else dict(route.metadata.annotations)
+            route_annotations = (
+                {}
+                if not route.metadata.annotations
+                else dict(route.metadata.annotations)
+            )
 
             self.inventory.add_host(route_name)
 
             if route.metadata.labels:
                 # create a group for each label_value
                 for key, value in route.metadata.labels:
-                    group_name = 'label_{0}_{1}'.format(key, value)
+                    group_name = "label_{0}_{1}".format(key, value)
                     self.inventory.add_group(group_name)
                     self.inventory.add_child(group_name, route_name)
                 route_labels = dict(route.metadata.labels)
@@ -198,19 +215,25 @@ class InventoryModule(K8sInventoryModule):
             self.inventory.add_child(namespace_routes_group, route_name)
 
             # add hostvars
-            self.inventory.set_variable(route_name, 'labels', route_labels)
-            self.inventory.set_variable(route_name, 'annotations', route_annotations)
-            self.inventory.set_variable(route_name, 'cluster_name', route.metadata.clusterName)
-            self.inventory.set_variable(route_name, 'object_type', 'route')
-            self.inventory.set_variable(route_name, 'self_link', route.metadata.selfLink)
-            self.inventory.set_variable(route_name, 'resource_version', route.metadata.resourceVersion)
-            self.inventory.set_variable(route_name, 'uid', route.metadata.uid)
+            self.inventory.set_variable(route_name, "labels", route_labels)
+            self.inventory.set_variable(route_name, "annotations", route_annotations)
+            self.inventory.set_variable(
+                route_name, "cluster_name", route.metadata.clusterName
+            )
+            self.inventory.set_variable(route_name, "object_type", "route")
+            self.inventory.set_variable(
+                route_name, "self_link", route.metadata.selfLink
+            )
+            self.inventory.set_variable(
+                route_name, "resource_version", route.metadata.resourceVersion
+            )
+            self.inventory.set_variable(route_name, "uid", route.metadata.uid)
 
             if route.spec.host:
-                self.inventory.set_variable(route_name, 'host', route.spec.host)
+                self.inventory.set_variable(route_name, "host", route.spec.host)
 
             if route.spec.path:
-                self.inventory.set_variable(route_name, 'path', route.spec.path)
+                self.inventory.set_variable(route_name, "path", route.spec.path)
 
-            if hasattr(route.spec.port, 'targetPort') and route.spec.port.targetPort:
-                self.inventory.set_variable(route_name, 'port', dict(route.spec.port))
+            if hasattr(route.spec.port, "targetPort") and route.spec.port.targetPort:
+                self.inventory.set_variable(route_name, "port", dict(route.spec.port))
