@@ -1,5 +1,5 @@
 ---
-requires_ansible: '>=2.14.0'
+requires_ansible: '>=2.15.0'
 action_groups:
   okd:
     - k8s
@@ -17,13 +17,6 @@ plugin_routing:
   modules:
     k8s_auth:
       redirect: community.okd.openshift_auth
-  inventory:
-    openshift:
-      deprecation:
-        removal_version: 4.0.0
-        warning_text: >-
-            The openshift inventory plugin has been deprecated and
-            will be removed in release 4.0.0.
   action:
     k8s:
       redirect: kubernetes.core.k8s_info

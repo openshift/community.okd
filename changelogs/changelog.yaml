@@ -224,3 +224,14 @@ releases:
     - downstream-gitignore.yml
     - release_summary.yml
     release_date: '2023-11-30'
+  4.0.0:
+    changes:
+      breaking_changes:
+      - community.okd collection - Support for ansible-core < 2.15.0 has been dropped.
+      release_summary: This major release removes support for ``ansible-core<2.15``.
+      removed_features:
+      - inventory/openshift - the previously deprecated inventory plugin has been
+        removed.
+    fragments:
+    - increase_ansible_version.yaml
+    release_date: '2024-05-22'

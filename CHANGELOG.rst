@@ -4,6 +4,23 @@ OKD Collection Release Notes
 
 .. contents:: Topics
 
+v4.0.0
+======
+
+Release Summary
+---------------
+
+This major release removes support for ``ansible-core<2.15``.
+
+Breaking Changes / Porting Guide
+--------------------------------
+
+- community.okd collection - Support for ansible-core < 2.15.0 has been dropped.
+
+Removed Features (previously deprecated)
+----------------------------------------
+
+- inventory/openshift - the previously deprecated inventory plugin has been removed.
 
 v3.0.1
 ======
@@ -12,7 +29,6 @@ Release Summary
 ---------------
 
 This patch release fixes an issue in building the downstream collection.
-
 
 v3.0.0
 ======
