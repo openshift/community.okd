@@ -106,6 +106,15 @@ DOCUMENTATION = """
         env:
           - name: K8S_AUTH_TOKEN
           - name: K8S_AUTH_API_KEY
+      oc_local_env_vars:
+        description:
+          - Local environment variable to be passed locally to the oc command line.
+          - Please be aware that this passes information directly on the command line and it could expose sensitive data.
+        default: {}
+        type: dict
+        version_added: 4.0.0
+        vars:
+          - name: ansible_oc_local_env_vars
       client_cert:
         description:
           - Path to a certificate used to authenticate with the API.
