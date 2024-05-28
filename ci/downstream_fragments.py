@@ -11,6 +11,12 @@ with open("./rendereddocfragments.txt", 'w') as df_fd:
     with open(sys.argv[2], 'r') as fd:
         json_docs = json.load(fd)
 
+        # ansible-doc has introduced a 'doc.plugin_name' on branch 'stable-2.17'
+        # This change generated the following sanity tests error.
+        # invalid-documentation: DOCUMENTATION.plugin_name: extra keys not allowed @ data['plugin_name'].
+        # This will be removed from the module documentation
+
+        json_docs[sys.argv[1]]['doc'].pop('plugin_name', '')
         json_docs[sys.argv[1]]['doc'].pop('collection', '')
         json_docs[sys.argv[1]]['doc'].pop('filename', '')
         json_docs[sys.argv[1]]['doc'].pop('has_action', '')
