@@ -9,6 +9,7 @@ __pycache__/
 # ansible_collections/
 # Galaxy artifacts.
 *.tar.gz
+community-okd-*.tar.gz
 
 # Changelog cache files.
 changelogs/.plugin-cache.yaml
