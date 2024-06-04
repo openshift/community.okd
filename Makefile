@@ -21,6 +21,9 @@ build: clean
 install: build
 	ansible-galaxy collection install --force -p $(INSTALL_PATH) community-okd-$(VERSION).tar.gz
 
+install-docker: build
+	ansible-galaxy collection install --force -p ansible_collections community-okd-$(VERSION).tar.gz
+
 sanity: install
 	cd $(INSTALL_PATH)/ansible_collections/community/okd && ansible-test sanity -v --python $(PYTHON_VERSION) $(SANITY_TEST_ARGS) && rm -rf $(INSTALL_PATH)
 
@@ -29,6 +32,9 @@ units: install
 
 molecule: install
 	cd $(INSTALL_PATH)/ansible_collections/community/okd && molecule test && rm -rf $(INSTALL_PATH)
+
+molecule-docker: install-docker
+	molecule test
 
 test-integration: upstream-test-integration downstream-test-integration
 
@@ -43,7 +49,7 @@ upstream-test-sanity: sanity
 
 upstream-test-units: units
 
-upstream-test-integration: molecule
+upstream-test-integration: molecule-docker
 
 downstream-test-sanity:
 	./ci/downstream.sh -s
