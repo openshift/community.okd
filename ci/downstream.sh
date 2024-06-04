@@ -228,7 +228,7 @@ f_test_integration_option()
     f_common_steps
     pushd "${_build_dir}" || return
         f_log_info "INTEGRATION TEST WD: ${PWD}"
-        make molecule
+        make molecule-docker
     popd || return
     f_cleanup
 }
