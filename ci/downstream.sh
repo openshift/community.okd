@@ -50,7 +50,6 @@ f_text_sub()
     sed -i.bak "s/[[:space:]]okd:$/ openshift:/" "${_build_dir}/meta/runtime.yml"
 
     find "${_build_dir}" -type f ! -name galaxy.yml -exec sed -i.bak "s/community\.okd/redhat\.openshift/g" {} \;
-    find "${_build_dir}" -type f ! -name galaxy.yml -exec sed -i.bak "s/group\/redhat\.openshift\.okd/redhat\.openshift\.openshift/g" {} \;
     find "${_build_dir}" -type f -name "*.bak" -delete
 }
 
@@ -228,7 +227,7 @@ f_test_integration_option()
     f_common_steps
     pushd "${_build_dir}" || return
         f_log_info "INTEGRATION TEST WD: ${PWD}"
-        make molecule-docker
+        make molecule
     popd || return
     f_cleanup
 }
