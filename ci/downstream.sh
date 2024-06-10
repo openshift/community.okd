@@ -50,6 +50,7 @@ f_text_sub()
     sed -i.bak "s/[[:space:]]okd:$/ openshift:/" "${_build_dir}/meta/runtime.yml"
 
     find "${_build_dir}" -type f ! -name galaxy.yml -exec sed -i.bak "s/community\.okd/redhat\.openshift/g" {} \;
+    find "${_build_dir}" -type f ! -name galaxy.yml -exec sed -i.bak "s/group\/redhat\.openshift\.okd/redhat\.openshift\.openshift/g" {} \;
     find "${_build_dir}" -type f -name "*.bak" -delete
 }
 
