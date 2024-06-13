@@ -1,2 +1,0 @@
-minor_changes:
-  - inventory/openshift.py - Defer removal of k8s inventory plugin to version 5.0.0 (https://github.com/openshift/community.okd/pull/224).

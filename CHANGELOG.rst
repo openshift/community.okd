@@ -4,6 +4,24 @@ OKD Collection Release Notes
 
 .. contents:: Topics
 
+v4.0.0
+======
+
+Release Summary
+---------------
+
+In this major release we have removed support for ``ansible-core<2.15``.
+
+Minor Changes
+-------------
+
+- connection/oc - added support of local enviroment variable that will be used for ``oc`` and may be requried for establishing connections ifself (https://github.com/openshift/community.okd/pull/225).
+- inventory/openshift.py - Defer removal of k8s inventory plugin to version 5.0.0 (https://github.com/openshift/community.okd/pull/224).
+
+Removed Features (previously deprecated)
+----------------------------------------
+
+- k8s - Support for ``merge_type=json`` has been removed in version 4.0.0. Please use ``kubernetes.core.k8s_json_patch`` instead (https://github.com/openshift/community.okd/pull/226).
 
 v3.0.1
 ======
@@ -12,7 +30,6 @@ Release Summary
 ---------------
 
 This patch release fixes an issue in building the downstream collection.
-
 
 v3.0.0
 ======
