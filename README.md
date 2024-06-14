@@ -10,7 +10,7 @@ The collection includes a variety of Ansible content to help automate the manage
 <!--start requires_ansible-->
 ## Ansible version compatibility
 
-This collection has been tested against following Ansible versions: **>=2.14.0**.
+This collection has been tested against following Ansible versions: **>=2.15.0**.
 
 Please ensure to update the `network_os` to use the fully qualified collection name (for example, `cisco.ios.ios`).
 Plugins and modules within a collection may be tested with only specific Ansible versions.
@@ -76,7 +76,7 @@ You can also include it in a `requirements.yml` file and install it via `ansible
 ---
 collections:
   - name: community.okd
-    version: 3.0.1
+    version: 4.0.0
 ```
 
 ### Installing the Kubernetes Python Library

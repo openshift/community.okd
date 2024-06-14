@@ -224,3 +224,20 @@ releases:
     - downstream-gitignore.yml
     - release_summary.yml
     release_date: '2023-11-30'
+  4.0.0:
+    changes:
+      minor_changes:
+      - connection/oc - added support of local enviroment variable that will be used
+        for ``oc`` and may be requried for establishing connections ifself (https://github.com/openshift/community.okd/pull/225).
+      - inventory/openshift.py - Defer removal of k8s inventory plugin to version
+        5.0.0 (https://github.com/openshift/community.okd/pull/224).
+      release_summary: In this major release we have removed support for ``ansible-core<2.15``.
+      removed_features:
+      - k8s - Support for ``merge_type=json`` has been removed in version 4.0.0. Please
+        use ``kubernetes.core.k8s_json_patch`` instead (https://github.com/openshift/community.okd/pull/226).
+    fragments:
+    - 20240523-connection-oc-add-support-for-local-env-vars.yml
+    - 4.0.0.yaml
+    - defer_removal_of_inventory_plugin.yaml
+    - k8s-merge_type=json-removed.yml
+    release_date: '2024-05-29'

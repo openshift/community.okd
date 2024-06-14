@@ -433,7 +433,6 @@ Parameters
                 </td>
                 <td>
                         <ul style="margin: 0; padding: 0"><b>Choices:</b>
-                                    <li>json</li>
                                     <li>merge</li>
                                     <li>strategic-merge</li>
                         </ul>
@@ -445,7 +444,7 @@ Parameters
                         <div>If more than one merge_type is given, the merge_types will be tried in order</div>
                         <div>Defaults to <code>[&#x27;strategic-merge&#x27;, &#x27;merge&#x27;]</code>, which is ideal for using the same parameters on resource kinds that combine Custom Resources and built-in resources.</div>
                         <div>mutually exclusive with <code>apply</code></div>
-                        <div><em>merge_type=json</em> is deprecated and will be removed in version 3.0.0. Please use <span class='module'>kubernetes.core.k8s_json_patch</span> instead.</div>
+                        <div><em>merge_type=json</em> has been removed in version 4.0.0. Please use <span class='module'>kubernetes.core.k8s_json_patch</span> instead.</div>
                 </td>
             </tr>
             <tr>
@@ -969,6 +968,15 @@ Examples
 --------
 
 .. code-block:: yaml
+
+    - name: Create an OCP project
+      community.okd.k8s:
+        state: present
+        resource_definition:
+          apiVersion: project.openshift.io/v1
+          kind: Project
+          metadata:
+            name: testing
 
     - name: Create a k8s namespace
       community.okd.k8s:
