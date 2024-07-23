@@ -25,5 +25,5 @@ jobs:
     steps:
       - uses: ansible-network/github_actions/.github/actions/checkout_dependency@main
 
-      - name: Run ansible-lint
-        uses: ansible/ansible-lint@v6.21.0
+      - name: run-ansible-lint
+        uses: ansible/ansible-lint@v24.7.0
