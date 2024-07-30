@@ -1,14 +1,17 @@
 # OKD Collection for Ansible
 
+This repo hosts the `community.okd` Ansible Collection.
+
+## Description
+The collection includes a variety of Ansible content to help automate the management of applications in OKD clusters, as well as the provisioning and maintenance of clusters themselves.
+
 <!--- STARTREMOVE --->
 [![CI](https://github.com/ansible-collections/community.okd/workflows/CI/badge.svg?event=push)](https://github.com/ansible-collections/community.okd/actions) [![Codecov](https://img.shields.io/codecov/c/github/ansible-collections/community.okd)](https://codecov.io/gh/ansible-collections/community.okd)
 
-This repo hosts the `community.okd` Ansible Collection.
-
-The collection includes a variety of Ansible content to help automate the management of applications in OKD clusters, as well as the provisioning and maintenance of clusters themselves.
+## Requirements
 
 <!--start requires_ansible-->
-## Ansible version compatibility
+### Ansible version compatibility
 
 This collection has been tested against following Ansible versions: **>=2.15.0**.
 
@@ -18,30 +21,30 @@ A collection may contain metadata that identifies these versions.
 PEP440 is the schema used to describe the versions of Ansible.
 <!--end requires_ansible-->
 
-## Python Support
+### Python Support
 
 * Collection supports 3.9+
 
-## Kubernetes Version Support
+### Kubernetes Version Support
 
 This collection supports Kubernetes versions >=1.24.
 
-## Included content
+### Included content
 
 Click on the name of a plugin or module to view that content's documentation:
 
 <!--start collection content-->
-### Connection plugins
+#### Connection plugins
 Name | Description
 --- | ---
 [community.okd.oc](https://github.com/openshift/community.okd/blob/main/docs/community.okd.oc_connection.rst)|Execute tasks in pods running on OpenShift.
 
-### Inventory plugins
+#### Inventory plugins
 Name | Description
 --- | ---
 [community.okd.openshift](https://github.com/openshift/community.okd/blob/main/docs/community.okd.openshift_inventory.rst)|OpenShift inventory source
 
-### Modules
+#### Modules
 Name | Description
 --- | ---
 [community.okd.k8s](https://github.com/openshift/community.okd/blob/main/docs/community.okd.k8s_module.rst)|Manage OpenShift objects
@@ -62,7 +65,7 @@ Name | Description
 
 <!--- ENDREMOVE --->
 
-## Installation and Usage
+## Installation
 
 ### Installing the Collection from Ansible Galaxy
 
@@ -85,6 +88,8 @@ Content in this collection requires the [Kubernetes Python client](https://pypi.
 
     pip3 install kubernetes
 
+## Use Cases
+
 ### Using modules from the OKD Collection in your playbooks
 
 It's preferable to use content in this collection using their Fully Qualified Collection Namespace (FQCN), for example `community.okd.openshift`:
@@ -99,7 +104,7 @@ connections:
 
 For documentation on how to use individual plugins included in this collection, please see the links in the 'Included content' section earlier in this README.
 
-## Ansible Turbo mode Tech Preview
+### Ansible Turbo mode Tech Preview
 
 
  The ``community.okd`` collection supports Ansible Turbo mode as a tech preview via the ``cloud.common`` collection. By default, this feature is disabled. To enable Turbo mode, set the environment variable `ENABLE_TURBO_MODE=1` on the managed node. For example:
@@ -116,11 +121,13 @@ For documentation on how to use individual plugins included in this collection, 
  Please read more about Ansible Turbo mode - [here](https://github.com/ansible-collections/community.okd/blob/main/docs/ansible_turbo_mode.rst).
 
 <!--- STARTREMOVE --->
-## Testing and Development
+## Contributing to the collection
 
 If you want to develop new content for this collection or improve what's already here, the easiest way to work on the collection is to clone it into one of the configured [`COLLECTIONS_PATHS`](https://docs.ansible.com/ansible/latest/reference_appendices/config.html#collections-paths), and work on it there.
 
 See [Contributing to community.okd](CONTRIBUTING.md).
+
+## Testing
 
 The `tests` directory contains configuration for running sanity tests using [`ansible-test`](https://docs.ansible.com/ansible/latest/dev_guide/testing_integration.html).
 
@@ -175,9 +182,34 @@ Releases are automatically built and pushed to Ansible Galaxy for any new tag. B
 After the version is published, verify it exists on the [OKD Collection Galaxy page](https://galaxy.ansible.com/community/okd).
 <!--- ENDREMOVE --->
 
+## Support
+
+<!--List available communication channels. In addition to channels specific to your collection, we also recommend to use the following ones.-->
+
+We announce releases and important changes through Ansible's [The Bullhorn newsletter](https://github.com/ansible/community/wiki/News#the-bullhorn). Be sure you are [subscribed](https://eepurl.com/gZmiEP).
+
+We take part in the global quarterly [Ansible Contributor Summit](https://github.com/ansible/community/wiki/Contributor-Summit) virtually or in-person. Track [The Bullhorn newsletter](https://eepurl.com/gZmiEP) and join us.
+
+For more information about communication, refer to the [Ansible Communication guide](https://docs.ansible.com/ansible/devel/community/communication.html).
+
+For the latest supported versions, refer to the release notes below.
+
+If you encounter issues or have questions, you can submit a support request through the following channels:
+ - GitHub Issues: Report bugs, request features, or ask questions by opening an issue in the [GitHub repository](https://github.com/openshift/community.okd/).
+
+## Release notes
+
+See the [raw generated changelog](https://github.com/openshift/community.okd/blob/main/CHANGELOG.rst).
+
 ## More Information
 
 For more information about Ansible's Kubernetes and OpenShift integrations, join the `#ansible-kubernetes` channel on [libera.chat](https://libera.chat/) IRC, and browse the resources in the [Kubernetes Working Group](https://github.com/ansible/community/wiki/Kubernetes) Community wiki page.
+
+## Code of Conduct
+
+We follow the [Ansible Code of Conduct](https://docs.ansible.com/ansible/devel/community/code_of_conduct.html) in all our interactions within this project.
+
+If you encounter abusive behavior, please refer to the [policy violations](https://docs.ansible.com/ansible/devel/community/code_of_conduct.html#policy-violations) section of the Code for information on how to raise a complaint.
 
 ## License
 
