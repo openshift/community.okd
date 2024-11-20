@@ -119,19 +119,18 @@ For documentation on how to use individual plugins included in this collection, 
 
 ### Ansible Turbo mode Tech Preview
 
+The `community.okd` collection supports Ansible Turbo mode as a tech preview via the `cloud.common` collection. By default, this feature is disabled. To enable Turbo mode, set the environment variable `ENABLE_TURBO_MODE=1` on the managed node. For example:
 
- The ``community.okd`` collection supports Ansible Turbo mode as a tech preview via the ``cloud.common`` collection. By default, this feature is disabled. To enable Turbo mode, set the environment variable `ENABLE_TURBO_MODE=1` on the managed node. For example:
+```yaml
+---
+- hosts: remote
+  environment:
+    ENABLE_TURBO_MODE: 1
+  tasks:
+    ...
+```
 
- ```yaml
- ---
- - hosts: remote
-   environment:
-     ENABLE_TURBO_MODE: 1
-   tasks:
-     ...
- ```
-
- Please read more about Ansible Turbo mode - [here](https://github.com/ansible-collections/community.okd/blob/main/docs/ansible_turbo_mode.rst).
+Please read more about Ansible Turbo mode - [here](https://github.com/ansible-collections/community.okd/blob/main/docs/ansible_turbo_mode.rst).
 
 <!--- STARTREMOVE --->
 ## Contributing to the collection
