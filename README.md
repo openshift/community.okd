@@ -92,7 +92,7 @@ You can also include it in a `requirements.yml` file and install it via `ansible
 ---
 collections:
   - name: community.okd
-    version: 4.0.0
+    version: 4.0.1
 ```
 
 ### Installing the Kubernetes Python Library
