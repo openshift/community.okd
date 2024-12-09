@@ -4,6 +4,14 @@ OKD Collection Release Notes
 
 .. contents:: Topics
 
+v4.0.1
+======
+
+Bugfixes
+--------
+
+- openshift_auth - fix issue where openshift_auth module sometimes does not delete the auth token (https://github.com/openshift/community.okd/pull/242)
+
 v4.0.0
 ======
 
