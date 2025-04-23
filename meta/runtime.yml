@@ -19,11 +19,10 @@ plugin_routing:
       redirect: community.okd.openshift_auth
   inventory:
     openshift:
-      deprecation:
+      tombstone:
         removal_version: 5.0.0
         warning_text: >-
-            The openshift inventory plugin has been deprecated and
-            will be removed in release 5.0.0.
+          Use kubernetes.core.k8s_info and ansible.builtin.add_host instead.
   action:
     k8s:
       redirect: kubernetes.core.k8s_info

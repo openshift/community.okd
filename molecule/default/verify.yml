@@ -1,9 +1,28 @@
 ---
-- name: Verify inventory and connection plugins
-  # This group is created by the openshift_inventory plugin
-  # It is automatically configured to use the `oc` connection plugin
+- name: Create inventory of pods
+  # We need to manually create the inventory of pods now that the inventory plugin has been removed
+  gather_facts: false
+  tasks:
+    - name: Get pods
+      kubernetes.core.k8s_info:
+        kind: Pod
+        namespace: testing
+      register: pods
+
+    - name: Add pods to inventory
+      ansible.builtin.add_host:
+        name: "{{ item.metadata.name }}"
+        groups:
+          - namespace_testing_pods
+        ansible_oc_pod: "{{ item.metadata.name }}"
+        ansible_oc_namespace: "{{ item.metadata.namespace }}"
+        pod_phase: "{{ item.status.phase }}"
+      loop: "{{ pods.resources }}"
+
+- name: Verify connection plugin
   hosts: namespace_testing_pods
   gather_facts: no
+  connection: community.okd.oc
   vars:
     file_content: |
       Hello world
