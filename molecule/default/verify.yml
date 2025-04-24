@@ -2,6 +2,8 @@
 - name: Create inventory of pods
   # We need to manually create the inventory of pods now that the inventory plugin has been removed
   gather_facts: false
+  hosts: localhost
+  connection: local
   tasks:
     - name: Get pods
       kubernetes.core.k8s_info:

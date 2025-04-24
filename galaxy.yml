@@ -24,4 +24,4 @@ tags:
   - okd
   - cluster
 # Also needs to be updated in the Makefile
-version: 6.0.0-dev
+version: 6.0.0-dev0
