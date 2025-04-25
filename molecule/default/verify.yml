@@ -19,6 +19,7 @@
         ansible_oc_pod: "{{ item.metadata.name }}"
         ansible_oc_namespace: "{{ item.metadata.namespace }}"
         pod_phase: "{{ item.status.phase }}"
+        ansible_remote_tmp: /tmp/.ansible
       loop: "{{ pods.resources }}"
 
 - name: Verify connection plugin
