@@ -4,6 +4,7 @@
         test_ns: "prune-roles"
         sa_name: "roles-sa"
         pod_name: "pod-prune"
+        tn_name: "roles-sa-token"
         role_definition:
           - name: pod-list
             labels:
@@ -50,34 +51,27 @@
             name: '{{ sa_name }}'
             namespace: '{{ test_ns }}'
 
-    - name: Read Service Account
-      kubernetes.core.k8s_info:
-        kind: ServiceAccount
-        namespace: '{{ test_ns }}'
-        name: '{{ sa_name }}'
-      register: sa_out
-
-    - set_fact:
-        secret_token: "{{ sa_out.resources[0]['secrets'][0]['name'] }}"
+    - name: Create SA secret
+      kubernetes.core.k8s:
+        definition:
+          apiVersion: v1
+          kind: Secret
+          metadata:
+            name: "{{ tn_name }}"
+            namespace: "{{ test_ns }}"
+            annotations:
+              kubernetes.io/service-account.name: "{{ sa_name }}"
+          type: kubernetes.io/service-account-token
 
     - name: Get secret details
       kubernetes.core.k8s_info:
         kind: Secret
         namespace: '{{ test_ns }}'
-        name: '{{ secret_token }}'
+        name: '{{ tn_name }}'
       register: r_secret
-      retries: 10
-      delay: 10
-      until:
-        - ("'openshift.io/token-secret.value' in r_secret.resources[0]['metadata']['annotations']") or ("'token' in r_secret.resources[0]['data']")
-
-    - set_fact:
-        api_token: "{{ r_secret.resources[0]['metadata']['annotations']['openshift.io/token-secret.value'] }}"
-      when: "'openshift.io/token-secret.value' in r_secret.resources[0]['metadata']['annotations']"
 
     - set_fact:
         api_token: "{{ r_secret.resources[0]['data']['token'] | b64decode }}"
-      when: "'token' in r_secret.resources[0]['data']"
 
     - name: list resources using service account
       kubernetes.core.k8s_info:
