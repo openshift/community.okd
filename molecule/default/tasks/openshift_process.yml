@@ -7,6 +7,7 @@
     parameters:
       NAMESPACE: openshift
       NAME: test123
+      NGINX_VERSION: 1.22-ubi8
   register: result
 
 - name: Create the rendered resources
