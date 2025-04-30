@@ -7,7 +7,7 @@
     parameters:
       NAMESPACE: openshift
       NAME: test123
-      NGINX_VERSION: 1.22-ubi8
+      NGINX_VERSION: "{{ nginx_version }}"
   register: result
 
 - name: Create the rendered resources
@@ -33,6 +33,7 @@
     parameters:
       NAMESPACE: openshift
       NAME: test123
+      NGINX_VERSION: "{{ nginx_version }}"
     state: present
     namespace_target: process-test
   register: result
@@ -45,6 +46,7 @@
       NAMESPACE: openshift
       NAME: test123
       MEMORY_LIMIT: 1Gi
+      NGINX_VERSION: "{{ nginx_version }}"
     state: present
     namespace_target: process-test
   register: result
@@ -56,6 +58,7 @@
     parameters:
       NAMESPACE: openshift
       NAME: test123
+      NGINX_VERSION: "{{ nginx_version }}"
     state: absent
     namespace_target: process-test
   register: result
