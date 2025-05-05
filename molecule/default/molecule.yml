@@ -14,12 +14,7 @@ provisioner:
   log: true
   options:
     vvv: True
-  config_options:
-    inventory:
-      enable_plugins: community.okd.openshift
   inventory:
-    hosts:
-      plugin: community.okd.openshift
     host_vars:
       localhost:
         virtualenv: ${MOLECULE_EPHEMERAL_DIRECTORY}/virtualenv
