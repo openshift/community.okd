@@ -225,7 +225,7 @@ def get_oauthaccesstoken_objectname_from_token(token_name):
 
     sha256Prefix = "sha256~"
     if token_name.startswith(sha256Prefix):
-        content = token_name[len(sha256Prefix):]
+        content = token_name[len(sha256Prefix) :]
     else:
         content = token_name
     b64encoded = urlsafe_b64encode(hashlib.sha256(content.encode()).digest()).rstrip(
