@@ -421,9 +421,9 @@ class OpenShiftRoute(AnsibleOpenshiftModule):
             if tls_insecure_policy == "disallow":
                 tls_insecure_policy = None
         else:
-            tls_ca_cert = (
-                tls_cert
-            ) = tls_dest_ca_cert = tls_key = tls_insecure_policy = None
+            tls_ca_cert = tls_cert = tls_dest_ca_cert = tls_key = (
+                tls_insecure_policy
+            ) = None
 
         route = {
             "apiVersion": "route.openshift.io/v1",
