@@ -295,9 +295,9 @@ class OpenShiftMigrateTemplateInstances(AnsibleOpenshiftModule):
                         object_type in transforms.keys()
                         and obj["ref"].get("apiVersion") != transforms[object_type]
                     ):
-                        ti_elem["status"]["objects"][i]["ref"][
-                            "apiVersion"
-                        ] = transforms[object_type]
+                        ti_elem["status"]["objects"][i]["ref"]["apiVersion"] = (
+                            transforms[object_type]
+                        )
                         ti_to_be_migrated.append(ti_elem)
 
         return ti_to_be_migrated
