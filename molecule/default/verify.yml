@@ -77,6 +77,7 @@
         - import_tasks: tasks/openshift_process.yml
           vars:
             files_dir: '{{ playbook_dir }}/files'
+            nginx_version: 1.22-ubi8
       always:
         - name: Delete namespace
           community.okd.k8s:
