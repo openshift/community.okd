@@ -1,2 +1,0 @@
-bugfixes:
-  - openshift_auth - fix issue where openshift_auth module sometimes does not delete the auth token. Based on stale PR (https://github.com/openshift/community.okd/pull/194).
