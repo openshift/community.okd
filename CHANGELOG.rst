@@ -4,6 +4,14 @@ OKD Collection Release Notes
 
 .. contents:: Topics
 
+v4.0.2
+======
+
+Release Summary
+---------------
+
+This patch updates the k8s dependency version to the 5.x range and modifies tests to handle the manual creation of service account tokens.
+
 v4.0.1
 ======
 

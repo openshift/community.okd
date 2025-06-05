@@ -3,6 +3,7 @@
     - set_fact:
         test_sa: "clusterrole-sa"
         test_ns: "clusterrole-ns"
+        test_tn: "clusterrole-tn"
 
     - name: Ensure namespace
       kubernetes.core.k8s:
@@ -26,34 +27,27 @@
             name: "{{ test_sa }}"
             namespace: "{{ test_ns }}"
 
-    - name: Read Service Account
-      kubernetes.core.k8s_info:
-        kind: ServiceAccount
-        namespace: "{{ test_ns }}"
-        name: "{{ test_sa }}"
-      register: result
-
-    - set_fact:
-        secret_token: "{{ result.resources[0]['secrets'][0]['name'] }}"
+    - name: Create SA token
+      kubernetes.core.k8s:
+        definition:
+          apiVersion: v1
+          kind: Secret
+          metadata:
+            name: "{{ test_tn }}"
+            namespace: "{{ test_ns }}"
+            annotations:
+              kubernetes.io/service-account.name: "{{ test_sa }}"
+          type: kubernetes.io/service-account-token
 
     - name: Get secret details
       kubernetes.core.k8s_info:
         kind: Secret
-        namespace: '{{ test_ns }}'
-        name: '{{ secret_token }}'
+        namespace: "{{ test_ns }}"
+        name: "{{ test_tn }}"
       register: _secret
-      retries: 10
-      delay: 10
-      until:
-        - ("'openshift.io/token-secret.value' in _secret.resources[0]['metadata']['annotations']") or ("'token' in _secret.resources[0]['data']")
-
-    - set_fact:
-        api_token: "{{ _secret.resources[0]['metadata']['annotations']['openshift.io/token-secret.value'] }}"
-      when: "'openshift.io/token-secret.value' in _secret.resources[0]['metadata']['annotations']"
 
     - set_fact:
         api_token: "{{ _secret.resources[0]['data']['token'] | b64decode }}"
-      when: "'token' in _secret.resources[0]['data']"
 
     - name: list Node should failed (forbidden user)
       kubernetes.core.k8s_info:

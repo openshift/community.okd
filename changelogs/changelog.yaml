@@ -250,3 +250,10 @@ releases:
     fragments:
     - 242-fix-failed-token-deletion.yml
     release_date: '2024-12-03'
+  4.0.2:
+    changes:
+      release_summary: This patch updates the k8s dependency version to the 5.x range
+        and modifies tests to handle the manual creation of service account tokens.
+    fragments:
+    - 4.0.2.yml
+    release_date: '2025-05-28'
