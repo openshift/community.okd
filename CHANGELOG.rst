@@ -4,6 +4,20 @@ OKD Collection Release Notes
 
 .. contents:: Topics
 
+v5.0.0
+======
+
+Release Summary
+---------------
+
+A release to bump ansible-lint version and update ``kubernetes.core`` collection dependency.
+
+Minor Changes
+-------------
+
+- Bump version of ansible-lint to 25.1.2 (https://github.com/openshift/community.okd/pull/255).
+- Bump version of ansible-lint to minimum 24.7.0 (https://github.com/openshift/community.okd/pull/240).
+
 v4.0.2
 ======
 
