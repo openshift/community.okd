@@ -4,6 +4,20 @@ OKD Collection Release Notes
 
 .. contents:: Topics
 
+v5.0.0
+======
+
+Release Summary
+---------------
+
+This release drop support for ansible-lint < 25.1.2.
+
+Minor Changes
+-------------
+
+- Bump version of ansible-lint to 25.1.2 (https://github.com/openshift/community.okd/pull/255).
+- Bump version of ansible-lint to minimum 24.7.0 (https://github.com/openshift/community.okd/pull/240).
+
 v4.0.2
 ======
 
@@ -15,10 +29,15 @@ This patch updates the k8s dependency version to the 5.x range and modifies test
 v4.0.1
 ======
 
-Bugfixes
---------
+Release Summary
+---------------
 
-- openshift_auth - fix issue where openshift_auth module sometimes does not delete the auth token (https://github.com/openshift/community.okd/pull/242)
+This is a bug fix release
+
+Minor Changes
+-------------
+
+- openshift_auth - fix issue where openshift_auth module sometimes does not delete the auth token. Based on stale PR (https://github.com/openshift/community.okd/pull/194).
 
 v4.0.0
 ======
