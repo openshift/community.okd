@@ -259,10 +259,11 @@ releases:
     release_date: '2025-05-28'
   5.0.0:
     changes:
+      breaking_changes:
+      - Remove openshift inventory plugin deprecated in 3.0.0 (https://github.com/openshift/community.okd/pull/252).
       minor_changes:
       - Bump version of ansible-lint to 25.1.2 (https://github.com/openshift/community.okd/pull/255).
       - Bump version of ansible-lint to minimum 24.7.0 (https://github.com/openshift/community.okd/pull/240).
-      - Remove openshift inventory plugin deprecated in 3.0.0 (https://github.com/openshift/community.okd/pull/252).
       release_summary: This release drops support for ansible-lint < 25.1.2 and removes deprecated openshift inventory plugin.
     fragments:
     - 240-bump-ansible-lint-version.yml
