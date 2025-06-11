@@ -17,7 +17,7 @@ Minor Changes
 
 - Bump version of ansible-lint to 25.1.2 (https://github.com/openshift/community.okd/pull/255).
 - Bump version of ansible-lint to minimum 24.7.0 (https://github.com/openshift/community.okd/pull/240).
-- Remove openshift inventory plugin deprecated in 3.0.0 (https://github.com/openshift/community.okd/pull/252)
+- Remove openshift inventory plugin deprecated in 3.0.0 (https://github.com/openshift/community.okd/pull/252).
 
 v4.0.2
 ======
