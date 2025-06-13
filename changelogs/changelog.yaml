@@ -244,8 +244,8 @@ releases:
   4.0.1:
     changes:
       minor_changes:
-      - openshift_auth - fix issue where openshift_auth module sometimes does not delete the auth
-        token. Based on stale PR (https://github.com/openshift/community.okd/pull/194).
+      - openshift_auth - fix issue where openshift_auth module sometimes does not
+        delete the auth token. Based on stale PR (https://github.com/openshift/community.okd/pull/194).
       release_summary: This is a bug fix release
     fragments:
     - 242-fix-failed-token-deletion.yml
@@ -257,3 +257,17 @@ releases:
     fragments:
     - 4.0.2.yml
     release_date: '2025-05-28'
+  5.0.0:
+    changes:
+      breaking_changes:
+      - Remove openshift inventory plugin deprecated in 3.0.0 (https://github.com/openshift/community.okd/pull/252).
+      minor_changes:
+      - Bump version of ansible-lint to 25.1.2 (https://github.com/openshift/community.okd/pull/255).
+      - Bump version of ansible-lint to minimum 24.7.0 (https://github.com/openshift/community.okd/pull/240).
+      release_summary: This release drops support for ansible-lint < 25.1.2 and removes deprecated openshift inventory plugin.
+    fragments:
+    - 240-bump-ansible-lint-version.yml
+    - 5.0.0.yml
+    - ansible-lint-update.yml
+    - readme_template_update.yml
+    release_date: '2025-06-10'

@@ -1,0 +1,3 @@
+---
+test_fixes:
+  - Add unit tests for ``openshift_adm_prune_auth`` module_utils to ensure correct user pruning and API error handling.
