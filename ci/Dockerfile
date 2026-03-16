@@ -1,19 +1,20 @@
-FROM registry.access.redhat.com/ubi10/ubi
+FROM registry.access.redhat.com/ubi9/ubi
 
 ENV OPERATOR=/usr/local/bin/ansible-operator \
     USER_UID=1001 \
     USER_NAME=ansible-operator\
     HOME=/opt/ansible \
-    ANSIBLE_LOCAL_TMP=/opt/ansible/tmp
+    ANSIBLE_LOCAL_TMP=/opt/ansible/tmp \
+    DOWNSTREAM_BUILD_PYTHON=3.12
 
 RUN yum install -y \
       glibc-langpack-en \
       git \
       make \
-      python3 \
-      python3-devel \
-      python3-pip \
-      python3-setuptools \
+      python3.12 \
+      python3.12-devel \
+      python3.12-pip \
+      python3.12-setuptools \
       gcc \
       openldap-devel \
  && python3.12 -m pip install --no-cache-dir --upgrade setuptools pip \
