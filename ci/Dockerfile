@@ -4,7 +4,7 @@ ENV OPERATOR=/usr/local/bin/ansible-operator \
     USER_UID=1001 \
     USER_NAME=ansible-operator\
     HOME=/opt/ansible \
-    ANSIBLE_LOCAL_TMP=/opt/ansible/tmp \
+    ANSIBLE_LOCAL_TMP=/opt/ansible/tmp
 
 RUN yum install -y \
       glibc-langpack-en \
