@@ -25,6 +25,7 @@ units: install
 	cd ansible_collections/community/okd && ansible-test units -v --python $(PYTHON_VERSION) $(UNITS_TEST_ARGS)
 
 molecule: install
+	cat /etc/redhat-release
 	molecule --version
 	molecule test
 

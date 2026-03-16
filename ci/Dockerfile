@@ -16,8 +16,8 @@ RUN yum install -y \
       python3-setuptools \
       gcc \
       openldap-devel \
- && python3 -m pip install --no-cache-dir --upgrade setuptools pip \
- && python3 -m pip install --no-cache-dir \
+ && python3.12 -m pip install --no-cache-dir --upgrade setuptools pip \
+ && python3.12 -m pip install --no-cache-dir \
       kubernetes \
       "ansible-core" \
       "molecule" \
