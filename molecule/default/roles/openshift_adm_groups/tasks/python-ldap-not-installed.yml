@@ -23,6 +23,7 @@
 
     - pip:
         name:
+          - packaging
           - kubernetes
         virtualenv: "{{ venv }}"
         virtualenv_command: "{{ virtualenv_command }}"

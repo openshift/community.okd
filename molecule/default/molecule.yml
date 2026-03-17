@@ -18,7 +18,7 @@ provisioner:
     host_vars:
       localhost:
         virtualenv: ${MOLECULE_EPHEMERAL_DIRECTORY}/virtualenv
-        virtualenv_command: '{{ ansible_playbook_python }} -m virtualenv'
+        virtualenv_command: '{{ ansible_playbook_python }} -m venv'
         virtualenv_interpreter: '{{ virtualenv }}/bin/python'
         playbook_namespace: molecule-tests
   env:
