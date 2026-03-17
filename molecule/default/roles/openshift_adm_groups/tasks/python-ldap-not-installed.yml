@@ -11,6 +11,16 @@
     - set_fact:
         venv: "{{ test_dir }}/virtualenv"
 
+    - debug:
+        var: virtualenv_command
+
+    - command:
+        cmd: "{{ ansible_playbook_python }} --version"
+      register: cmdresult
+
+    - debug:
+        var: cmdresult.stdout
+
     - pip:
         name:
           - kubernetes
