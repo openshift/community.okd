@@ -213,5 +213,6 @@
       ignore_errors: true
 
   when:
+    - registry.public_hostname is not none
     - registry.public_hostname | length > 0
     - registry.check.reached
