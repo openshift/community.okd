@@ -18,7 +18,7 @@
         containers:
           - name: ldap
             # bitnami is no longer supporting this image. we should probably find a replacement
-            image: bitnamilegacy/openldap
+            image: docker.io/bitnamilegacy/openldap:latest
             env:
               - name: LDAP_ADMIN_USERNAME
                 value: "{{ ldap_admin_user }}"

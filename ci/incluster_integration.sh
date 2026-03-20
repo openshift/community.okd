@@ -19,7 +19,7 @@ else
   IMAGE="${IMAGE_FORMAT}"
 fi
 
-PULL_POLICY=${PULL_POLICY:-Always}
+PULL_POLICY=${PULL_POLICY:-IfNotPresent}
 
 if ! oc get namespace "$NAMESPACE"
 then

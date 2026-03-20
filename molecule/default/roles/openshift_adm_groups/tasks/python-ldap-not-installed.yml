@@ -11,22 +11,10 @@
     - set_fact:
         venv: "{{ test_dir }}/virtualenv"
 
-    - debug:
-        var: virtualenv_command
-
-    - command:
-        cmd: "{{ ansible_playbook_python }} --version"
-      register: cmdresult
-
-    - debug:
-        var: cmdresult.stdout
-
     - pip:
         name:
-          - kubernetes
-        virtualenv: "{{ venv }}"
-        virtualenv_command: "{{ virtualenv_command }}"
-        virtualenv_site_packages: false
+          - python-ldap
+        state: absent
 
     - name: Load test configurations
       set_fact:
@@ -37,8 +25,6 @@
         config: "{{ configs.simple }}"
       register: result
       ignore_errors: true
-      vars:
-        ansible_python_interpreter: "{{ venv }}/bin/python"
 
     - name: Check that module failed gracefully
       assert:
@@ -46,6 +32,9 @@
           - '"Failed to import the required Python library (python-ldap)" in result.msg'
 
   always:
+    - pip:
+        name:
+          - python-ldap
     - name: Remove temp directory
       file:
         path: "{{ test_dir }}"

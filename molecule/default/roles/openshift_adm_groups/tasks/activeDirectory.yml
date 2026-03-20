@@ -47,8 +47,8 @@
       assert:
         that:
           - result is changed
-          - admins_group
-          - devs_group
+          - admins_group | length > 0
+          - devs_group | length > 0
           - '"jane.smith@ansible.org" in admins_group.users'
           - '"jim.adams@ansible.org" in admins_group.users'
           - '"jordanbulls@ansible.org" in devs_group.users'
