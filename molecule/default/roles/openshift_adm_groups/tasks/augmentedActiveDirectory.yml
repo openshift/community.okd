@@ -47,8 +47,8 @@
       assert:
         that:
           - result is changed
-          - banking_group
-          - insurance_group
+          - banking_group | length > 0
+          - insurance_group | length > 0
           - '"james-allan@ansible.org" in banking_group.users'
           - '"gordon-kane@ansible.org" in banking_group.users'
           - '"alice-courtney@ansible.org" in insurance_group.users'
