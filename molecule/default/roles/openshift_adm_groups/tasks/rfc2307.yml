@@ -68,8 +68,8 @@
       assert:
         that:
           - result is changed
-          - admins_group
-          - devs_group
+          - admins_group | length > 0
+          - devs_group | length > 0
           - '"jane.smith@ansible.org" in admins_group.users'
           - '"jim.adams@ansible.org" in devs_group.users'
           - '"jordanbulls@ansible.org" in devs_group.users'
@@ -89,8 +89,8 @@
       assert:
         that:
           - result is changed
-          - admins_group
-          - devs_group
+          - admins_group | length > 0
+          - devs_group | length > 0
           - '"jane.smith@ansible.org" in admins_group.users'
           - '"jim.adams@ansible.org" in devs_group.users'
           - '"jordanbulls@ansible.org" in devs_group.users'
@@ -110,8 +110,8 @@
       assert:
         that:
           - result is changed
-          - admins_group
-          - devs_group
+          - admins_group | length > 0
+          - devs_group | length > 0
           - '"cn=Jane,ou=people,ou=rfc2307,"+ldap_root in admins_group.users'
           - '"cn=Jim,ou=people,ou=rfc2307,"+ldap_root in devs_group.users'
           - '"cn=Jordan,ou=people,ou=rfc2307,"+ldap_root in devs_group.users'
@@ -131,8 +131,8 @@
       assert:
         that:
           - result is changed
-          - admins_group
-          - devs_group
+          - admins_group | length > 0
+          - devs_group | length > 0
           - '"jane.smith@ansible.org" in admins_group.users'
           - '"jim.adams@ansible.org" in devs_group.users'
           - '"jordanbulls@ansible.org" in devs_group.users'
