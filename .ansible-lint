@@ -1,5 +1,6 @@
 ---
 profile: production
 exclude_paths:
-  - molecule
+  - tests/unit
   - tests/sanity
+  - molecule
