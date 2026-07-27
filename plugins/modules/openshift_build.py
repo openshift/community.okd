@@ -55,7 +55,7 @@ options:
     description:
     - Specify the namespace for the build or the build config.
     type: str
-    required: True
+    required: true
   build_args:
     description:
     - Specify a list of key-value pair to pass to Docker during the build.
@@ -106,7 +106,7 @@ options:
     - When C(state=started), specify whether to wait for a build to complete
       and exit with a non-zero return code if the build fails.
     - When I(state=cancelled), specify whether to wait for a build phase to be Cancelled.
-    default: False
+    default: false
     type: bool
   wait_sleep:
     description:

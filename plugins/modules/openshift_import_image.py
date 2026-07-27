@@ -36,18 +36,18 @@ options:
     description:
     - Use to specify namespace for image stream to create/update.
     type: str
-    required: True
+    required: true
   name:
     description:
     - Image stream to import tag into.
     - This can be provided as a list of images streams or a single value.
     type: raw
-    required: True
+    required: true
   all:
     description:
     - If set to I(true), import all tags from the provided source on creation or if C(source) is specified.
     type: bool
-    default: False
+    default: false
   validate_registry_certs:
     description:
     - If set to I(true), allow importing from registries that have invalid HTTPS certificates.
@@ -65,7 +65,7 @@ options:
     description:
     - Set each imported Docker image to be periodically imported from a remote repository.
     type: bool
-    default: False
+    default: false
   source:
     description:
     - A Docker image repository to import images from.

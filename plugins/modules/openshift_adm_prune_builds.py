@@ -41,7 +41,7 @@ options:
     - If C(true), prune all builds whose associated BuildConfig no longer exists and whose status is
       complete, failed, error, or cancelled.
     type: bool
-    default: False
+    default: false
 
 requirements:
   - python >= 3.6

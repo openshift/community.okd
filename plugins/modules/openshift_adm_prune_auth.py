@@ -37,7 +37,7 @@ options:
     - users
     - groups
     type: str
-    required: True
+    required: true
   name:
     description:
     - Use to specify an object name to remove.

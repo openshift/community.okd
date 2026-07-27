@@ -35,7 +35,7 @@ options:
     description:
     - Attempt to contact the integrated registry using local client.
     type: bool
-    default: False
+    default: false
 
 requirements:
   - python >= 3.6
