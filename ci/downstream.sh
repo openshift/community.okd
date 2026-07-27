@@ -64,6 +64,7 @@ f_prep()
     # Files to copy downstream (relative repo root dir path)
     _file_manifest=(
         .gitignore
+        .ansible-lint
         CHANGELOG.rst
         galaxy.yml
         LICENSE
@@ -77,7 +78,6 @@ f_prep()
 
     # Directories to recursively copy downstream (relative repo root dir path)
     _dir_manifest=(
-        .config
         changelogs
         ci
         meta
