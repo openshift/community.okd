@@ -9,7 +9,6 @@ import copy
 
 from ansible.module_utils._text import to_native
 from ansible.module_utils.parsing.convert_bool import boolean
-from ansible.module_utils.six import iteritems
 
 from ansible_collections.community.okd.plugins.module_utils.openshift_common import (
     AnsibleOpenshiftModule,
@@ -106,7 +105,7 @@ class OpenShiftAdmPruneImages(AnsibleOpenshiftModule):
 
     def list_objects(self):
         result = {}
-        for kind, version in iteritems(ApiConfiguration):
+        for kind, version in ApiConfiguration.items():
             namespace = None
             if self.params.get("namespace") and kind.lower() == "imagestream":
                 namespace = self.params.get("namespace")
