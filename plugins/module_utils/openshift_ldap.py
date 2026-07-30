@@ -12,7 +12,6 @@ import os
 import copy
 
 from ansible.module_utils.parsing.convert_bool import boolean
-from ansible.module_utils.six import iteritems
 
 try:
     import ldap
@@ -46,7 +45,7 @@ def validate_ldap_sync_config(config):
         return "could not read ca file: {0}.".format(ca_file)
 
     nameMapping = config.get("groupUIDNameMapping", {})
-    for k, v in iteritems(nameMapping):
+    for k, v in nameMapping.items():
         if len(k) == 0 or len(v) == 0:
             return "groupUIDNameMapping has empty key or value"
 
