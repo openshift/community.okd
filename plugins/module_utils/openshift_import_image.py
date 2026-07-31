@@ -7,7 +7,6 @@ __metaclass__ = type
 import copy
 
 from ansible.module_utils.parsing.convert_bool import boolean
-from ansible.module_utils.six import string_types
 
 from ansible_collections.community.okd.plugins.module_utils.openshift_common import (
     AnsibleOpenshiftModule,
@@ -370,7 +369,7 @@ class OpenShiftImportImage(AnsibleOpenshiftModule):
     def execute_module(self):
         names = []
         name = self.params.get("name")
-        if isinstance(name, string_types):
+        if isinstance(name, str):
             names.append(name)
         elif isinstance(name, list):
             names = name
