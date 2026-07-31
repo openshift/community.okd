@@ -174,8 +174,7 @@ k8s_auth:
 import traceback
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils.six.moves.urllib_parse import urlparse, parse_qs, urlencode
-from urllib.parse import urljoin
+from urllib.parse import urlparse, parse_qs, urlencode, urljoin
 
 from base64 import urlsafe_b64encode
 import hashlib
