@@ -41,7 +41,7 @@ options:
     - If C(true), prune all deployments where the associated DeploymentConfig no longer exists,
       the status is complete or failed, and the replica size is C(0).
     type: bool
-    default: False
+    default: false
 
 requirements:
   - python >= 3.6

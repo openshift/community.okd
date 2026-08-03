@@ -51,7 +51,7 @@ options:
     aliases:
     - config
     - src
-    required: True
+    required: true
   deny_groups:
     description:
     - Denied groups, could be openshift group name or LDAP group dn value.

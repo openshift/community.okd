@@ -40,7 +40,7 @@ options:
     - Include images that were imported from external registries as candidates for pruning.
     - If pruned, all the mirrored objects associated with them will also be removed from the integrated registry.
     type: bool
-    default: True
+    default: true
   keep_younger_than:
     description:
     - Specify the minimum age (in minutes) of an image and its referrers for it to be considered a candidate for pruning.
@@ -50,7 +50,7 @@ options:
     - Specify if images which are exceeding LimitRanges specified in the same namespace,
       should be considered for pruning.
     type: bool
-    default: False
+    default: false
   registry_url:
     description:
     - The address to use when contacting the registry, instead of using the default value.
@@ -70,17 +70,17 @@ options:
     type: bool
   prune_registry:
     description:
-    - If set to I(False), the prune operation will clean up image API objects, but
+    - If set to I(false), the prune operation will clean up image API objects, but
       none of the associated content in the registry is removed.
     type: bool
-    default: True
+    default: true
   ignore_invalid_refs:
     description:
-    - If set to I(True), the pruning process will ignore all errors while parsing image references.
+    - If set to I(true), the pruning process will ignore all errors while parsing image references.
     - This means that the pruning process will ignore the intended connection between the object and the referenced image.
     - As a result an image may be incorrectly deleted as unused.
     type: bool
-    default: False
+    default: false
 requirements:
   - python >= 3.6
   - kubernetes >= 12.0.0

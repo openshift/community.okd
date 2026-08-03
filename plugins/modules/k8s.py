@@ -83,7 +83,7 @@ options:
         type: str
       strict:
         description: whether to fail when passing unexpected properties
-        default: True
+        default: true
         type: bool
     type: dict
   append_hash:
@@ -134,7 +134,7 @@ options:
     - Whether to continue on creation/deletion errors when multiple resources are defined.
     - This has no effect on the validation step which is controlled by the C(validate.fail_on_error) parameter.
     type: bool
-    default: False
+    default: false
     version_added: 2.0.0
 
 requirements:
