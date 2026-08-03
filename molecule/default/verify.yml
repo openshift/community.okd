@@ -66,10 +66,7 @@
 
   tasks:
     - pip:
-        name: kubernetes-validate==1.12.0
-        virtualenv: "{{ virtualenv }}"
-        virtualenv_command: "{{ virtualenv_command }}"
-        virtualenv_site_packages: no
+        name: kubernetes-validate==1.34.1
 
     - import_tasks: tasks/validate_installed.yml
 
