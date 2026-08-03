@@ -7,7 +7,7 @@ __metaclass__ = type
 import traceback
 from abc import abstractmethod
 
-from ansible.module_utils._text import to_native
+from ansible.module_utils.common.text.converters import to_native
 
 try:
     from ansible_collections.kubernetes.core.plugins.module_utils.k8s.client import (

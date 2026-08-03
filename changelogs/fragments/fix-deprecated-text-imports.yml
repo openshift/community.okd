@@ -1,0 +1,2 @@
+minor_changes:
+  - Replace deprecated ``ansible.module_utils._text`` imports with ``ansible.module_utils.common.text.converters`` to fix compatibility with ansible-core 2.24+ (https://github.com/openshift/community.okd/issues/275).
