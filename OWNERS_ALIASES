@@ -1,11 +1,19 @@
 aliases:
   community.okd-approvers:
-    - gravesm
     - jillr
+    - GomathiselviS
     - alinabuzachis
     - abikouo
+    - beeankha
+    - mandar242
+    - oraNod
+    - brahmanim
   community.okd-reviewers:
-    - gravesm
     - jillr
+    - GomathiselviS
     - alinabuzachis
     - abikouo
+    - beeankha
+    - mandar242
+    - oraNod
+    - brahmanim
