@@ -8,7 +8,6 @@ from datetime import datetime
 from ansible_collections.community.okd.plugins.module_utils.openshift_docker_image import (
     parse_docker_image_ref,
 )
-from ansible.module_utils.six import iteritems
 
 
 def get_image_blobs(image):
@@ -119,7 +118,7 @@ class OpenShiftAnalyzeImageStream(object):
             "CronJob",
         )
 
-        for k, objects in iteritems(resources):
+        for k, objects in resources.items():
             if k not in keys:
                 continue
             for obj in objects:
@@ -222,7 +221,7 @@ class OpenShiftAnalyzeImageStream(object):
     def analyze_refs_from_build_strategy(self, resources):
         # Json Path is always spec.strategy
         keys = ("BuildConfig", "Build")
-        for k, objects in iteritems(resources):
+        for k, objects in resources.items():
             if k not in keys:
                 continue
             for obj in objects:
