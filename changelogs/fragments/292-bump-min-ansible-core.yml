@@ -1,0 +1,2 @@
+breaking_changes:
+  - Minimum supported version of ansible-core is now 2.16 (https://github.com/openshift/community.okd/pull/292).
