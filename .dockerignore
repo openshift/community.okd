@@ -1,0 +1,9 @@
+.venv
+.git
+.idea
+.cache/
+__pycache__/
+*.tar.gz
+changelogs/.plugin-cache.yaml
+tests/output
+tests/integration/cloud-config-*
