@@ -68,7 +68,7 @@
     # No explicit `virtualenv:` param is necessary with the following pip tasks.
     # prepare.yml creates the venv and ansible_python_interpreter sets it.
     - pip:
-        name: kubernetes-validate==1.34.1
+        name: kubernetes-validate==1.35.0
 
     - import_tasks: tasks/validate_installed.yml
 
