@@ -4,6 +4,30 @@ OKD Collection Release Notes
 
 .. contents:: Topics
 
+v6.0.0
+======
+
+Release Summary
+---------------
+
+This major release drops support for ansible-core versions below 2.16,
+replaces all ``ansible.module_utils.six`` imports with Python 3 stdlib equivalents,
+and fixes deprecated ``ansible.module_utils._text`` imports for compatibility
+with ansible-core 2.24+.
+
+Minor Changes
+-------------
+
+- Add sanity test ignore files for ansible-core 2.20 and 2.21 (https://github.com/openshift/community.okd/pull/286).
+- Replace ``ansible.module_utils.six.moves.urllib_parse`` import with Python 3 ``urllib.parse`` in ``openshift_auth`` module (https://github.com/openshift/community.okd/pull/291).
+- Replace ``ansible.module_utils.six`` imports (``iteritems``, ``string_types``) with Python 3 stdlib equivalents (https://github.com/openshift/community.okd/pull/286).
+- Replace deprecated ``ansible.module_utils._text`` imports with ``ansible.module_utils.common.text.converters`` to fix compatibility with ansible-core 2.24+ (https://github.com/openshift/community.okd/issues/275).
+
+Breaking Changes / Porting Guide
+--------------------------------
+
+- Minimum supported version of ansible-core is now 2.16 (https://github.com/openshift/community.okd/pull/292).
+
 v5.0.0
 ======
 
@@ -12,16 +36,16 @@ Release Summary
 
 This release drops support for ansible-lint < 25.1.2 and removes deprecated openshift inventory plugin.
 
-Breaking Changes / Porting Guide
---------------------------------
-
-- Remove openshift inventory plugin deprecated in 3.0.0 (https://github.com/openshift/community.okd/pull/252).
-
 Minor Changes
 -------------
 
 - Bump version of ansible-lint to 25.1.2 (https://github.com/openshift/community.okd/pull/255).
 - Bump version of ansible-lint to minimum 24.7.0 (https://github.com/openshift/community.okd/pull/240).
+
+Breaking Changes / Porting Guide
+--------------------------------
+
+- Remove openshift inventory plugin deprecated in 3.0.0 (https://github.com/openshift/community.okd/pull/252).
 
 v4.0.2
 ======

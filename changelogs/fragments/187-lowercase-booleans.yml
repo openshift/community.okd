@@ -1,2 +1,0 @@
-trivial:
-  - Use lowercase true/false for boolean values in module documentation (https://github.com/openshift/community.okd/issues/187).
