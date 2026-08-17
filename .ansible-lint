@@ -1,6 +1,15 @@
 ---
+
 profile: production
+
 exclude_paths:
   - tests/unit
   - tests/sanity
   - molecule
+  - changelogs
+  - docs
+  - .ansible
+  - .github
+
+warn_list:
+  - no-log-password
