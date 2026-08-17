@@ -301,4 +301,4 @@ releases:
     - fix-deprecated-text-imports.yml
     - replace-six-urllib-parse.yml
     - v6.0.0-release-summary.yml
-    release_date: '2026-08-12'
+    release_date: '2026-08-17'
