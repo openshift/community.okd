@@ -14,6 +14,7 @@ license_file: LICENSE
 name: okd
 namespace: community
 readme: README.md
+# The downstream redhat.openshift collection is built from the community.okd repository.
 repository: https://github.com/openshift/community.okd
 tags:
   - kubernetes

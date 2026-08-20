@@ -51,6 +51,11 @@ f_text_sub()
 
     find "${_build_dir}" -type f ! -name galaxy.yml -exec sed -i.bak "s/community\.okd/redhat\.openshift/g" {} \;
     find "${_build_dir}" -type f ! -name galaxy.yml -exec sed -i.bak "s/group\/redhat\.openshift\.okd/redhat\.openshift\.openshift/g" {} \;
+
+    # Restore GitHub repository URLs in the README
+    sed -i.bak "s|github\.com/openshift/redhat\.openshift|github.com/openshift/community.okd|g" "${_build_dir}/README.md"
+    sed -i.bak "s|github\.com/ansible-collections/redhat\.openshift|github.com/ansible-collections/community.okd|g" "${_build_dir}/README.md"
+
     find "${_build_dir}" -type f -name "*.bak" -delete
 }
 

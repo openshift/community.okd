@@ -3,6 +3,7 @@
 This repo hosts the `community.okd` Ansible Collection.
 
 ## Description
+
 The collection includes a variety of Ansible content to help automate the management of applications in OKD clusters, as well as the provisioning and maintenance of clusters themselves.
 
 <!--- STARTREMOVE --->
@@ -21,43 +22,26 @@ The collection includes a variety of Ansible content to help automate the manage
 
 For more information about communication, see the [Ansible communication guide](https://docs.ansible.com/ansible/devel/community/communication.html).
 
-## Requirements
-
-<!--start requires_ansible-->
-### Ansible version compatibility
-
-This collection has been tested against following Ansible versions: **>=2.16.0**.
-
-Please ensure to update the `network_os` to use the fully qualified collection name (for example, `cisco.ios.ios`).
-Plugins and modules within a collection may be tested with only specific Ansible versions.
-A collection may contain metadata that identifies these versions.
-PEP440 is the schema used to describe the versions of Ansible.
-<!--end requires_ansible-->
-
-### Python Support
-
-* Collection supports 3.9+
-
-### Kubernetes Version Support
-
-This collection supports Kubernetes versions >=1.24.
-
-### Included content
+## Included content
 
 Click on the name of a plugin or module to view that content's documentation:
 
 <!--start collection content-->
-#### Connection plugins
+
+### Connection plugins
+
 Name | Description
 --- | ---
 [community.okd.oc](https://github.com/openshift/community.okd/blob/main/docs/community.okd.oc_connection.rst)|Execute tasks in pods running on OpenShift.
 
-#### Inventory plugins
+### Inventory plugins
+
 Name | Description
 --- | ---
 [community.okd.openshift](https://github.com/openshift/community.okd/blob/main/docs/community.okd.openshift_inventory.rst)|OpenShift inventory source
 
-#### Modules
+### Modules
+
 Name | Description
 --- | ---
 [community.okd.k8s](https://github.com/openshift/community.okd/blob/main/docs/community.okd.k8s_module.rst)|Manage OpenShift objects
@@ -78,13 +62,49 @@ Name | Description
 
 <!--- ENDREMOVE --->
 
+## Requirements
+
+<!--start requires_ansible-->
+
+### Ansible version compatibility
+
+This collection has been tested against following Ansible versions: **>=2.16.0**.
+
+Plugins and modules within a collection may be tested with only specific Ansible versions.
+A collection may contain metadata that identifies these versions.
+PEP440 is the schema used to describe the versions of Ansible.
+<!--end requires_ansible-->
+
+### Python version compatibility
+
+This collection requires Python 3.9 or later.
+
+### Python dependencies
+
+The following Python packages are required:
+
+* [kubernetes](https://pypi.org/project/kubernetes/) >= 12.0.0
+* [requests-oauthlib](https://pypi.org/project/requests-oauthlib/)
+
+### Kubernetes version compatibility
+
+This collection supports Kubernetes versions >= 1.24.
+
+### Collection dependencies
+
+This collection requires the following Ansible collections:
+
+* [kubernetes.core](https://galaxy.ansible.com/ui/repo/published/kubernetes/core/) >= 3.0.0
+
 ## Installation
 
 ### Installing the Collection from Ansible Galaxy
 
 Before using the OKD collection, you need to install it with the Ansible Galaxy CLI:
 
-    ansible-galaxy collection install community.okd
+```bash
+ansible-galaxy collection install community.okd
+```
 
 You can also include it in a `requirements.yml` file and install it via `ansible-galaxy collection install -r requirements.yml`, using the format:
 
@@ -92,27 +112,32 @@ You can also include it in a `requirements.yml` file and install it via `ansible
 ---
 collections:
   - name: community.okd
-    version: 5.0.0
+    version: 6.0.0
 ```
 
 ### Installing the Kubernetes Python Library
 
 Content in this collection requires the [Kubernetes Python client](https://pypi.org/project/kubernetes/) to interact with Kubernetes' APIs. You can install it with:
 
-    pip3 install kubernetes
+```bash
+pip3 install kubernetes
+```
 
 ## Use Cases
 
 ### Using modules from the OKD Collection in your playbooks
 
-It's preferable to use content in this collection using their Fully Qualified Collection Namespace (FQCN), for example `community.okd.openshift`:
+It's preferable to use content in this collection using their Fully Qualified Collection Namespace (FQCN), for example `community.okd.openshift_route`:
 
 ```yaml
 ---
-plugin: community.okd.openshift
-connections:
-  - namespaces:
-    - testing
+- hosts: localhost
+  tasks:
+    - name: Expose a Service as an OpenShift Route
+      community.okd.openshift_route:
+        service: frontend
+        namespace: testing
+        state: present
 ```
 
 For documentation on how to use individual plugins included in this collection, please see the links in the 'Included content' section earlier in this README.
@@ -133,6 +158,7 @@ The `community.okd` collection supports Ansible Turbo mode as a tech preview via
 Please read more about Ansible Turbo mode - [here](https://github.com/ansible-collections/community.okd/blob/main/docs/ansible_turbo_mode.rst).
 
 <!--- STARTREMOVE --->
+
 ## Contributing to the collection
 
 If you want to develop new content for this collection or improve what's already here, the easiest way to work on the collection is to clone it into one of the configured [`COLLECTIONS_PATHS`](https://docs.ansible.com/ansible/latest/reference_appendices/config.html#collections-paths), and work on it there.
@@ -145,16 +171,19 @@ The `tests` directory contains configuration for running sanity tests using [`an
 
 You can run the `ansible-test` sanity tests with the command:
 
-    make test-sanity
+```bash
+make test-sanity
+```
 
 The `molecule` directory contains configuration for running integration tests using [`molecule`](https://molecule.readthedocs.io/).
 
 You can run the `molecule` integration tests with the command:
 
-    make test-integration
+```bash
+make test-integration
+```
 
-These commands will create a directory called `ansible_collections` which should not be committed or added to the `.gitignore` (Tracking issue: https://github.com/ansible/ansible/issues/68499)
-
+These commands will create a directory called `ansible_collections` which should not be committed or added to the `.gitignore` (Tracking issue: <https://github.com/ansible/ansible/issues/68499>)
 
 ### Prow
 
@@ -164,13 +193,17 @@ The configuration for the CI jobs that this repository runs can be found in the 
 The [Prow CI integration test job](https://github.com/openshift/release/blob/master/ci-operator/config/openshift/community.okd/openshift-community.okd-main.yaml#L40-L43)
 runs the command:
 
-    make test-integration-incluster
+```bash
+make test-integration-incluster
+```
 
 which will create a job that runs the normal `make integration` target. In order to mimic the Prow CI job, you must
 first build the test image using the Dockerfile in [`ci/Dockerfile`](ci/Dockerfile). Then, push the image
 somewhere that it will be accessible to the cluster, and run
 
-    IMAGE_FORMAT=<your image> make test-integration-incluser
+```bash
+IMAGE_FORMAT=<your image> make test-integration-incluser
+```
 
 where the `IMAGE_FORMAT` environment variable is the full reference to your container (ie, `IMAGE_FORMAT=quay.io/example/molecule-test-runner`)
 
@@ -179,15 +212,15 @@ where the `IMAGE_FORMAT` environment variable is the full reference to your cont
 Releases are automatically built and pushed to Ansible Galaxy for any new tag. Before tagging a release, make sure to do the following:
 
 1. Update the version in the following places:
-    * a. The `version` in `galaxy.yml`
-    * b. This README's `requirements.yml` example
-    * c. The `DOWNSTREAM_VERSION` in `ci/downstream.sh`
-    * d. The `VERSION` in `Makefile`
-    * e. The version in `requirements.yml`
+   * The `version` in `galaxy.yml`
+   * This README's `requirements.yml` example
+   * The `DOWNSTREAM_VERSION` in `ci/downstream.sh`
+   * The `VERSION` in `Makefile`
+   * The version in `requirements.yml`
 2. Update the CHANGELOG:
-    * 1. Make sure you have [`antsibull-changelog`](https://pypi.org/project/antsibull-changelog/) installed.
-    * 2. Make sure there are fragments for all known changes in `changelogs/fragments`.
-    * 3. Run `antsibull-changelog release`.
+   * Make sure you have [`antsibull-changelog`](https://pypi.org/project/antsibull-changelog/) installed.
+   * Make sure there are fragments for all known changes in `changelogs/fragments`.
+   * Run `antsibull-changelog release`.
 3. Commit the changes and create a PR with the changes. Wait for tests to pass, then merge it once they have.
 4. Tag the version in Git and push to GitHub.
 
@@ -196,18 +229,20 @@ After the version is published, verify it exists on the [OKD Collection Galaxy p
 
 ## Support
 
+This collection is maintained by Red Hat.
+
+As Red Hat Ansible Certified Content, this collection is entitled to support through Ansible Automation Platform (AAP) using the **Create issue** button on the top right corner.
+If a support case cannot be opened with Red Hat and the collection has been obtained either from Galaxy or GitHub, there may be community help available on the [Ansible Forum](https://forum.ansible.com/).
+
 <!--List available communication channels. In addition to channels specific to your collection, we also recommend to use the following ones.-->
 
-We announce releases and important changes through Ansible's [The Bullhorn newsletter](https://github.com/ansible/community/wiki/News#the-bullhorn). Be sure you are [subscribed](https://eepurl.com/gZmiEP).
-
-We take part in the global quarterly [Ansible Contributor Summit](https://github.com/ansible/community/wiki/Contributor-Summit) virtually or in-person. Track [The Bullhorn newsletter](https://eepurl.com/gZmiEP) and join us.
+We announce releases and important changes through Ansible's [Bullhorn newsletter](https://forum.ansible.com/c/news/bullhorn/17).
 
 For more information about communication, refer to the [Ansible Communication guide](https://docs.ansible.com/ansible/devel/community/communication.html).
 
 For the latest supported versions, refer to the release notes below.
 
-If you encounter issues or have questions, you can submit a support request through the following channels:
- - GitHub Issues: Report bugs, request features, or ask questions by opening an issue in the [GitHub repository](https://github.com/openshift/community.okd/).
+If you encounter issues or have questions, you can report bugs, request features, or ask questions by opening an issue in the [GitHub repository](https://github.com/openshift/community.okd/).
 
 ## Release notes
 
@@ -227,4 +262,4 @@ If you encounter abusive behavior, please refer to the [policy violations](https
 
 GNU General Public License v3.0 or later
 
-See LICENCE to see the full text.
+See LICENSE to see the full text.
