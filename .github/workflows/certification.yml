@@ -1,0 +1,20 @@
+---
+name: Run collection certification checks
+
+permissions:
+  contents: read
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: cert-ver-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  call:
+    uses: ansible-collections/partner-certification-checker/.github/workflows/certification-reusable.yml@v4.1.0 # zizmor: ignore[unpinned-uses]
+    with:
+      collection-deps: "kubernetes.core"
